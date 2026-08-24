@@ -7,7 +7,7 @@ import { useCharacters } from '../store/character.ts'
 import type { useSheetActions } from '../store/actions.ts'
 import { History } from './History.tsx'
 
-const TABS: Tab[] = ['Actions', 'Spells', 'Features', 'Inventory', 'Notes', 'History']
+const TABS: Tab[] = ['Actions', 'Spells', 'Features', 'Inventory', 'Background', 'Notes', 'History']
 
 type Props = { character: Character; actions: ReturnType<typeof useSheetActions> }
 
@@ -78,20 +78,35 @@ function TabBody({ character: c, actions, tok, tab }: Props & { tok: (s: string)
 
   if (tab === 'History') return <History characterId={c.id} />
 
+  if (tab === 'Background') return <BackgroundTab character={c} />
+
   if (tab === 'Inventory') {
     const carried = carriedWeight(c)
     const cap = carryCapacity(c)
+    const ratio = cap === 0 ? 0 : carried / cap
+    const status = ratio > 1 ? 'Overloaded' : ratio > 2 / 3 ? 'Encumbered' : 'Unencumbered'
+    const { currency } = c
+    const coins: [string, number][] = [['pp', currency.pp], ['gp', currency.gp], ['ep', currency.ep], ['sp', currency.sp], ['cp', currency.cp]]
     return (
       <>
         <div className="card encumbrance">
           <div style={{ display: 'flex', alignItems: 'baseline' }}>
-            <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Carried</span>
+            <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{status}</span>
             <span className="mono" style={{ marginLeft: 'auto', fontSize: 13 }}>{carried} / {cap} lb</span>
           </div>
           <div className="enc-bar">
-            <div style={{ width: `${Math.min(100, (carried / cap) * 100)}%`, height: '100%', background: 'var(--encumbrance)' }} />
+            <div style={{ width: `${Math.min(100, ratio * 100)}%`, height: '100%', background: 'var(--encumbrance)' }} />
           </div>
         </div>
+        {coins.some(([, n]) => n > 0) && (
+          <div className="card side-card" style={{ flexDirection: 'row', gap: 16, marginBottom: 9 }}>
+            {coins.filter(([, n]) => n > 0).map(([label, n]) => (
+              <div key={label} className="mono" style={{ fontSize: 13 }}>
+                {n} <span className="caps muted" style={{ fontSize: 10 }}>{label}</span>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="rows">
           {c.items.map((i) => <ItemRow key={i.id} entry={i} actions={actions} />)}
         </div>
@@ -105,6 +120,66 @@ function TabBody({ character: c, actions, tok, tab }: Props & { tok: (s: string)
     : c.features.map((f) => <FeatureRow key={f.id} entry={f} character={c} actions={actions} tok={tok} />)
 
   return <div className="rows">{list}</div>
+}
+
+function BackgroundTab({ character: c }: { character: Character }) {
+  const chars: [string, string][] = [
+    ['Alignment', c.characteristics.alignment], ['Gender', c.characteristics.gender], ['Eyes', c.characteristics.eyes],
+    ['Size', c.characteristics.size], ['Height', c.characteristics.height], ['Faith', c.characteristics.faith],
+    ['Hair', c.characteristics.hair], ['Skin', c.characteristics.skin], ['Age', c.characteristics.age], ['Weight', c.characteristics.weight],
+  ]
+  const personality: [string, string][] = [
+    ['Personality traits', c.personality.traits], ['Ideals', c.personality.ideals],
+    ['Bonds', c.personality.bonds], ['Flaws', c.personality.flaws],
+  ]
+  const filledChars = chars.filter(([, v]) => v)
+  const filledPersonality = personality.filter(([, v]) => v)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {(c.background.name || c.background.feature) && (
+        <div className="card side-card">
+          <span className="panel-title">{c.background.name || 'Background'}</span>
+          {c.background.feature && <p className="row-desc" style={{ margin: 0 }}>{c.background.feature}</p>}
+        </div>
+      )}
+
+      <div className="card side-card">
+        <span className="panel-title">Characteristics</span>
+        {filledChars.length > 0 ? (
+          <div className="field-grid">
+            {filledChars.map(([label, value]) => (
+              <div key={label}>
+                <div className="caps" style={{ fontSize: 10, color: 'var(--text-muted)' }}>{label}</div>
+                <div style={{ fontSize: 13 }}>{value}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="muted" style={{ fontSize: 12 }}>Nothing set yet — edit via Characters &amp; edit.</p>
+        )}
+      </div>
+
+      {filledPersonality.length > 0 && (
+        <div className="card side-card">
+          <span className="panel-title">Personality</span>
+          {filledPersonality.map(([label, value]) => (
+            <div key={label}>
+              <div className="caps" style={{ fontSize: 10, color: 'var(--text-muted)' }}>{label}</div>
+              <div style={{ fontSize: 13, lineHeight: 1.5 }}>{value}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {c.appearance && (
+        <div className="card side-card">
+          <span className="panel-title">Appearance</span>
+          <p className="row-desc" style={{ margin: 0 }}>{c.appearance}</p>
+        </div>
+      )}
+    </div>
+  )
 }
 
 type RowProps = { character: Character; actions: ReturnType<typeof useSheetActions>; tok: (s: string) => string }

@@ -10,6 +10,22 @@ type Migration = (doc: Record<string, unknown>) => Record<string, unknown>
  */
 const MIGRATIONS: Record<number, Migration> = {
   // 0: (doc) => ({ ...doc, schemaVersion: 1, riders: [] }),
+  1: (doc) => ({
+    ...doc,
+    schemaVersion: 2,
+    heroicInspiration: false,
+    defenses: { resistant: [], immune: [], vulnerable: [] },
+    senses: [],
+    currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
+    background: { name: '', feature: '' },
+    personality: { traits: '', ideals: '', bonds: '', flaws: '' },
+    characteristics: {
+      alignment: '', gender: '', eyes: '', size: '', height: '',
+      faith: '', hair: '', skin: '', age: '', weight: '',
+    },
+    appearance: '',
+    portraitUrl: '',
+  }),
 }
 
 export type MigrationResult =

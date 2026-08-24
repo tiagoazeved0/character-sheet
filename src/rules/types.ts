@@ -97,6 +97,29 @@ export type ItemEntry = {
 /** Damage riders that apply automatically, e.g. Hex while concentrating. */
 export type Rider = { name: string; count: number; size: number; type: string; requiresConcentrationOn?: string }
 
+export type DamageType =
+  | 'acid' | 'bludgeoning' | 'cold' | 'fire' | 'force' | 'lightning' | 'necrotic'
+  | 'piercing' | 'poison' | 'psychic' | 'radiant' | 'slashing' | 'thunder'
+
+export const DAMAGE_TYPES: DamageType[] = [
+  'acid', 'bludgeoning', 'cold', 'fire', 'force', 'lightning', 'necrotic',
+  'piercing', 'poison', 'psychic', 'radiant', 'slashing', 'thunder',
+]
+
+export type Defenses = { resistant: DamageType[]; immune: DamageType[]; vulnerable: DamageType[] }
+
+export type SenseKind = 'darkvision' | 'blindsight' | 'tremorsense' | 'truesight'
+export type Sense = { kind: SenseKind; range: number }
+
+export type Currency = { cp: number; sp: number; ep: number; gp: number; pp: number }
+
+export type Background = { name: string; feature: string }
+export type Personality = { traits: string; ideals: string; bonds: string; flaws: string }
+export type Characteristics = {
+  alignment: string; gender: string; eyes: string; size: string; height: string
+  faith: string; hair: string; skin: string; age: string; weight: string
+}
+
 export type Vitals = {
   hp: number
   temp: number
@@ -132,6 +155,15 @@ export type Character = {
   riders: Rider[]
   customTokens: Record<string, string>
   notes: string
+  heroicInspiration: boolean
+  defenses: Defenses
+  senses: Sense[]
+  currency: Currency
+  background: Background
+  personality: Personality
+  characteristics: Characteristics
+  appearance: string
+  portraitUrl: string
   vitals: Vitals
   /** Pool id -> pips spent. Spell slots use the reserved id 'slots:<level>'. */
   usage: Record<string, number>

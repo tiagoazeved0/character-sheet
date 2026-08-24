@@ -11,6 +11,29 @@ const damage = z.object({
   type: z.string().optional(),
 })
 
+const damageType = z.enum([
+  'acid', 'bludgeoning', 'cold', 'fire', 'force', 'lightning', 'necrotic',
+  'piercing', 'poison', 'psychic', 'radiant', 'slashing', 'thunder',
+])
+const senseKind = z.enum(['darkvision', 'blindsight', 'tremorsense', 'truesight'])
+
+const defensesSchema = z.object({
+  resistant: z.array(damageType),
+  immune: z.array(damageType),
+  vulnerable: z.array(damageType),
+})
+const senseSchema = z.object({ kind: senseKind, range: z.number().int().min(0) })
+const currencySchema = z.object({
+  cp: z.number().int().min(0), sp: z.number().int().min(0), ep: z.number().int().min(0),
+  gp: z.number().int().min(0), pp: z.number().int().min(0),
+})
+const backgroundSchema = z.object({ name: z.string(), feature: z.string() })
+const personalitySchema = z.object({ traits: z.string(), ideals: z.string(), bonds: z.string(), flaws: z.string() })
+const characteristicsSchema = z.object({
+  alignment: z.string(), gender: z.string(), eyes: z.string(), size: z.string(), height: z.string(),
+  faith: z.string(), hair: z.string(), skin: z.string(), age: z.string(), weight: z.string(),
+})
+
 export const resourcePoolSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -75,6 +98,15 @@ export const characterSchema = z.object({
   })),
   customTokens: z.record(z.string(), z.string()),
   notes: z.string(),
+  heroicInspiration: z.boolean(),
+  defenses: defensesSchema,
+  senses: z.array(senseSchema),
+  currency: currencySchema,
+  background: backgroundSchema,
+  personality: personalitySchema,
+  characteristics: characteristicsSchema,
+  appearance: z.string(),
+  portraitUrl: z.string(),
   vitals: z.object({
     hp: z.number().int().min(0),
     temp: z.number().int().min(0),

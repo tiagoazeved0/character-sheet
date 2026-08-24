@@ -300,8 +300,20 @@ type Character = {
   items:    ItemEntry[]
   customTokens: Record<string, string>
   notes: string
+
+  heroicInspiration: boolean
+  defenses: { resistant: DamageType[]; immune: DamageType[]; vulnerable: DamageType[] }
+  senses: { kind: 'darkvision' | 'blindsight' | 'tremorsense' | 'truesight'; range: number }[]
+  currency: { cp: number; sp: number; ep: number; gp: number; pp: number }
+  background: { name: string; feature: string }
+  personality: { traits: string; ideals: string; bonds: string; flaws: string }
+  characteristics: { alignment, gender, eyes, size, height, faith, hair, skin, age, weight: string }
+  appearance: string
+  portraitUrl: string
 }
 ```
+
+`defenses`/`senses`/`currency` are mechanically load-bearing: `mitigateDamage()` in `src/rules/derive.ts` halves/zeroes/doubles typed damage against `defenses` (untyped damage — the common quick-tap case — is never mitigated), and `passivePerception`/`passiveInvestigation`/`passiveInsight` are derived from existing skill bonuses, never stored. `background`/`personality`/`characteristics`/`appearance`/`portraitUrl` are pure flavor with no derived math. None of these have dedicated edit forms yet — they go through the JSON editor's full-document textarea, same as any field without a quick-edit widget.
 
 **Never store derived values.** Spell save DC, spell attack, slot level, skill and save totals are
 selectors computed from base state. The handoff README is emphatic and it is the most important

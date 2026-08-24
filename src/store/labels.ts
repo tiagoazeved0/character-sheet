@@ -16,6 +16,10 @@ const EXACT: Record<string, string> = {
   '/vitals/deathFail': 'Death save failures',
   '/vitals/conditions': 'Conditions',
   '/vitals/concentration': 'Concentration',
+  '/heroicInspiration': 'Heroic inspiration',
+  '/senses': 'Senses',
+  '/appearance': 'Appearance',
+  '/portraitUrl': 'Portrait',
 }
 
 const PREFIX: [string, string][] = [
@@ -30,6 +34,11 @@ const PREFIX: [string, string][] = [
   ['/items', 'Inventory'],
   ['/riders', 'Damage riders'],
   ['/customTokens', 'Custom tokens'],
+  ['/defenses/', 'Defenses: '],
+  ['/currency/', 'Currency: '],
+  ['/background/', 'Background: '],
+  ['/personality/', 'Personality: '],
+  ['/characteristics/', 'Characteristics: '],
 ]
 
 export function labelForPath(path: string): string {

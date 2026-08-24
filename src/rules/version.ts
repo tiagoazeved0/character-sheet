@@ -3,4 +3,4 @@
  * cannot satisfy. Kept free of dependencies so that reading the version never
  * drags the validator in with it.
  */
-export const CURRENT_SCHEMA_VERSION = 1
+export const CURRENT_SCHEMA_VERSION = 2

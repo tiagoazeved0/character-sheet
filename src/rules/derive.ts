@@ -1,4 +1,4 @@
-import type { Ability, Character } from './types.ts'
+import type { Ability, Character, DamageType } from './types.ts'
 import { SKILLS } from './skills.ts'
 
 /**
@@ -60,3 +60,18 @@ export const carriedWeight = (c: Character) =>
   c.items.reduce((sum, i) => sum + i.weight * i.qty, 0)
 
 export const carryCapacity = (c: Character) => c.scores.str * 15
+
+export const passiveScore = (c: Character, skillId: string) => 10 + skillMod(c, skillId)
+export const passivePerception = (c: Character) => passiveScore(c, 'perception')
+export const passiveInvestigation = (c: Character) => passiveScore(c, 'investigation')
+export const passiveInsight = (c: Character) => passiveScore(c, 'insight')
+
+/** Halves resistant damage, zeroes immune damage, doubles vulnerable damage. Untyped damage is never mitigated. */
+export function mitigateDamage(c: Character, amount: number, type: DamageType | null): number {
+  if (!type) return amount
+  if (c.defenses.immune.includes(type)) return 0
+  let n = amount
+  if (c.defenses.resistant.includes(type)) n = Math.floor(n / 2)
+  if (c.defenses.vulnerable.includes(type)) n *= 2
+  return n
+}

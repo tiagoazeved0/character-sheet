@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { AdvMode, Lane, LogEntry, LogKind } from '../rules/types.ts'
 import { LOG_CAP } from '../rules/dice.ts'
 
-export type Tab = 'Actions' | 'Spells' | 'Features' | 'Inventory' | 'Notes' | 'History'
+export type Tab = 'Actions' | 'Spells' | 'Features' | 'Inventory' | 'Background' | 'Notes' | 'History'
 export type Layout = 'columns' | 'tablet' | 'stacked'
 
 /**

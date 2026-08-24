@@ -1,8 +1,8 @@
 import { rollD20, rollDamage, type DamageRider } from '../rules/dice.ts'
 import { applyDamage, applyDeathSave, concentrationDC, grantTemp, heal } from '../rules/vitals.ts'
 import { longRest, shortRest } from '../rules/rest.ts'
-import { abilityMod, fmt, saveMod, skillMod } from '../rules/derive.ts'
-import { ABILITY_NAMES, type Ability, type Character, type DamageSpec } from '../rules/types.ts'
+import { abilityMod, fmt, mitigateDamage, saveMod, skillMod } from '../rules/derive.ts'
+import { ABILITY_NAMES, type Ability, type Character, type DamageSpec, type DamageType } from '../rules/types.ts'
 import { conditionById } from '../data/conditions.ts'
 import { useCharacters } from './character.ts'
 import { useSession } from './session.ts'
@@ -47,15 +47,17 @@ export function useSheetActions(character: Character | null) {
     rollAttack: (label: string, mod: number) => d20(`${label} (${fmt(mod)})`, mod, 'attack'),
     rollDamageSpec: damage,
 
-    takeDamage(amount: number) {
+    /** `type` mitigates against the character's stored resistances/immunities/vulnerabilities; omit for untyped damage. */
+    takeDamage(amount: number, type: DamageType | null = null) {
       if (!character) return
+      const mitigated = mitigateDamage(character, amount, type)
       const conc = character.vitals.concentration
       apply({
-        label: `Damage ${amount}`,
+        label: type ? `Damage ${mitigated} ${type}` : `Damage ${mitigated}`,
         channel: 'play',
-        mutate: (c) => ({ ...c, vitals: applyDamage(c.vitals, amount) }),
+        mutate: (c) => ({ ...c, vitals: applyDamage(c.vitals, mitigated) }),
       })
-      if (conc) promptConcentration(concentrationDC(amount))
+      if (conc) promptConcentration(concentrationDC(mitigated))
     },
 
     healBy(amount: number) {
@@ -88,6 +90,10 @@ export function useSheetActions(character: Character | null) {
 
     setConcentration(spell: string | null) {
       apply({ label: 'Concentration', channel: 'play', mutate: (c) => ({ ...c, vitals: { ...c.vitals, concentration: spell } }) })
+    },
+
+    toggleInspiration() {
+      apply({ label: 'Heroic inspiration', channel: 'play', mutate: (c) => ({ ...c, heroicInspiration: !c.heroicInspiration }) })
     },
 
     /** Tap pip i to spend up to i+1; tap the last filled pip to refund one. */

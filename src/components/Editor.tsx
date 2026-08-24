@@ -74,6 +74,18 @@ export function Editor({ character: c, onClose }: { character: Character; onClos
             <NumField label="Speed" value={c.speed} onChange={(v) => quick('speed', (d) => ({ ...d, speed: v }))} />
           </section>
 
+          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 10 }}>
+            <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)', gridColumn: '1 / -1' }}>Currency</span>
+            {(['pp', 'gp', 'ep', 'sp', 'cp'] as const).map((coin) => (
+              <NumField
+                key={coin}
+                label={coin.toUpperCase()}
+                value={c.currency[coin]}
+                onChange={(v) => quick(`currency (${coin})`, (d) => ({ ...d, currency: { ...d.currency, [coin]: v } }))}
+              />
+            ))}
+          </section>
+
           <section style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Full document</span>
             <textarea

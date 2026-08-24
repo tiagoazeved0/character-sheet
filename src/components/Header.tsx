@@ -48,6 +48,14 @@ export function Header({ character: c, actions, layout, onOpenEditor }: Props) {
             </div>
           </div>
 
+          <button
+            className={`hbtn inspiration ${c.heroicInspiration ? 'active' : ''}`}
+            style={{ alignSelf: 'center' }}
+            onClick={actions.toggleInspiration}
+            title="Heroic inspiration"
+          >
+            Inspiration
+          </button>
           <div className="tile"><div className="tile-value">{c.ac}</div><div className="tile-caption">Armor</div></div>
           <button className="tile" onClick={() => actions.rollInitiative()}>
             <div className="tile-value">{fmt(abilityMod(c, 'dex'))}</div>
