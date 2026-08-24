@@ -1,0 +1,76 @@
+/*
+ * The handoff writes every colour as a literal oklch() so that its source is the
+ * spec. Here they become variables once, and nothing downstream hardcodes a colour.
+ */
+:root {
+  --page:            oklch(0.955 0.008 85);
+  --surface:         #ffffff;
+  --surface-inset:   oklch(0.975 0.005 85);
+  --surface-inset-2: oklch(0.965 0.008 85);
+  --border:          oklch(0.88 0.01 80);
+  --border-strong:   oklch(0.82 0.015 80);
+  --divider:         oklch(0.955 0.006 80);
+  --divider-2:       oklch(0.92 0.008 80);
+  --track:           oklch(0.9 0.008 80);
+
+  --text:            oklch(0.24 0.012 60);
+  --text-body:       oklch(0.38 0.012 60);
+  --text-secondary:  oklch(0.5 0.015 60);
+  --text-muted:      oklch(0.6 0.015 60);
+
+  --dark:            oklch(0.22 0.014 60);
+  --dark-raised:     oklch(0.27 0.016 60);
+  --dark-raised-2:   oklch(0.28 0.016 60);
+  --dark-deep:       oklch(0.18 0.012 60);
+  --dark-border:     oklch(0.36 0.02 60);
+  --on-dark:         oklch(0.94 0.008 85);
+  --on-dark-muted:   oklch(0.72 0.02 80);
+
+  --accent:          oklch(0.52 0.13 25);
+  --accent-hover:    oklch(0.42 0.13 25);
+  --accent-light:    oklch(0.97 0.02 30);
+  --accent-mid:      oklch(0.72 0.09 25);
+
+  --arcane:          oklch(0.5 0.11 250);
+  --arcane-light:    oklch(0.94 0.04 250);
+  --arcane-text:     oklch(0.38 0.1 250);
+
+  --violet:          oklch(0.48 0.12 300);
+  --violet-light:    oklch(0.92 0.05 300);
+
+  --green:           oklch(0.42 0.11 145);
+  --green-fill:      oklch(0.68 0.14 145);
+  --green-light:     oklch(0.96 0.02 145);
+  --green-bright:    oklch(0.86 0.11 150);
+
+  --danger:          oklch(0.44 0.15 25);
+  --danger-fill:     oklch(0.62 0.16 25);
+  --danger-light:    oklch(0.97 0.02 25);
+  --danger-bright:   oklch(0.82 0.1 25);
+
+  --warning:         oklch(0.5 0.12 45);
+  --inspiration:     oklch(0.75 0.13 85);
+  --encumbrance:     oklch(0.6 0.1 85);
+  --amber-bright:    oklch(0.85 0.09 55);
+
+  --font-display: 'Spectral', Georgia, serif;
+  --font-ui: 'IBM Plex Sans', Helvetica, Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --shadow-tab: 0 1px 3px oklch(0.5 0 0 / 0.14);
+  --shadow-panel: 0 6px 24px oklch(0.5 0 0 / 0.08);
+
+  /* Comfortable target on a mouse. Raised on touch, below. */
+  --tap: 0px;
+}
+
+/*
+ * The prototype is mouse-density throughout: 11px labels, 20px pips, 4px padding.
+ * On a tablet at the table that is a misclick waiting to happen, so touch gets
+ * bigger targets without changing the desktop layout.
+ */
+@media (pointer: coarse) {
+  :root { --tap: 44px; }
+  button, .row-button, .chip { min-height: var(--tap); }
+  .pip { width: 28px !important; height: 28px !important; }
+}

@@ -1,0 +1,58 @@
+import { useEffect, useState } from 'react'
+import { useCharacters, useActiveCharacter } from './store/character.ts'
+import { useSession, type Layout } from './store/session.ts'
+import { useSheetActions } from './store/actions.ts'
+import { Header } from './components/Header.tsx'
+import { Alerts } from './components/Alerts.tsx'
+import { Abilities } from './components/Abilities.tsx'
+import { Skills } from './components/Skills.tsx'
+import { Center } from './components/Center.tsx'
+import { SideRail } from './components/SideRail.tsx'
+import { Editor } from './components/Editor.tsx'
+
+/**
+ * The prototype makes layout a manual toggle with no media queries. Here the
+ * viewport picks a default and the toggle becomes an override, so the tablet
+ * does the right thing without being told.
+ */
+function useAutoLayout(): Layout {
+  const override = useSession((s) => s.layoutOverride)
+  const [auto, setAuto] = useState<Layout>(() => pick(window.innerWidth))
+  useEffect(() => {
+    const onResize = () => setAuto(pick(window.innerWidth))
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+  return override ?? auto
+}
+
+const pick = (w: number): Layout => (w < 900 ? 'stacked' : w < 1300 ? 'tablet' : 'columns')
+
+export default function App() {
+  const load = useCharacters((s) => s.load)
+  const loaded = useCharacters((s) => s.loaded)
+  const character = useActiveCharacter()
+  const actions = useSheetActions(character)
+  const layout = useAutoLayout()
+  const [editorOpen, setEditorOpen] = useState(false)
+
+  useEffect(() => { void load() }, [load])
+
+  if (!loaded || !character) {
+    return <p style={{ padding: 40, fontSize: 14 }} className="muted">Loading…</p>
+  }
+
+  return (
+    <>
+      <Header character={character} actions={actions} layout={layout} onOpenEditor={() => setEditorOpen(true)} />
+      <Alerts character={character} actions={actions} />
+      <main className={`grid ${layout}`}>
+        <div className="area-abil"><Abilities character={character} actions={actions} /></div>
+        <div className="area-center"><Center character={character} actions={actions} /></div>
+        <div className="area-side"><SideRail character={character} actions={actions} /></div>
+        <div className="area-skills"><Skills character={character} actions={actions} /></div>
+      </main>
+      {editorOpen && <Editor character={character} onClose={() => setEditorOpen(false)} />}
+    </>
+  )
+}
