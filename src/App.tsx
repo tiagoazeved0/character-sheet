@@ -11,6 +11,7 @@ import { Center } from './components/Center.tsx'
 import { SideRail } from './components/SideRail.tsx'
 import { Editor } from './components/Editor.tsx'
 import { CreateCharacter } from './components/CreateCharacter.tsx'
+import { LevelUp } from './components/LevelUp.tsx'
 
 /**
  * The prototype makes layout a manual toggle with no media queries. Here the
@@ -39,6 +40,7 @@ export default function App() {
   const layout = useAutoLayout()
   const [editorOpen, setEditorOpen] = useState(false)
   const [guidedOpen, setGuidedOpen] = useState(false)
+  const [levelUpOpen, setLevelUpOpen] = useState(false)
 
   useEffect(() => { void load() }, [load])
   useEffect(() => { void loadPacks() }, [loadPacks])
@@ -49,7 +51,13 @@ export default function App() {
 
   return (
     <>
-      <Header character={character} actions={actions} layout={layout} onOpenEditor={() => setEditorOpen(true)} />
+      <Header
+        character={character}
+        actions={actions}
+        layout={layout}
+        onOpenEditor={() => setEditorOpen(true)}
+        onOpenLevelUp={() => setLevelUpOpen(true)}
+      />
       <Alerts character={character} actions={actions} />
       <main className={`grid ${layout}`}>
         <div className="area-abil"><Abilities character={character} actions={actions} /></div>
@@ -65,6 +73,7 @@ export default function App() {
         />
       )}
       {guidedOpen && <CreateCharacter onClose={() => setGuidedOpen(false)} />}
+      {levelUpOpen && <LevelUp character={character} onClose={() => setLevelUpOpen(false)} />}
     </>
   )
 }

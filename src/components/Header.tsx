@@ -9,9 +9,10 @@ type Props = {
   actions: ReturnType<typeof useSheetActions>
   layout: Layout
   onOpenEditor: () => void
+  onOpenLevelUp: () => void
 }
 
-export function Header({ character: c, actions, layout, onOpenEditor }: Props) {
+export function Header({ character: c, actions, layout, onOpenEditor, onOpenLevelUp }: Props) {
   const setLayout = useSession((s) => s.setLayout)
   const combat = useSession((s) => s.combat)
   const toggleCombat = useSession((s) => s.toggleCombat)
@@ -78,6 +79,7 @@ export function Header({ character: c, actions, layout, onOpenEditor }: Props) {
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
             <button className="hbtn" onClick={onOpenEditor}>Characters &amp; edit</button>
+            {c.classes.length > 0 && <button className="hbtn" onClick={onOpenLevelUp}>Level up</button>}
             <div className="segmented">
               {(['columns', 'tablet', 'stacked'] as Layout[]).map((l) => (
                 <button key={l} className={layout === l ? 'on' : ''} onClick={() => setLayout(l)}>
