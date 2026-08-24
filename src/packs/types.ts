@@ -35,6 +35,7 @@ export type ClassLevel = {
 export type SubclassDef = {
   id: string
   name: string
+  desc?: string
   levels: { level: number; features: string[] }[]
 }
 
