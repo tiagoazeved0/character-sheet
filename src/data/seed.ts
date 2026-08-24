@@ -96,6 +96,7 @@ export function seedCharacter(): Character {
       alignment: 'Chaotic Neutral', gender: 'Female', eyes: 'Black, faintly glowing', size: 'Medium', height: '5\'6"',
       faith: 'The Fiend', hair: 'Auburn', skin: 'Pale', age: '29', weight: '138 lb',
     },
+    proficiencies: { armor: ['Light armor'], weapons: ['Simple weapons', 'Hand crossbows', 'Rapiers', 'Shortswords'], tools: [], languages: ['Common', 'Infernal', 'Undercommon'] },
     appearance: 'A soot-dark tattoo of a broken chain runs from her left wrist to her elbow, brighter when the pact stirs.',
     portraitUrl: '',
     vitals: { hp: 62, temp: 0, deathSuccess: 0, deathFail: 0, conditions: [], concentration: null },

@@ -39,6 +39,7 @@ const PREFIX: [string, string][] = [
   ['/background/', 'Background: '],
   ['/personality/', 'Personality: '],
   ['/characteristics/', 'Characteristics: '],
+  ['/proficiencies/', 'Proficiencies: '],
 ]
 
 export function labelForPath(path: string): string {

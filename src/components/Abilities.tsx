@@ -25,7 +25,28 @@ export function Abilities({ character: c, actions }: { character: Character; act
         })}
       </div>
       <SensesPanel character={c} />
+      <ProficienciesPanel character={c} />
     </>
+  )
+}
+
+function ProficienciesPanel({ character: c }: { character: Character }) {
+  const all: [string, string[]][] = [
+    ['Armor', c.proficiencies.armor], ['Weapons', c.proficiencies.weapons],
+    ['Tools', c.proficiencies.tools], ['Languages', c.proficiencies.languages],
+  ]
+  const groups = all.filter(([, v]) => v.length > 0)
+  if (groups.length === 0) return null
+  return (
+    <div className="card side-card">
+      <span className="panel-title">Proficiencies &amp; training</span>
+      {groups.map(([label, values]) => (
+        <div key={label}>
+          <div className="caps" style={{ fontSize: 10, color: 'var(--text-muted)' }}>{label}</div>
+          <div style={{ fontSize: 13 }}>{values.join(', ')}</div>
+        </div>
+      ))}
+    </div>
   )
 }
 

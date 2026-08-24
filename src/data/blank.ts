@@ -45,6 +45,7 @@ export function blankCharacter(name = 'New character'): Character {
       alignment: '', gender: '', eyes: '', size: '', height: '',
       faith: '', hair: '', skin: '', age: '', weight: '',
     },
+    proficiencies: { armor: [], weapons: [], tools: [], languages: [] },
     appearance: '',
     portraitUrl: '',
     vitals: { hp: 8, temp: 0, deathSuccess: 0, deathFail: 0, conditions: [], concentration: null },

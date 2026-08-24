@@ -120,6 +120,9 @@ export type Characteristics = {
   faith: string; hair: string; skin: string; age: string; weight: string
 }
 
+/** Reference-only: categories trained in, not individual skills. Never affects the maths. */
+export type Proficiencies = { armor: string[]; weapons: string[]; tools: string[]; languages: string[] }
+
 export type Vitals = {
   hp: number
   temp: number
@@ -162,6 +165,7 @@ export type Character = {
   background: Background
   personality: Personality
   characteristics: Characteristics
+  proficiencies: Proficiencies
   appearance: string
   portraitUrl: string
   vitals: Vitals

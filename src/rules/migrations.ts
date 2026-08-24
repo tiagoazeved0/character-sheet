@@ -26,6 +26,11 @@ const MIGRATIONS: Record<number, Migration> = {
     appearance: '',
     portraitUrl: '',
   }),
+  2: (doc) => ({
+    ...doc,
+    schemaVersion: 3,
+    proficiencies: { armor: [], weapons: [], tools: [], languages: [] },
+  }),
 }
 
 export type MigrationResult =

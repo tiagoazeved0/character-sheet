@@ -33,6 +33,9 @@ const characteristicsSchema = z.object({
   alignment: z.string(), gender: z.string(), eyes: z.string(), size: z.string(), height: z.string(),
   faith: z.string(), hair: z.string(), skin: z.string(), age: z.string(), weight: z.string(),
 })
+const proficienciesSchema = z.object({
+  armor: z.array(z.string()), weapons: z.array(z.string()), tools: z.array(z.string()), languages: z.array(z.string()),
+})
 
 export const resourcePoolSchema = z.object({
   id: z.string().min(1),
@@ -105,6 +108,7 @@ export const characterSchema = z.object({
   background: backgroundSchema,
   personality: personalitySchema,
   characteristics: characteristicsSchema,
+  proficiencies: proficienciesSchema,
   appearance: z.string(),
   portraitUrl: z.string(),
   vitals: z.object({
