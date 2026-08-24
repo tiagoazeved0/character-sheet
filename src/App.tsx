@@ -10,6 +10,7 @@ import { Skills } from './components/Skills.tsx'
 import { Center } from './components/Center.tsx'
 import { SideRail } from './components/SideRail.tsx'
 import { Editor } from './components/Editor.tsx'
+import { CreateCharacter } from './components/CreateCharacter.tsx'
 
 /**
  * The prototype makes layout a manual toggle with no media queries. Here the
@@ -37,6 +38,7 @@ export default function App() {
   const actions = useSheetActions(character)
   const layout = useAutoLayout()
   const [editorOpen, setEditorOpen] = useState(false)
+  const [guidedOpen, setGuidedOpen] = useState(false)
 
   useEffect(() => { void load() }, [load])
   useEffect(() => { void loadPacks() }, [loadPacks])
@@ -55,7 +57,14 @@ export default function App() {
         <div className="area-side"><SideRail character={character} actions={actions} /></div>
         <div className="area-skills"><Skills character={character} actions={actions} /></div>
       </main>
-      {editorOpen && <Editor character={character} onClose={() => setEditorOpen(false)} />}
+      {editorOpen && (
+        <Editor
+          character={character}
+          onClose={() => setEditorOpen(false)}
+          onOpenGuided={() => { setEditorOpen(false); setGuidedOpen(true) }}
+        />
+      )}
+      {guidedOpen && <CreateCharacter onClose={() => setGuidedOpen(false)} />}
     </>
   )
 }

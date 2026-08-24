@@ -15,6 +15,7 @@ export const conditionPackDefSchema = z.object({ id: z.string().min(1), name: z.
 
 const choiceDefSchema = z.object({
   id: z.string().min(1), label: z.string(), prerequisite: z.string().optional(),
+  kind: z.enum(['subclass', 'skill', 'feat']).optional(),
   options: z.array(z.object({ id: z.string().min(1), label: z.string(), requires: z.string().optional() })),
 })
 
@@ -23,10 +24,12 @@ export const backgroundDefSchema = z.object({
   skillProficiencies: z.array(z.string()).optional(),
   toolProficiencies: z.array(z.string()).optional(),
   languages: z.array(z.string()).optional(),
+  features: z.array(z.string()).optional(),
   choices: z.array(choiceDefSchema).optional(),
 })
 export const raceDefSchema = z.object({
   id: z.string().min(1), name: z.string().min(1), desc: z.string(),
+  features: z.array(z.string()).optional(),
   choices: z.array(choiceDefSchema).optional(),
 })
 

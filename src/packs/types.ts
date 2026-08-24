@@ -18,6 +18,14 @@ export type ChoiceDef = {
   id: string
   label: string
   prerequisite?: string
+  /**
+   * Tells the creation wizard/level-up how to apply the selected option:
+   * 'subclass' -> becomes the character's subclassId; 'skill' -> the option
+   * id is a skill id, marked proficient; 'feat' -> the option id is resolved
+   * from the same pack's `content.feats` into a feature row. Absent means
+   * informational only (no automatic application).
+   */
+  kind?: 'subclass' | 'skill' | 'feat'
   options: { id: string; label: string; requires?: string }[]
 }
 
@@ -29,6 +37,8 @@ export type BackgroundDef = {
   skillProficiencies?: string[]
   toolProficiencies?: string[]
   languages?: string[]
+  /** Always-granted feature ids, resolved within the same pack's `content.features`. */
+  features?: string[]
   choices?: ChoiceDef[]
 }
 
@@ -36,7 +46,9 @@ export type RaceDef = {
   id: string
   name: string
   desc: string
-  /** e.g. Human's "choose 1 skill" (Skillful) / "choose 1 origin feat" (Versatile). */
+  /** Always-granted feature ids (e.g. Human's Creature Type, Resourceful), resolved within the same pack's `content.features`. */
+  features?: string[]
+  /** Choice-driven traits, e.g. Human's "choose 1 skill" (Skillful) / "choose 1 origin feat" (Versatile). */
   choices?: ChoiceDef[]
 }
 

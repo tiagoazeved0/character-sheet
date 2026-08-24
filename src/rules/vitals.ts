@@ -44,3 +44,15 @@ export const isStable = (v: Vitals) => v.deathSuccess >= 3
 export const isDead = (v: Vitals) => v.deathFail >= 3
 
 export const hpFraction = (c: Character) => (c.maxHp === 0 ? 0 : c.vitals.hp / c.maxHp)
+
+/**
+ * Guided-creation default: max hit die at level 1, then the average roll
+ * (rounded up, the standard non-rolled convention) per level after that.
+ * A starting point, not a source of truth -- maxHp stays a manually
+ * editable field for characters whose real roll history differs.
+ */
+export function startingHp(hitDie: number, level: number, conMod: number): number {
+  const first = hitDie + conMod
+  const perLevel = Math.floor(hitDie / 2) + 1 + conMod
+  return first + perLevel * (level - 1)
+}

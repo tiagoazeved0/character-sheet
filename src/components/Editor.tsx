@@ -6,10 +6,16 @@ import type { Character } from '../rules/types.ts'
 
 /**
  * Tier 1 of the editor: raw JSON with schema validation, plus the handful of
- * fields that change often. Guided creation is deferred; blank-slate and
- * duplicate cover a personal tool.
+ * fields that change often. Blank-slate, duplicate, and guided (pack-driven)
+ * creation are the three routes; all three stay available side by side.
  */
-export function Editor({ character: c, onClose }: { character: Character; onClose: () => void }) {
+export function Editor({
+  character: c, onClose, onOpenGuided,
+}: {
+  character: Character
+  onClose: () => void
+  onOpenGuided: () => void
+}) {
   const { characters, setActive, createBlank, duplicateActive, removeCharacter, replaceActive, apply } = useCharacters()
   const { packs, install: installPack, remove: removePack } = usePacks()
   const [draft, setDraft] = useState(() => JSON.stringify(c, null, 2))
@@ -56,6 +62,7 @@ export function Editor({ character: c, onClose }: { character: Character; onClos
             </select>
             <button className="btn ghost" onClick={() => createBlank(prompt('Name?', 'New character') ?? 'New character')}>New</button>
             <button className="btn ghost" onClick={() => duplicateActive(prompt('Name?', `${c.name} (copy)`) ?? `${c.name} (copy)`)}>Duplicate</button>
+            <button className="btn ghost" onClick={onOpenGuided}>Guided</button>
             <button className="btn ghost" onClick={() => exportJson(c)}>Export</button>
             <label className="btn ghost" style={{ display: 'inline-flex', alignItems: 'center' }}>
               Import
@@ -154,7 +161,7 @@ export function Editor({ character: c, onClose }: { character: Character; onClos
   )
 }
 
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+export function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11 }}>
       <span className="caps" style={{ color: 'var(--text-secondary)' }}>{label}</span>
@@ -163,7 +170,7 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
   )
 }
 
-function NumField({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
+export function NumField({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
     <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11 }}>
       <span className="caps" style={{ color: 'var(--text-secondary)' }}>{label}</span>

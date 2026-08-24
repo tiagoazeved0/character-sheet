@@ -19,6 +19,7 @@ type Store = {
   revertBatch: (batchId: string) => void
   setActive: (id: string) => void
   createBlank: (name: string) => void
+  createFromWizard: (character: Character) => void
   duplicateActive: (name: string) => void
   removeCharacter: (id: string) => void
   replaceActive: (raw: unknown) => { ok: true } | { ok: false; error: string }
@@ -90,6 +91,13 @@ export const useCharacters = create<Store>((set, get) => ({
 
   createBlank(name) {
     const character = blankCharacter(name)
+    set((s) => ({ characters: [...s.characters, character] }))
+    void dbPut('characters', character, character.id)
+    get().setActive(character.id)
+  },
+
+  /** From the guided-creation wizard: the character is already fully assembled, just needs to land in the store like any other. */
+  createFromWizard(character) {
     set((s) => ({ characters: [...s.characters, character] }))
     void dbPut('characters', character, character.id)
     get().setActive(character.id)
