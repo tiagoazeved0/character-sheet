@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react'
+import { useEffect, useState, type ChangeEvent } from 'react'
 import { useCharacters } from '../store/character.ts'
 import { suggestedProficiency } from '../data/blank.ts'
 import type { Character } from '../rules/types.ts'
@@ -13,6 +13,13 @@ export function Editor({ character: c, onClose }: { character: Character; onClos
   const [draft, setDraft] = useState(() => JSON.stringify(c, null, 2))
   const [error, setError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
+
+  // Quick fields and Import both write straight to the store and bypass this
+  // textarea's own onChange, so without this the draft goes stale the moment
+  // either happens -- saving it back then silently discards what just landed.
+  useEffect(() => {
+    if (!dirty) setDraft(JSON.stringify(c, null, 2))
+  }, [c, dirty])
 
   const save = () => {
     let parsed: unknown
