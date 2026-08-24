@@ -105,11 +105,6 @@ PWA shell; GitHub Actions deploy and a Supabase keepalive workflow stub.
 
 **Known gaps and risks:**
 
-- **The React components have never been compiled or rendered.** They were written in an
-  environment without `node_modules`. Expect type errors on the first `npm run build`. Fix them
-  rather than loosening `tsconfig.json`.
-- **`base` in `vite.config.ts` must be set to `'/<repo-name>/'`** before the first Pages deploy or
-  every asset 404s.
 - Bundled condition and spell text is paraphrased placeholder, not SRD text yet.
 - There is no sync. `src/store/db.ts` is the only persistence; laptop and tablet do not share state
   until phase 4.
