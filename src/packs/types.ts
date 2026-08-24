@@ -26,9 +26,16 @@ export type ChoiceDef = {
 export type ClassLevel = {
   level: number
   proficiencyBonus: number
-  /** Feature ids, resolved within the same pack's `content.features`. */
+  /** Feature ids, resolved within the same pack's `content.features`. Base-class features only -- subclass features live on SubclassDef. */
   features: string[]
   choices?: ChoiceDef[]
+}
+
+/** A subclass's own feature grants, layered on top of the base class at the same character level. */
+export type SubclassDef = {
+  id: string
+  name: string
+  levels: { level: number; features: string[] }[]
 }
 
 export type ClassDef = {
@@ -41,6 +48,7 @@ export type ClassDef = {
     | { kind: 'pact'; table: { level: number; slots: number; castLevel: number }[] }
     | { kind: 'slots'; table: number[][] } // [charLevel][spellLevel]
   levels: ClassLevel[]
+  subclasses?: SubclassDef[]
 }
 
 export type RulesPack = {

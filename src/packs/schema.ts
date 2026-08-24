@@ -38,6 +38,10 @@ export const classDefSchema = z.object({
     features: z.array(z.string()),
     choices: z.array(choiceDefSchema).optional(),
   })),
+  subclasses: z.array(z.object({
+    id: z.string().min(1), name: z.string().min(1),
+    levels: z.array(z.object({ level: z.number().int().min(1).max(20), features: z.array(z.string()) })),
+  })).optional(),
 })
 
 export const rulesPackSchema = z.object({
