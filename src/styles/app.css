@@ -156,6 +156,9 @@ button.tile:hover { border-color: oklch(0.62 0.13 25); }
 .row-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
 .row-desc { font-size: 13px; line-height: 1.5; color: var(--text-body); text-wrap: pretty; }
 .row-actions { margin-left: auto; display: flex; gap: 6px; }
+.pick-row { width: 100%; text-align: left; border: 1px solid var(--border); background: var(--surface); border-radius: 12px; padding: 13px 15px 14px; display: flex; flex-direction: column; gap: 6px; }
+.pick-row:hover { border-color: var(--border-strong); }
+.pick-row.on { border-color: var(--accent); background: var(--accent-light); }
 .btn { font-size: 12px; font-weight: 600; padding: 7px 11px; border-radius: 8px; border: 1px solid transparent; }
 .btn.primary { background: var(--accent); color: #fff; }
 .btn.primary:hover { background: var(--accent-hover); }
