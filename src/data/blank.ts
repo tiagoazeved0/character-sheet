@@ -33,6 +33,7 @@ export function blankCharacter(name = 'New character'): Character {
     features: [],
     items: [],
     riders: [],
+    packs: [],
     customTokens: {},
     notes: '',
     heroicInspiration: false,

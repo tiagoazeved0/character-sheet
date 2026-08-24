@@ -79,6 +79,7 @@ export function seedCharacter(): Character {
       { id: 'purse', name: 'Coin purse', qty: 1, weight: 3, desc: '148 gp - 12 sp - 40 cp' },
     ],
     riders: [{ name: 'Hex', count: 1, size: 6, type: 'necrotic', requiresConcentrationOn: 'Hex' }],
+    packs: [],
     customTokens: {},
     notes: 'Session 12 - the Sanguine Ledger names a fourth signatory.\n\nOwed: 40gp to Brannock. Owed to me: one favour, House Velen.',
     heroicInspiration: false,

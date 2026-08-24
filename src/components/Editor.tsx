@@ -1,5 +1,6 @@
 import { useEffect, useState, type ChangeEvent } from 'react'
 import { useCharacters } from '../store/character.ts'
+import { usePacks } from '../store/packs.ts'
 import { suggestedProficiency } from '../data/blank.ts'
 import type { Character } from '../rules/types.ts'
 
@@ -10,6 +11,7 @@ import type { Character } from '../rules/types.ts'
  */
 export function Editor({ character: c, onClose }: { character: Character; onClose: () => void }) {
   const { characters, setActive, createBlank, duplicateActive, removeCharacter, replaceActive, apply } = useCharacters()
+  const { packs, install: installPack, remove: removePack } = usePacks()
   const [draft, setDraft] = useState(() => JSON.stringify(c, null, 2))
   const [error, setError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
@@ -91,6 +93,43 @@ export function Editor({ character: c, onClose }: { character: Character; onClos
                 onChange={(v) => quick(`currency (${coin})`, (d) => ({ ...d, currency: { ...d.currency, [coin]: v } }))}
               />
             ))}
+          </section>
+
+          <section style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Rules packs</span>
+              <label className="btn ghost" style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center' }}>
+                Import pack
+                <input type="file" accept="application/json" hidden onChange={(e) => importJson(e, (raw) => {
+                  if (raw === null) { setError('Pack import: invalid JSON'); return }
+                  const result = installPack(raw)
+                  if (result.errors.length === 0) setError(null)
+                  else setError(`Pack import: ${result.errors.length} ${result.ok ? 'entries skipped' : 'error(s)'} -- ${result.errors.join('; ')}`)
+                })} />
+              </label>
+            </div>
+            {packs.length === 0 ? (
+              <p className="muted" style={{ fontSize: 12 }}>No rules packs installed.</p>
+            ) : (
+              <div className="rows">
+                {packs.map((p) => (
+                  <div key={`${p.packId}@${p.version}`} className="card row" style={{ padding: '9px 12px' }}>
+                    <div className="row-top">
+                      <span className="row-title" style={{ fontSize: 14 }}>{p.title}</span>
+                      <span className="tag">{p.version}</span>
+                      <button
+                        className="btn ghost"
+                        style={{ marginLeft: 'auto', color: 'var(--danger)' }}
+                        onClick={() => confirm(`Remove ${p.title}?`) && removePack(p.packId, p.version)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="row-sub">{p.license}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           <section style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

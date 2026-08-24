@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useCharacters, useActiveCharacter } from './store/character.ts'
+import { usePacks } from './store/packs.ts'
 import { useSession, type Layout } from './store/session.ts'
 import { useSheetActions } from './store/actions.ts'
 import { Header } from './components/Header.tsx'
@@ -31,12 +32,14 @@ const pick = (w: number): Layout => (w < 900 ? 'stacked' : w < 1300 ? 'tablet' :
 export default function App() {
   const load = useCharacters((s) => s.load)
   const loaded = useCharacters((s) => s.loaded)
+  const loadPacks = usePacks((s) => s.load)
   const character = useActiveCharacter()
   const actions = useSheetActions(character)
   const layout = useAutoLayout()
   const [editorOpen, setEditorOpen] = useState(false)
 
   useEffect(() => { void load() }, [load])
+  useEffect(() => { void loadPacks() }, [loadPacks])
 
   if (!loaded || !character) {
     return <p style={{ padding: 40, fontSize: 14 }} className="muted">Loading…</p>

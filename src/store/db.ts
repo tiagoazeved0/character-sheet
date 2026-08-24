@@ -3,7 +3,7 @@
  * documents, and the append-only change journal keyed by `${characterId}:${at}`.
  */
 const DB_NAME = 'character-sheet'
-const DB_VERSION = 1
+const DB_VERSION = 2
 
 let dbPromise: Promise<IDBDatabase> | null = null
 
@@ -19,6 +19,7 @@ function open(): Promise<IDBDatabase> {
         store.createIndex('byCharacter', 'characterId')
       }
       if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta')
+      if (!db.objectStoreNames.contains('rules_packs')) db.createObjectStore('rules_packs')
     }
     req.onsuccess = () => resolve(req.result)
     req.onerror = () => reject(req.error)

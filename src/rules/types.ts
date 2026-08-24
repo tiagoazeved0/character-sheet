@@ -123,6 +123,13 @@ export type Characteristics = {
 /** Reference-only: categories trained in, not individual skills. Never affects the maths. */
 export type Proficiencies = { armor: string[]; weapons: string[]; tools: string[]; languages: string[] }
 
+/**
+ * Exact pack versions this character was built against. Metadata only for now --
+ * nothing resolves against it until guided creation/level-up (phase 6) lands.
+ * Kept here rather than imported from src/packs/ so src/rules/ stays dependency-free.
+ */
+export type PackPin = { packId: string; version: string }
+
 export type Vitals = {
   hp: number
   temp: number
@@ -156,6 +163,7 @@ export type Character = {
   features: FeatureEntry[]
   items: ItemEntry[]
   riders: Rider[]
+  packs: PackPin[]
   customTokens: Record<string, string>
   notes: string
   heroicInspiration: boolean

@@ -99,6 +99,7 @@ export const characterSchema = z.object({
     name: z.string(), count: z.number().int(), size: z.number().int(),
     type: z.string(), requiresConcentrationOn: z.string().optional(),
   })),
+  packs: z.array(z.object({ packId: z.string().min(1), version: z.string().min(1) })),
   customTokens: z.record(z.string(), z.string()),
   notes: z.string(),
   heroicInspiration: z.boolean(),

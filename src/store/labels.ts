@@ -18,6 +18,7 @@ const EXACT: Record<string, string> = {
   '/vitals/concentration': 'Concentration',
   '/heroicInspiration': 'Heroic inspiration',
   '/senses': 'Senses',
+  '/packs': 'Rules packs',
   '/appearance': 'Appearance',
   '/portraitUrl': 'Portrait',
 }
