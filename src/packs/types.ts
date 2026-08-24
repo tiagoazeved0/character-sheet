@@ -10,8 +10,6 @@ export type FeatureDef = {
 }
 
 export type FeatDef = { id: string; name: string; desc: string }
-export type BackgroundDef = { id: string; name: string; feature: string }
-export type RaceDef = { id: string; name: string; desc: string }
 export type SpellDef = { id: string; name: string; level: number; sub: string; desc: string }
 export type ItemDef = { id: string; name: string; weight: number; desc: string }
 export type ConditionPackDef = { id: string; name: string; note: string }
@@ -21,6 +19,25 @@ export type ChoiceDef = {
   label: string
   prerequisite?: string
   options: { id: string; label: string; requires?: string }[]
+}
+
+export type BackgroundDef = {
+  id: string
+  name: string
+  feature: string
+  /** Structured grants, filled in as source text becomes available. Absent -> the creation wizard falls back to manual selection. */
+  skillProficiencies?: string[]
+  toolProficiencies?: string[]
+  languages?: string[]
+  choices?: ChoiceDef[]
+}
+
+export type RaceDef = {
+  id: string
+  name: string
+  desc: string
+  /** e.g. Human's "choose 1 skill" (Skillful) / "choose 1 origin feat" (Versatile). */
+  choices?: ChoiceDef[]
 }
 
 export type ClassLevel = {

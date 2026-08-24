@@ -89,7 +89,7 @@ export const characterSchema = z.object({
   })),
   features: z.array(z.object({
     id: z.string(), name: z.string(), tag: z.string(), sub: z.string(),
-    desc: z.string(), pool: z.string().optional(),
+    desc: z.string(), pool: z.string().optional(), ref: z.string().optional(),
   })),
   items: z.array(z.object({
     id: z.string(), name: z.string(), qty: z.number().int().min(0),
@@ -100,6 +100,11 @@ export const characterSchema = z.object({
     type: z.string(), requiresConcentrationOn: z.string().optional(),
   })),
   packs: z.array(z.object({ packId: z.string().min(1), version: z.string().min(1) })),
+  raceRef: z.string().optional(),
+  backgroundRef: z.string().optional(),
+  classes: z.array(z.object({
+    classRef: z.string().min(1), level: z.number().int().min(1).max(20), subclassId: z.string().optional(),
+  })),
   customTokens: z.record(z.string(), z.string()),
   notes: z.string(),
   heroicInspiration: z.boolean(),

@@ -82,6 +82,8 @@ export type FeatureEntry = {
   desc: string
   /** Spends a pip from this resource pool when used. */
   pool?: string
+  /** Fully-qualified pack id this was populated from, e.g. "homebrew-pugilist:features/fisticuffs". The fields above ARE the cached snapshot. */
+  ref?: string
 }
 
 export type ItemEntry = {
@@ -164,6 +166,10 @@ export type Character = {
   items: ItemEntry[]
   riders: Rider[]
   packs: PackPin[]
+  /** Set when built/leveled through the guided-creation wizard; absent for blank-slate/duplicate characters. */
+  raceRef?: string
+  backgroundRef?: string
+  classes: { classRef: string; level: number; subclassId?: string }[]
   customTokens: Record<string, string>
   notes: string
   heroicInspiration: boolean

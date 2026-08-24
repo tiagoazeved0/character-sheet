@@ -7,8 +7,6 @@ export const featureDefSchema = z.object({
   pool: z.object({ max: z.number().int().min(0), recovery: z.enum(['short', 'long', 'none']) }).optional(),
 })
 export const featDefSchema = z.object({ id: z.string().min(1), name: z.string().min(1), desc: z.string() })
-export const backgroundDefSchema = z.object({ id: z.string().min(1), name: z.string().min(1), feature: z.string() })
-export const raceDefSchema = z.object({ id: z.string().min(1), name: z.string().min(1), desc: z.string() })
 export const spellDefSchema = z.object({
   id: z.string().min(1), name: z.string().min(1), level: z.number().int().min(0).max(9), sub: z.string(), desc: z.string(),
 })
@@ -18,6 +16,18 @@ export const conditionPackDefSchema = z.object({ id: z.string().min(1), name: z.
 const choiceDefSchema = z.object({
   id: z.string().min(1), label: z.string(), prerequisite: z.string().optional(),
   options: z.array(z.object({ id: z.string().min(1), label: z.string(), requires: z.string().optional() })),
+})
+
+export const backgroundDefSchema = z.object({
+  id: z.string().min(1), name: z.string().min(1), feature: z.string(),
+  skillProficiencies: z.array(z.string()).optional(),
+  toolProficiencies: z.array(z.string()).optional(),
+  languages: z.array(z.string()).optional(),
+  choices: z.array(choiceDefSchema).optional(),
+})
+export const raceDefSchema = z.object({
+  id: z.string().min(1), name: z.string().min(1), desc: z.string(),
+  choices: z.array(choiceDefSchema).optional(),
 })
 
 export const classDefSchema = z.object({
