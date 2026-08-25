@@ -390,16 +390,16 @@ makes it mandatory. Rules packs cache in IndexedDB, so a pack is available offli
 
 ## 10. Phasing
 
-| Phase | Scope | Usable at the table? |
-|---|---|---|
-| 0 | Repo scaffold, Pages deploy, tokens, self-hosted fonts | no |
-| 1 | `apply()` dispatch layer, `src/rules/` ported and tested, Zod schemas, history journal | no |
-| 2 | Full sheet UI on a fixture character, local persistence, responsive + touch pass | **yes**, one device |
-| 3 | Pack resolver, SRD 5.1 pack, pack import/export UI, character switcher, blank-slate creation | yes |
-| 4 | Supabase auth, sync, conflict prompt, keepalive cron | **yes, both devices** |
-| 5 | History tab with per-field revert | yes |
-| 6 | Class tables in packs → guided creation and level-up, sharing one choice-rendering layer | yes |
-| 7 | Combat mode, lanes driven by tagged actions | yes |
+| Phase | Scope | Usable at the table? | Status |
+|---|---|---|---|
+| 0 | Repo scaffold, Pages deploy, tokens, self-hosted fonts | no | done |
+| 1 | `apply()` dispatch layer, `src/rules/` ported and tested, Zod schemas, history journal | no | done |
+| 2 | Full sheet UI on a fixture character, local persistence, responsive + touch pass | **yes**, one device | done |
+| 3 | Pack resolver, packs, pack import/export UI, character switcher, blank-slate creation | yes | done -- `src/packs/`, resolver, validator, level engine, two real packs (`homebrew-pugilist`, `phb-2024`, kept out of git per Hard Rule 5) |
+| 4 | Supabase auth, sync, conflict prompt, keepalive cron | **yes, both devices** | not started |
+| 5 | History tab with per-field revert | yes | partial -- channel filter only, no field filter/jump-to-date/visual batch collapse yet |
+| 6 | Class tables in packs → guided creation and level-up, sharing one choice-rendering layer | yes | done -- `CreateCharacter.tsx` + `LevelUp.tsx` share `ChoicePicker.tsx` and `src/packs/levelup.ts`; known gaps: AC/HP defaults, resource-pool auto-wiring (see `CLAUDE.md`) |
+| 7 | Combat mode, lanes driven by tagged actions | yes | not started (toggle only, no UI) |
 
 Phase 2 is the first genuinely useful build. Phase 4 is the one that makes laptop-and-tablet work.
 Phases 5–7 are separable and can slip without hurting anything.
