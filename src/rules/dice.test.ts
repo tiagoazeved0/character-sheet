@@ -103,15 +103,27 @@ describe('rollD20', () => {
 
 describe('rollDamage', () => {
   it('lists every individual die', () => {
-    const r = rollDamage(3, 6, 0, [], seq(4, 2, 6))
+    const r = rollDamage(3, 6, 0, [], false, seq(4, 2, 6))
     expect(r.rolls).toEqual([4, 2, 6])
     expect(r.total).toBe(12)
     expect(r.detail).toContain('4 + 2 + 6')
   })
 
   it('folds in riders automatically', () => {
-    const r = rollDamage(1, 10, 5, [{ name: 'Hex', count: 1, size: 6, type: 'necrotic' }], seq(7, 3))
+    const r = rollDamage(1, 10, 5, [{ name: 'Hex', count: 1, size: 6, type: 'necrotic' }], false, seq(7, 3))
     expect(r.total).toBe(15)
     expect(r.detail).toContain('Hex')
+  })
+
+  it('doubles the dice on a Critical Hit but adds the flat modifier only once', () => {
+    const r = rollDamage(1, 4, 3, [], true, seq(2, 4))
+    expect(r.rolls).toEqual([2, 4])
+    expect(r.total).toBe(9) // 2 + 4 + 3, not doubled twice
+    expect(r.detail).toContain('2d4 (crit)')
+  })
+
+  it('doubles rider dice too, per RAW (e.g. Sneak Attack)', () => {
+    const r = rollDamage(1, 8, 0, [{ name: 'Sneak Attack', count: 2, size: 6, type: 'piercing' }], true, seq(5))
+    expect(r.total).toBe(30) // base 1d8 -> 2d8 (5+5=10), rider 2d6 -> 4d6 (5*4=20)
   })
 })

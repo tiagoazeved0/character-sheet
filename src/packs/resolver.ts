@@ -5,7 +5,7 @@ export type PackPin = { packId: string; version: string }
 /** One resolved content entry, tagged with which pack it actually came from. */
 export type ResolvedEntry = { fqid: string; packId: string; version: string; category: string; entry: unknown }
 
-const CATEGORIES = ['spells', 'conditions', 'classes', 'races', 'backgrounds', 'feats', 'items', 'features'] as const
+const CATEGORIES = ['spells', 'conditions', 'classes', 'races', 'backgrounds', 'feats', 'items', 'features', 'monsters'] as const
 
 /**
  * Flattens installed packs into one id -> entry index, keyed by fully-qualified

@@ -172,7 +172,8 @@ type Change = {
   updates. Rare, permanent, kept forever. This is the channel that answers "what was my max HP
   before I broke it."
 - **`play`** — session churn: HP up and down, resource pips, conditions, concentration, rests.
-  High volume. Kept for the current session plus the previous two, then pruned.
+  High volume. Kept per session, bounded by storage rather than a fixed session count (see §12.3):
+  when it grows too large, force a local export before pruning the oldest sessions.
 
 Without this split the log is ninety-five percent HP ticks and useless for the thing you actually
 want it for.
@@ -427,16 +428,21 @@ tactics.
 
 ---
 
-## 12. Open questions
+## 12. Decisions (formerly open questions)
 
-1. **Which editions do you actually need side by side?** The layering model already handles 2014
-   and 2024 simultaneously, but if you only ever run one at a time the resolver can stay much
-   simpler in v1.
-2. **Do packs need to be shareable** with other players, or strictly your own? Sharing means a
-   second RLS policy and a public-read flag, and is far easier to design in than to add.
-3. **How far back should `play` history go?** Current session plus two is a guess. If you want to
-   reconstruct a whole fight after the fact, that number goes up.
-4. **Guided creation, or blank slate for the foreseeable future?** Phase 6 is comfortably the
-   largest single chunk of work here, and blank-slate plus duplicate may simply be enough.
-5. **Does anyone else need read access** to a character — a DM, say? Affects the RLS policy and the
-   sync model, and is cheaper to decide now.
+1. **Edition:** one at a time for now. The layering model already handles 2014 and 2024
+   simultaneously, so nothing needs ripping out — but simplifying the resolver for the
+   single-edition case isn't a priority either. Toggling between editions is a nice-to-have,
+   revisit later.
+2. **Sharing:** packs stay strictly personal — no sharing with other players, no public-read RLS
+   policy needed for phase 4. Someday idea, not scoped: an integration to pull rules content
+   directly from officially owned digital books (e.g. a D&D Beyond library) instead of hand
+   transcribing PDFs into a pack. Not planned work yet, just worth remembering the itch exists.
+3. **`play` history retention:** keep it per session rather than "current plus two," bounded by
+   storage rather than a fixed count. When it grows too large, prune with a forced local export
+   first (never silently discard) — the export is the safety valve, not a nice-to-have. Exact size
+   threshold TBD when phase 5 is built.
+4. **Guided creation:** worth it, now that real class/spell/item data exists in `phb-2024` to drive
+   it. Next concrete step is testing the `CreateCharacter.tsx` flow end-to-end against that pack.
+5. **DM read access:** no. Personal-use tool, single owner. Phase 4's RLS design (`owner =
+   auth.uid()` on every table) already matches this — nothing to change there.

@@ -42,6 +42,12 @@ export default function App() {
   const [guidedOpen, setGuidedOpen] = useState(false)
   const [levelUpOpen, setLevelUpOpen] = useState(false)
 
+  // Cover and a pending crit describe the character you were just playing, not the next one.
+  useEffect(() => {
+    useSession.getState().setCover('none')
+    useSession.getState().setPendingCrit(false)
+  }, [character?.id])
+
   useEffect(() => { void load() }, [load])
   useEffect(() => { void loadPacks() }, [loadPacks])
 

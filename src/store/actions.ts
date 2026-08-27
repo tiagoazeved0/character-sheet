@@ -1,7 +1,7 @@
 import { rollD20, rollDamage, type DamageRider } from '../rules/dice.ts'
 import { applyDamage, applyDeathSave, concentrationDC, grantTemp, heal } from '../rules/vitals.ts'
 import { longRest, shortRest } from '../rules/rest.ts'
-import { abilityMod, fmt, mitigateDamage, saveMod, skillMod } from '../rules/derive.ts'
+import { abilityMod, coverBonus, fmt, mitigateDamage, saveMod, skillMod } from '../rules/derive.ts'
 import { ABILITY_NAMES, type Ability, type Character, type DamageSpec, type DamageType } from '../rules/types.ts'
 import { conditionById } from '../data/conditions.ts'
 import { useCharacters } from './character.ts'
@@ -23,39 +23,50 @@ export function useSheetActions(character: Character | null) {
   const apply = useCharacters((s) => s.apply)
   const push = useSession((s) => s.push)
   const adv = useSession((s) => s.adv)
+  const pendingCrit = useSession((s) => s.pendingCrit)
+  const setPendingCrit = useSession((s) => s.setPendingCrit)
+  const cover = useSession((s) => s.cover)
   const promptConcentration = useSession((s) => s.promptConcentration)
 
   const d20 = (label: string, modifier: number, type: 'attack' | 'check' | 'save', ability?: Ability) => {
     if (!character) return null
     const result = rollD20({ label, modifier, type, ability, mode: adv, conditions: activeConditions(character) })
     push({ label, detail: result.detail, total: result.total, kind: result.kind })
+    if (type === 'attack') setPendingCrit(result.kind === 'crit')
     return result
   }
 
+  /** Doubles all damage dice if the most recent attack roll for this character was a Critical Hit. */
   const damage = (label: string, spec: DamageSpec) => {
     if (!character) return null
-    const result = rollDamage(spec.count, spec.size, spec.flat, activeRiders(character))
+    const result = rollDamage(spec.count, spec.size, spec.flat, activeRiders(character), pendingCrit)
     push({ label, detail: result.detail, total: result.total, kind: 'damage' })
+    setPendingCrit(false)
     return result
   }
 
   return {
     rollAbility: (a: Ability) => d20(`${ABILITY_NAMES[a]} check`, abilityMod(character!, a), 'check', a),
-    rollSave: (a: Ability) => d20(`${ABILITY_NAMES[a]} save`, saveMod(character!, a), 'save', a),
+    /** Cover adds its bonus to Dexterity saves only, per RAW. */
+    rollSave: (a: Ability) => d20(`${ABILITY_NAMES[a]} save`, saveMod(character!, a) + (a === 'dex' ? coverBonus(cover) : 0), 'save', a),
     rollSkill: (id: string, name: string) => d20(name, skillMod(character!, id), 'check'),
     rollInitiative: () => d20('Initiative', abilityMod(character!, 'dex'), 'check', 'dex'),
     rollAttack: (label: string, mod: number) => d20(`${label} (${fmt(mod)})`, mod, 'attack'),
     rollDamageSpec: damage,
 
-    /** `type` mitigates against the character's stored resistances/immunities/vulnerabilities; omit for untyped damage. */
-    takeDamage(amount: number, type: DamageType | null = null) {
+    /**
+     * `type` mitigates against the character's stored resistances/immunities/vulnerabilities;
+     * omit for untyped damage. `crit` doubles the death-save failure if this damage lands
+     * while the character is already at 0 HP (RAW: "Damage at 0 Hit Points").
+     */
+    takeDamage(amount: number, type: DamageType | null = null, crit = false) {
       if (!character) return
       const mitigated = mitigateDamage(character, amount, type)
       const conc = character.vitals.concentration
       apply({
         label: type ? `Damage ${mitigated} ${type}` : `Damage ${mitigated}`,
         channel: 'play',
-        mutate: (c) => ({ ...c, vitals: applyDamage(c.vitals, mitigated) }),
+        mutate: (c) => ({ ...c, vitals: applyDamage(c.vitals, mitigated, c.maxHp, crit) }),
       })
       if (conc) promptConcentration(concentrationDC(mitigated))
     },

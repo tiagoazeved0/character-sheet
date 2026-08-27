@@ -88,24 +88,31 @@ export type DamageRider = { name: string; count: number; size: number; type: str
 
 export type DamageResult = { rolls: number[]; total: number; detail: string }
 
-/** Lists every individual die, and folds in riders like Hex automatically. */
+/**
+ * Lists every individual die, and folds in riders like Hex automatically.
+ * On a Critical Hit, every die -- the base damage and every rider's -- is
+ * rolled twice and added together; flat modifiers are still added only once.
+ */
 export function rollDamage(
   count: number,
   size: number,
   flat: number,
   riders: DamageRider[] = [],
+  crit = false,
   roll: Roller = defaultRoller,
 ): DamageResult {
-  const rolls = Array.from({ length: count }, () => roll(size))
+  const dieCount = crit ? count * 2 : count
+  const rolls = Array.from({ length: dieCount }, () => roll(size))
   let total = rolls.reduce((s, r) => s + r, 0) + flat
-  const parts = [`${count}d${size}: ${rolls.join(' + ')}`]
+  const parts = [`${dieCount}d${size}${crit ? ' (crit)' : ''}: ${rolls.join(' + ')}`]
   if (flat !== 0) parts.push(`${flat >= 0 ? '+' : '-'} ${Math.abs(flat)}`)
 
   for (const r of riders) {
-    const extra = Array.from({ length: r.count }, () => roll(r.size))
+    const riderCount = crit ? r.count * 2 : r.count
+    const extra = Array.from({ length: riderCount }, () => roll(r.size))
     const sum = extra.reduce((s, x) => s + x, 0)
     total += sum
-    parts.push(`+ ${sum} (${r.count}d${r.size} ${r.type}, ${r.name})`)
+    parts.push(`+ ${sum} (${riderCount}d${r.size} ${r.type}, ${r.name})`)
   }
 
   return { rolls, total, detail: parts.join(' ') }

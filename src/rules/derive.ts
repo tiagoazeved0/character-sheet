@@ -1,4 +1,4 @@
-import type { Ability, Character, DamageType } from './types.ts'
+import type { Ability, Character, CoverDegree, DamageType } from './types.ts'
 import { SKILLS } from './skills.ts'
 
 /**
@@ -12,6 +12,9 @@ export const fmt = (n: number) => (n >= 0 ? '+' : '') + n
 
 export const saveMod = (c: Character, a: Ability) =>
   abilityMod(c, a) + (c.saveProficiencies.includes(a) ? c.proficiencyBonus : 0)
+
+/** RAW: Half Cover +2, Three-Quarters Cover +5, to AC and Dexterity saving throws. */
+export const coverBonus = (cover: CoverDegree) => (cover === 'half' ? 2 : cover === 'three-quarters' ? 5 : 0)
 
 export function skillMod(c: Character, skillId: string): number {
   const skill = SKILLS.find((s) => s.id === skillId)

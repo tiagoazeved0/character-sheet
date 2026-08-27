@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { AdvMode, Lane, LogEntry, LogKind } from '../rules/types.ts'
+import type { AdvMode, CoverDegree, Lane, LogEntry, LogKind } from '../rules/types.ts'
 import { LOG_CAP } from '../rules/dice.ts'
 
 export type Tab = 'Actions' | 'Spells' | 'Features' | 'Inventory' | 'Background' | 'Notes' | 'History'
@@ -11,6 +11,10 @@ export type Layout = 'columns' | 'tablet' | 'stacked'
  */
 type Session = {
   adv: AdvMode
+  /** Set when the last attack roll was a Critical Hit; consumed by the next damage roll. */
+  pendingCrit: boolean
+  /** Manual toggle: cover the character is currently behind, as a target. Persists until changed -- unlike adv, it isn't a one-roll thing. */
+  cover: CoverDegree
   log: LogEntry[]
   tab: Tab
   query: string
@@ -22,6 +26,8 @@ type Session = {
   lanes: Record<Lane, boolean>
 
   setAdv: (adv: AdvMode) => void
+  setPendingCrit: (pendingCrit: boolean) => void
+  setCover: (cover: CoverDegree) => void
   push: (entry: { label: string; detail: string; total: number | null; kind: LogKind }) => void
   clearLog: () => void
   setTab: (tab: Tab) => void
@@ -39,6 +45,8 @@ const EMPTY_LANES: Record<Lane, boolean> = { action: false, bonus: false, move: 
 
 export const useSession = create<Session>((set) => ({
   adv: 'normal',
+  pendingCrit: false,
+  cover: 'none',
   log: [],
   tab: 'Actions',
   query: '',
@@ -50,6 +58,8 @@ export const useSession = create<Session>((set) => ({
   lanes: { ...EMPTY_LANES },
 
   setAdv: (adv) => set({ adv }),
+  setPendingCrit: (pendingCrit) => set({ pendingCrit }),
+  setCover: (cover) => set({ cover }),
   push: (entry) =>
     set((s) => ({ log: [{ id: nextId++, ...entry }, ...s.log].slice(0, LOG_CAP), adv: 'normal' })),
   clearLog: () => set({ log: [] }),

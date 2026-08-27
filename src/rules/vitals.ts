@@ -1,10 +1,24 @@
 import type { Character, Vitals } from './types.ts'
 
-/** Damage drains temporary HP first, then current HP, and never goes negative. */
-export function applyDamage(v: Vitals, amount: number): Vitals {
+/**
+ * Damage drains temporary HP first, then current HP, and never goes negative.
+ * Two RAW edge cases layer on top: taking any damage while already at 0 HP is
+ * a death save failure (two on a Critical Hit), and Massive Damage -- damage
+ * that drops you to 0 with leftover damage equal to or exceeding your HP max
+ * -- kills outright, represented by maxing out deathFail.
+ */
+export function applyDamage(v: Vitals, amount: number, maxHp: number, crit = false): Vitals {
+  const wasAtZero = v.hp === 0
   const fromTemp = Math.min(v.temp, amount)
   const rest = amount - fromTemp
-  return { ...v, temp: v.temp - fromTemp, hp: Math.max(0, v.hp - rest) }
+  const newHp = Math.max(0, v.hp - rest)
+  const overflow = rest - v.hp
+
+  let deathFail = v.deathFail
+  if (wasAtZero && amount > 0) deathFail = Math.min(3, deathFail + (crit ? 2 : 1))
+  if (!wasAtZero && newHp === 0 && overflow >= maxHp) deathFail = 3
+
+  return { ...v, temp: v.temp - fromTemp, hp: newHp, deathFail }
 }
 
 /** Healing is capped at max and clears any accumulated death saves. */

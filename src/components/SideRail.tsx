@@ -1,4 +1,4 @@
-import type { AdvMode, Character } from '../rules/types.ts'
+import type { AdvMode, Character, CoverDegree } from '../rules/types.ts'
 import { CONDITIONS, conditionById } from '../data/conditions.ts'
 import { useSession } from '../store/session.ts'
 import type { useSheetActions } from '../store/actions.ts'
@@ -16,7 +16,7 @@ export function SideRail({ character: c, actions }: Props) {
 }
 
 function DicePanel() {
-  const { adv, setAdv, log, clearLog } = useSession()
+  const { adv, setAdv, cover, setCover, log, clearLog } = useSession()
   return (
     <div className="dice">
       <div className="dice-head">
@@ -27,6 +27,13 @@ function DicePanel() {
         {(['dis', 'normal', 'adv'] as AdvMode[]).map((m) => (
           <button key={m} className={adv === m ? 'on' : ''} onClick={() => setAdv(m)} style={{ flex: 1 }}>
             {m === 'dis' ? 'Disadv.' : m === 'adv' ? 'Adv.' : 'Normal'}
+          </button>
+        ))}
+      </div>
+      <div className="segmented" title="Cover you're behind, as a target -- bonus to AC and Dex saves until you change it">
+        {(['none', 'half', 'three-quarters'] as CoverDegree[]).map((m) => (
+          <button key={m} className={cover === m ? 'on' : ''} onClick={() => setCover(m)} style={{ flex: 1 }}>
+            {m === 'none' ? 'No cover' : m === 'half' ? 'Half cover' : '3/4 cover'}
           </button>
         ))}
       </div>

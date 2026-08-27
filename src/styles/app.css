@@ -63,6 +63,18 @@ button.tile:hover { border-color: oklch(0.62 0.13 25); }
 .hp-buttons button { flex: 1; font-size: 11px; font-weight: 600; padding: 4px 0; border-radius: 6px; }
 .btn-dmg { border: 1px solid oklch(0.42 0.06 25); background: oklch(0.3 0.03 25); color: oklch(0.86 0.05 30); }
 .btn-heal { border: 1px solid oklch(0.42 0.05 150); background: oklch(0.3 0.025 150); color: oklch(0.86 0.05 150); }
+/* Capped so the row wraps inside the card rather than widening it, which would push a header tile onto a second line. */
+.hp-entry { display: flex; gap: 5px; flex-wrap: wrap; max-width: 178px; }
+.hp-entry input, .hp-entry select {
+  font-size: 11px; padding: 4px 6px; border-radius: 6px; min-height: var(--tap);
+  background: var(--dark-raised); border: 1px solid var(--dark-border); color: var(--on-dark);
+}
+.hp-entry .hp-amount { width: 44px; text-align: center; }
+.hp-entry .hp-type { flex: 1; min-width: 92px; }
+.hp-entry button { font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 6px; }
+.hp-entry .btn-dmg { flex: 1; }
+.hp-crit { background: var(--dark-raised); border: 1px solid var(--dark-border); color: var(--on-dark); }
+.hp-crit.on { background: var(--danger-fill); border-color: var(--danger-fill); color: #fff; }
 .hbtn {
   font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
   border-radius: 7px; padding: 7px 12px;

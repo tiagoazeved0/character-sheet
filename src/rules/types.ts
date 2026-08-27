@@ -7,6 +7,8 @@ export const ABILITY_NAMES: Record<Ability, string> = {
 
 export type RollType = 'attack' | 'check' | 'save'
 export type AdvMode = 'normal' | 'adv' | 'dis'
+/** Cover the character themself is behind, as a target -- bonus to AC and Dexterity saves. */
+export type CoverDegree = 'none' | 'half' | 'three-quarters'
 
 /** How a condition bends the maths. Mirrors the prototype's effect shape. */
 export type ConditionEffect = {

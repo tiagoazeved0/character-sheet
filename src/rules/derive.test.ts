@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mitigateDamage, passiveInsight, passiveInvestigation, passivePerception } from './derive.ts'
+import { coverBonus, mitigateDamage, passiveInsight, passiveInvestigation, passivePerception } from './derive.ts'
 import { seedCharacter } from '../data/seed.ts'
 
 describe('passive scores', () => {
@@ -38,5 +38,13 @@ describe('mitigateDamage', () => {
   it('leaves damage of an unlisted type alone', () => {
     const c = seedCharacter()
     expect(mitigateDamage(c, 15, 'radiant')).toBe(15)
+  })
+})
+
+describe('coverBonus', () => {
+  it('is +2 for half cover, +5 for three-quarters, +0 for none', () => {
+    expect(coverBonus('none')).toBe(0)
+    expect(coverBonus('half')).toBe(2)
+    expect(coverBonus('three-quarters')).toBe(5)
   })
 })

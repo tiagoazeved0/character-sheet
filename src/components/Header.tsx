@@ -1,5 +1,6 @@
-import type { Character } from '../rules/types.ts'
-import { abilityMod, fmt, spellAttack, spellDC } from '../rules/derive.ts'
+import { useState } from 'react'
+import { DAMAGE_TYPES, type Character, type DamageType } from '../rules/types.ts'
+import { abilityMod, coverBonus, fmt, spellAttack, spellDC } from '../rules/derive.ts'
 import { hpFraction } from '../rules/vitals.ts'
 import { useSession, type Layout } from '../store/session.ts'
 import type { useSheetActions } from '../store/actions.ts'
@@ -16,6 +17,21 @@ export function Header({ character: c, actions, layout, onOpenEditor, onOpenLeve
   const setLayout = useSession((s) => s.setLayout)
   const combat = useSession((s) => s.combat)
   const toggleCombat = useSession((s) => s.toggleCombat)
+  const cover = useSession((s) => s.cover)
+  const ac = c.ac + coverBonus(cover)
+
+  const [amount, setAmount] = useState('')
+  const [dmgType, setDmgType] = useState<DamageType | ''>('')
+  const [crit, setCrit] = useState(false)
+
+  /** The quick buttons cover chip damage; this is the only path that can carry a type or a crit. */
+  const submitDamage = () => {
+    const n = Number(amount)
+    if (!n) return
+    actions.takeDamage(n, dmgType || null, crit)
+    setAmount('')
+    setCrit(false)
+  }
 
   const frac = hpFraction(c)
   const hpColour = frac < 0.34 ? 'var(--danger-fill)' : 'var(--green-fill)'
@@ -47,6 +63,36 @@ export function Header({ character: c, actions, layout, onOpenEditor, onOpenLeve
               <button className="btn-heal" onClick={() => actions.healBy(1)}>+1</button>
               <button className="btn-heal" onClick={() => actions.healBy(5)}>+5</button>
             </div>
+            <div className="hp-entry">
+              <input
+                className="hp-amount mono"
+                inputMode="numeric"
+                placeholder="0"
+                aria-label="Damage amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))}
+                onKeyDown={(e) => { if (e.key === 'Enter') submitDamage() }}
+              />
+              <select
+                className="hp-type"
+                aria-label="Damage type"
+                value={dmgType}
+                onChange={(e) => setDmgType(e.target.value as DamageType | '')}
+              >
+                <option value="">Untyped</option>
+                {DAMAGE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+              {c.vitals.hp === 0 && (
+                <button
+                  className={`hp-crit ${crit ? 'on' : ''}`}
+                  onClick={() => setCrit(!crit)}
+                  title="Critical hit -- two death save failures instead of one, since you are at 0 HP"
+                >
+                  Crit
+                </button>
+              )}
+              <button className="btn-dmg" onClick={submitDamage}>Damage</button>
+            </div>
           </div>
 
           <button
@@ -57,7 +103,10 @@ export function Header({ character: c, actions, layout, onOpenEditor, onOpenLeve
           >
             Inspiration
           </button>
-          <div className="tile"><div className="tile-value">{c.ac}</div><div className="tile-caption">Armor</div></div>
+          <div className="tile" title={cover !== 'none' ? `${c.ac} base + ${coverBonus(cover)} cover` : undefined}>
+            <div className="tile-value">{ac}</div>
+            <div className="tile-caption">Armor</div>
+          </div>
           <button className="tile" onClick={() => actions.rollInitiative()}>
             <div className="tile-value">{fmt(abilityMod(c, 'dex'))}</div>
             <div className="tile-caption">Initiative</div>
