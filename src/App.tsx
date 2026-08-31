@@ -5,6 +5,7 @@ import { useSession, type Layout } from './store/session.ts'
 import { useSync } from './store/sync.ts'
 import { useSheetActions } from './store/actions.ts'
 import { Header } from './components/Header.tsx'
+import { Vitals } from './components/Vitals.tsx'
 import { Alerts } from './components/Alerts.tsx'
 import { Abilities } from './components/Abilities.tsx'
 import { Skills } from './components/Skills.tsx'
@@ -69,6 +70,7 @@ export default function App() {
       />
       <Alerts character={character} actions={actions} />
       <main className={`grid ${layout}`}>
+        <div className="area-vitals"><Vitals character={character} actions={actions} /></div>
         <div className="area-abil"><Abilities character={character} actions={actions} /></div>
         <div className="area-center"><Center character={character} actions={actions} /></div>
         <div className="area-side"><SideRail character={character} actions={actions} /></div>

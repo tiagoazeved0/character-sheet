@@ -110,7 +110,7 @@ src/store/
   sync.ts           the Supabase half: auth, debounced push, pull, conflicts
   labels.ts         JSON pointer -> human label for history
 src/data/           conditions, seed character, blank/duplicate factories
-src/components/     Header, Alerts, Abilities, Skills, Center, SideRail, History, Editor, Portrait,
+src/components/     Header, Vitals, Alerts, Abilities, Skills, Center, SideRail, History, Editor, Portrait,
                     CreateCharacter (guided-creation wizard), LevelUp, ChoicePicker (shared)
 ```
 
@@ -190,10 +190,12 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   and the Supabase client is never even downloaded (dynamic import, so Vite splits it out). It has
   not been exercised against a real project yet — only the pure logic is tested.
 - Combat mode has a toggle in the header and session state, but no UI.
-- The header is 230px on the table tablet in landscape (Galaxy Tab S6 Lite, ~1000x600 CSS px), which
-  is the floor while every touch target stays 44px. It is `position: static` under
-  `@media (max-height: 700px)` so it scrolls away there and the sheet gets the whole 600px; on taller
-  screens it stays sticky and HP stays in view.
+- The header carries **identity and navigation only** — avatar, name, class line, and four controls
+  (Inspiration, Rest menu, Combat, Character menu). It is 65px. Everything about how the character is
+  doing lives in `Vitals.tsx`, a full-width strip at the top of the sheet body: hit points with the
+  bar and both damage paths, then AC / initiative / speed / proficiency / spell DC as stat tiles.
+  This is the shape every mature sheet app uses, and it is the reason the header stopped being 230px
+  of fixed furniture. Do not put combat state back in the masthead.
 - The spell and inventory rows still build their dice label inline, so a flat-damage spell would read
   `0d6+2`. `damageLabel()` in `derive.ts` fixes that shape; only the action row uses it so far.
 - Multiclassing isn't modeled — `Character.classes` is architecturally an array but `LevelUp.tsx`

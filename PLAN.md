@@ -398,12 +398,13 @@ bug that is embarrassing at the table and the cheapest thing in the app to test 
 
 The prototype has no media queries — the three layouts are a manual toggle.
 
-- **Header compaction.** The header is fixed furniture above every screen and was taking a third
-  of a portrait tablet before the sheet got a pixel. Below 1500px the tiles and buttons tighten;
-  below 1300px the button cluster takes a row of its own so the stat tiles stop wrapping into a
-  narrow column; below 900px the character name does too. Measured, not eyeballed: 136px on a
-  laptop, 230px on the table tablet in landscape (Galaxy Tab S6 Lite, ~1000x600 CSS px), 236px on
-  a full-size iPad.
+- **The masthead carries identity, the sheet carries vitals.** Compacting a header that held hit
+  points, four stat tiles and six buttons only ever bought so much: it still had four vertical
+  rhythms in one bar and 144px of fixed furniture. Splitting it the way D&D Beyond, Demiplane and
+  Pathbuilder all do — a 65px identity bar, and a full-width `Vitals` strip at the top of the sheet
+  body — is what actually fixed it. The strip scrolls with the sheet, so permanent chrome went from
+  230px to 65px on the table tablet, and hit points finally have room for a legible damage control
+  instead of an 11px select.
 - **Sticky only where it pays.** Under `@media (max-height: 700px)` the header is `position: static`.
   A sticky header costs its full height on every screen forever; on a 600px-tall tablet that was a
   third of everything visible, too much to pay for keeping HP in the corner. Taller screens keep it.

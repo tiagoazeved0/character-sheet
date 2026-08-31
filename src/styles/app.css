@@ -24,7 +24,7 @@ button:disabled { cursor: not-allowed; }
 .caps { text-transform: uppercase; letter-spacing: 0.1em; }
 .muted { color: var(--text-muted); }
 
-/* ---------- header ---------- */
+/* ---------- header: identity and navigation only ---------- */
 .header {
   position: sticky; top: 0; z-index: 30;
   background: var(--dark); color: var(--on-dark);
@@ -32,47 +32,30 @@ button:disabled { cursor: not-allowed; }
   padding-top: env(safe-area-inset-top);
 }
 .header-inner {
-  max-width: 1460px; margin: 0 auto; padding: 14px 20px;
-  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  max-width: 1460px; margin: 0 auto; padding: 11px 20px;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
 }
-.header-identity { display: flex; flex-direction: column; gap: 2px; min-width: 210px; }
-.header-vitals { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; }
-.header-actions { display: flex; flex-direction: column; gap: 6px; }
-.header-actions > div { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-.header-name { font-family: var(--font-display); font-size: 26px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.1; }
-.header-class { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--on-dark-muted); }
-.tile {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: var(--dark-raised-2); border: 1px solid var(--dark-border);
-  border-radius: 10px; padding: 8px 16px; min-width: 72px; color: inherit;
+.header-identity { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+.header-avatar {
+  width: 42px; height: 42px; border-radius: 8px; flex: none; object-fit: cover;
+  border: 1px solid var(--dark-border); background: var(--dark-raised);
 }
-button.tile:hover { border-color: var(--accent-mid); }
-.tile-value { font-family: var(--font-mono); font-size: 24px; font-weight: 600; }
-.tile-caption { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-dark-muted); }
-.hp-card {
-  display: flex; flex-direction: column; justify-content: center; gap: 6px;
-  background: var(--dark-raised-2); border: 1px solid var(--dark-border);
-  border-radius: 10px; padding: 8px 14px; min-width: 244px;
+.header-avatar.placeholder {
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 15px; color: var(--on-dark-muted);
 }
-.hp-bar { height: 8px; border-radius: 6px; background: var(--dark-border); overflow: hidden; display: flex; }
-.hp-bar > div { transition: width 220ms ease; }
-.hp-buttons { display: flex; gap: 5px; }
-.hp-buttons button { flex: 1; font-size: 11px; font-weight: 600; padding: 4px 0; border-radius: 6px; }
-.btn-dmg { border: 1px solid var(--ink-red-edge); background: var(--ink-red); color: var(--ink-red-text); }
-.btn-heal { border: 1px solid var(--ink-green-edge); background: var(--ink-green); color: var(--ink-green-text); }
-/* One line: on a touch device every control here is 44px tall, so a wrapped
-   second row costs more header height than the extra card width does. */
-.hp-entry { display: flex; gap: 5px; }
-.hp-entry input, .hp-entry select {
-  font-size: 11px; padding: 4px 6px; border-radius: 6px; min-height: var(--tap);
-  background: var(--dark-raised); border: 1px solid var(--dark-border); color: var(--on-dark);
+.header-titles { min-width: 0; }
+.header-name {
+  font-family: var(--font-display); font-size: 21px; font-weight: 600; line-height: 1.15;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.hp-entry .hp-amount { width: 42px; flex: none; text-align: center; }
-.hp-entry .hp-type { flex: 1; min-width: 0; }
-.hp-entry button { flex: none; font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 6px; }
-.hp-crit { background: var(--dark-raised); border: 1px solid var(--dark-border); color: var(--on-dark); }
-.hp-crit.on { background: var(--danger-fill); border-color: var(--danger-fill); color: var(--on-dark); }
+.header-class {
+  font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--on-dark-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.header-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .hbtn {
+  display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap);
   font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
   border-radius: 7px; padding: 7px 12px;
   background: var(--dark-raised); border: 1px solid var(--dark-border); color: var(--on-dark);
@@ -80,54 +63,99 @@ button.tile:hover { border-color: var(--accent-mid); }
 .hbtn.active { background: var(--accent); border-color: var(--accent); }
 .hbtn.inspiration.active { background: var(--inspiration); border-color: var(--inspiration); color: var(--dark); }
 .hbtn.combat.active { background: var(--arcane); border-color: var(--arcane); }
+
+.menu { position: relative; }
+.menu-caret { font-size: 9px; opacity: 0.7; }
+.menu-list {
+  position: absolute; right: 0; top: calc(100% + 5px); z-index: 40; min-width: 172px;
+  display: flex; flex-direction: column; padding: 5px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+  box-shadow: var(--shadow-panel);
+}
+.menu-list button {
+  text-align: left; min-height: var(--tap); padding: 8px 10px; border: none; border-radius: 6px;
+  background: transparent; color: var(--text); font-size: 13px;
+}
+.menu-list button:hover { background: var(--surface-inset); color: var(--accent-hover); }
+
+/* Segmented pickers. The dark variant is the default because it began life in
+   the dice rail; `.light` is for the ones on vellum (Editor, History). */
 .segmented { display: flex; gap: 3px; padding: 3px; background: var(--dark-raised); border-radius: 9px; }
 .segmented button {
-  border: none; background: transparent; color: var(--on-dark-muted);
+  border: none; background: transparent; color: var(--on-dark-muted); min-height: var(--tap);
   font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 6px;
 }
 .segmented button.on { background: var(--accent); color: var(--on-dark); }
-/* The layout picker lives in the Editor, on vellum rather than on the header's ink. */
 .segmented.light { background: var(--surface-inset); border: 1px solid var(--border); }
 .segmented.light button { color: var(--text-secondary); }
 .segmented.light button.on { background: var(--accent); color: var(--on-dark); }
 
-/* The header is fixed furniture above every screen, and on a tablet it was
-   taking a third of the viewport before the sheet got a pixel. Below the
-   widest laptops it gives that space back. */
-@media (max-width: 1500px) {
-  .header-inner { padding: 10px 14px; gap: 12px; }
-  .header-name { font-size: 22px; }
-  .header-class { font-size: 11px; }
-  .tile { padding: 5px 11px; min-width: 62px; }
-  .tile-value { font-size: 20px; }
-  .hbtn { padding: 6px 10px; }
-  .segmented button { padding: 5px 8px; }
+/* ---------- vitals: how the character is doing, in the sheet not the masthead ---------- */
+.vitals {
+  display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+  padding: 14px 16px;
 }
-/* Narrower than this the buttons and the stat tiles cannot share a row without
-   squeezing the tiles into a column that wraps three deep. Give the buttons a
-   row of their own and the tiles get the width they need in one. */
-@media (max-width: 1300px) {
-  .header-actions { flex-basis: 100%; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; }
+.vitals-label { font-size: 10px; color: var(--text-secondary); }
+.vitals-hp { display: flex; flex-direction: column; gap: 8px; flex: 1 1 320px; min-width: 258px; max-width: 540px; }
+.vitals-hp-head { display: flex; align-items: baseline; gap: 10px; }
+.vitals-hp-value { font-size: 27px; font-weight: 600; margin-left: auto; line-height: 1; }
+.vitals-hp-max { font-size: 15px; color: var(--text-muted); }
+.vitals-temp { color: var(--temp-hp); }
+.vitals-bar { height: 10px; border-radius: 6px; background: var(--track); overflow: hidden; display: flex; }
+.vitals-bar > div { transition: width 220ms ease; }
+.btn-dmg { background: var(--danger-light); border: 1px solid var(--danger-fill); color: var(--danger); }
+.btn-heal { background: var(--green-light); border: 1px solid var(--green-fill); color: var(--green); }
+.btn-dmg:hover { background: var(--danger-fill); color: var(--on-dark); }
+.btn-heal:hover { background: var(--green-fill); color: var(--on-dark); }
+.vitals-quick { display: flex; gap: 6px; }
+.vitals-quick button {
+  flex: 1; min-height: var(--tap); font-size: 13px; font-weight: 600; padding: 7px 0; border-radius: 7px;
 }
-/* At phone-ish and small-tablet widths the name no longer earns a column beside
-   the vitals: on its own line it costs one short row and saves the stat tiles
-   from wrapping into two tall ones. */
-@media (max-width: 900px) {
-  .header-inner { gap: 8px 10px; }
-  .header-name { font-size: 20px; }
-  .header-identity { flex-basis: 100%; min-width: 0; }
-  .hbtn { padding: 6px 8px; letter-spacing: 0.04em; }
-  .segmented { gap: 2px; padding: 2px; }
-  .segmented button { padding: 5px 7px; }
+.vitals-entry { display: flex; gap: 6px; }
+.vitals-entry input, .vitals-entry select {
+  min-height: var(--tap); font-size: 13px; padding: 7px 9px; border-radius: 7px;
+  background: var(--surface-inset); border: 1px solid var(--border); color: var(--text);
 }
+.vitals-amount { width: 58px; flex: none; text-align: center; }
+.vitals-type { flex: 1; min-width: 0; }
+.vitals-entry .btn { flex: none; min-height: var(--tap); }
+.vitals-crit {
+  min-height: var(--tap); padding: 7px 11px; border-radius: 7px; font-size: 12px; font-weight: 600;
+  background: var(--surface-inset); border: 1px solid var(--border); color: var(--text-secondary);
+}
+.vitals-crit.on { background: var(--danger-fill); border-color: var(--danger-fill); color: var(--on-dark); }
 
-/* A sticky header costs its full height on every screen, forever. On a tall
-   screen that is a fair price for keeping HP in view; on the table tablet in
-   landscape (600px) it was a third of everything you could see. Let it scroll
-   away there and the sheet gets all 230px back. */
+.vitals-stats { display: flex; gap: 10px; flex-wrap: wrap; flex: 1 1 auto; }
+/* Capped: given a wide sheet these would otherwise stretch to 200px+ and leave
+   each number adrift in the middle of an empty box. */
+.vitals-stats .stat { flex: 1 1 84px; max-width: 148px; }
+.stat {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-width: 84px; padding: 10px 12px; color: inherit;
+  background: var(--surface-inset); border: 1px solid var(--border); border-radius: 10px;
+}
+button.stat:hover { border-color: var(--accent); background: var(--accent-light); }
+.stat-value { font-size: 26px; font-weight: 600; line-height: 1; }
+.stat-label { font-size: 9px; color: var(--text-secondary); }
+
+/* The header is now identity only, so it is cheap to keep pinned -- but a sticky
+   bar still costs its height on every screen forever. On a 600px-tall tablet even
+   64px is worth giving back while reading. */
 @media (max-height: 700px) {
   .header { position: static; }
   .grid.columns .area-side { top: 18px; }
+}
+
+/* The stat tiles are the first thing to give: on a narrow sheet they wrap under
+   the hit points rather than squeezing them. */
+@media (max-width: 900px) {
+  .header-inner { padding: 9px 14px; gap: 12px; }
+  .header-name { font-size: 18px; }
+  .header-avatar { width: 36px; height: 36px; }
+  .vitals { gap: 12px; padding: 12px; }
+  .vitals-stats { flex: 1 1 100%; }
+  .stat { flex: 1; min-width: 76px; padding: 8px 10px; }
+  .stat-value { font-size: 21px; }
 }
 
 /* Sync status. Fixed rather than in the header: it must be glanceable without
@@ -168,14 +196,15 @@ button.tile:hover { border-color: var(--accent-mid); }
 /* ---------- layout ---------- */
 .grid { margin: 0 auto; padding: 18px 20px 60px; display: grid; gap: 18px; align-items: start; }
 .grid.tablet { max-width: 1200px; grid-template-columns: minmax(0, 1fr) 314px;
-  grid-template-areas: "abil abil" "center side" "center skills"; }
+  grid-template-areas: "vitals vitals" "abil abil" "center side" "center skills"; }
 .grid.columns { max-width: 1460px; grid-template-columns: 288px minmax(0, 1fr) 322px;
-  grid-template-areas: "abil center side" "skills center side"; }
+  grid-template-areas: "vitals vitals vitals" "abil center side" "skills center side"; }
 .grid.stacked { max-width: 860px; grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "abil" "center" "side" "skills"; }
+  grid-template-areas: "vitals" "abil" "center" "side" "skills"; }
+.area-vitals { grid-area: vitals; }
 .area-abil { grid-area: abil; } .area-skills { grid-area: skills; }
 .area-center { grid-area: center; min-width: 0; } .area-side { grid-area: side; }
-.grid.columns .area-side { position: sticky; top: 96px; }
+.grid.columns .area-side { position: sticky; top: 82px; }
 .abil-grid { display: grid; gap: 8px; }
 .grid.tablet .abil-grid { grid-template-columns: repeat(6, 1fr); }
 .grid.columns .abil-grid { grid-template-columns: repeat(2, 1fr); }

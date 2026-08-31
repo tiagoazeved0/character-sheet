@@ -60,15 +60,11 @@
   --encumbrance:     oklch(0.580 0.080 85);
   --amber-bright:    oklch(0.800 0.090 70);
 
-  /* Tinted surfaces for the panels that sit on ink rather than vellum — the HP
-     card's damage/heal buttons and the dice log's crit/fail rows. The vellum
-     --danger/--green are far too light to read against --dark-raised. */
+  /* Tinted surfaces for the panels that sit on ink rather than vellum — now just
+     the dice log's crit/fail rows. The vellum --danger/--green are far too light
+     to read against --dark-raised. */
   --ink-red:         oklch(0.300 0.060 30);
-  --ink-red-edge:    oklch(0.400 0.090 30);
-  --ink-red-text:    oklch(0.820 0.070 35);
   --ink-green:       oklch(0.300 0.040 150);
-  --ink-green-edge:  oklch(0.400 0.060 150);
-  --ink-green-text:  oklch(0.820 0.060 150);
   /* Temp HP keeps the conventional blue, lifted so it reads on the dark bar. */
   --temp-hp:         oklch(0.640 0.090 265);
   --scrim:           oklch(0.140 0.012 62 / 0.55);
@@ -93,6 +89,6 @@
 
 @media (pointer: coarse) {
   :root { --tap: 44px; }
-  button, .row-button, .chip { min-height: var(--tap); }
+  button, .row-button, .chip, .search { min-height: var(--tap); }
   .pip { width: 28px !important; height: 28px !important; }
 }
