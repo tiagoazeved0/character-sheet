@@ -1,8 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useCharacters } from '../store/character.ts'
 
-const show = (v: unknown) =>
-  v === null || v === undefined ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v)
+/** A portrait is a data URL tens of thousands of characters long; the row wants
+ *  to say that it changed, not to print it. */
+const show = (v: unknown) => {
+  if (v === null || v === undefined) return '—'
+  const s = typeof v === 'object' ? JSON.stringify(v) : String(v)
+  if (s.startsWith('data:image/')) return '(image)'
+  return s.length > 160 ? s.slice(0, 160) + '…' : s
+}
 
 const when = (iso: string) => {
   const d = new Date(iso)

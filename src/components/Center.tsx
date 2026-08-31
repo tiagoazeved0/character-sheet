@@ -6,6 +6,7 @@ import { useSession, type Tab } from '../store/session.ts'
 import { useCharacters } from '../store/character.ts'
 import type { useSheetActions } from '../store/actions.ts'
 import { History } from './History.tsx'
+import { Portrait } from './Portrait.tsx'
 
 const TABS: Tab[] = ['Actions', 'Spells', 'Features', 'Inventory', 'Background', 'Notes', 'History']
 
@@ -78,7 +79,7 @@ function TabBody({ character: c, actions, tok, tab }: Props & { tok: (s: string)
 
   if (tab === 'History') return <History characterId={c.id} />
 
-  if (tab === 'Background') return <BackgroundTab character={c} />
+  if (tab === 'Background') return <BackgroundTab character={c} actions={actions} />
 
   if (tab === 'Inventory') {
     const carried = carriedWeight(c)
@@ -122,7 +123,7 @@ function TabBody({ character: c, actions, tok, tab }: Props & { tok: (s: string)
   return <div className="rows">{list}</div>
 }
 
-function BackgroundTab({ character: c }: { character: Character }) {
+function BackgroundTab({ character: c, actions }: Props) {
   const chars: [string, string][] = [
     ['Alignment', c.characteristics.alignment], ['Gender', c.characteristics.gender], ['Eyes', c.characteristics.eyes],
     ['Size', c.characteristics.size], ['Height', c.characteristics.height], ['Faith', c.characteristics.faith],
@@ -137,6 +138,8 @@ function BackgroundTab({ character: c }: { character: Character }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <Portrait character={c} actions={actions} />
+
       {(c.background.name || c.background.feature) && (
         <div className="card side-card">
           <span className="panel-title">{c.background.name || 'Background'}</span>
