@@ -24,8 +24,6 @@ export function Abilities({ character: c, actions }: { character: Character; act
           )
         })}
       </div>
-      <SensesPanel character={c} />
-      <ProficienciesPanel character={c} />
     </>
   )
 }
@@ -83,5 +81,19 @@ function PassiveScore({ label, value }: { label: string; value: number }) {
       <span className="mono" style={{ fontSize: 18, fontWeight: 600 }}>{value}</span>
       <span className="caps" style={{ fontSize: 9, color: 'var(--text-muted)' }}>Passive {label}</span>
     </div>
+  )
+}
+
+/**
+ * Split out of `Abilities` so each layout can place it. On a tablet the ability
+ * scores span the top of the sheet, and dragging proficiencies and senses up
+ * there with them put reference text above everything you actually play with.
+ */
+export function CharacterDetail({ character: c }: { character: Character }) {
+  return (
+    <>
+      <SensesPanel character={c} />
+      <ProficienciesPanel character={c} />
+    </>
   )
 }

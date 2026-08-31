@@ -136,6 +136,12 @@ button:disabled { cursor: not-allowed; }
 }
 button.stat:hover { border-color: var(--accent); background: var(--accent-light); }
 .stat-value { font-size: 26px; font-weight: 600; line-height: 1; }
+/* AC reads as armour, not as another number in a box. */
+.stat-ac { padding-top: 6px; }
+.shield { position: relative; display: flex; align-items: center; justify-content: center; width: 42px; height: 48px; }
+.shield svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.shield path { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.5; }
+.stat-ac .stat-value { position: relative; }
 .stat-label { font-size: 9px; color: var(--text-secondary); }
 
 /* The header is now identity only, so it is cheap to keep pinned -- but a sticky
@@ -157,6 +163,24 @@ button.stat:hover { border-color: var(--accent); background: var(--accent-light)
   .stat { flex: 1; min-width: 76px; padding: 8px 10px; }
   .stat-value { font-size: 21px; }
 }
+
+/* Plain dice, no modifiers. Lives in the dice rail on ink, so it borrows the
+   header's button treatment rather than the sheet's. */
+.tray { display: flex; flex-direction: column; gap: 6px; }
+.tray-count { display: flex; align-items: center; gap: 6px; }
+.tray-count span { min-width: 34px; text-align: center; font-size: 13px; font-weight: 600; color: var(--on-dark); }
+.tray-count button {
+  width: 30px; min-height: var(--tap); border-radius: 6px; font-size: 15px; font-weight: 600;
+  background: var(--dark-raised); border: 1px solid var(--dark-border); color: var(--on-dark);
+}
+.tray-dice { display: flex; gap: 5px; flex: 1; }
+.tray-die {
+  flex: 1; min-height: var(--tap); padding: 6px 0; border-radius: 6px;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  background: var(--dark-raised); border: 1px solid var(--dark-border); color: var(--on-dark);
+}
+.tray-die:hover { border-color: var(--gold); color: var(--gold); }
+.tray-die::before { content: 'd'; opacity: 0.6; }
 
 /* Sync status. Fixed rather than in the header: it must be glanceable without
    taking a pixel of the sheet, and quiet unless it wants something. */
@@ -196,12 +220,13 @@ button.stat:hover { border-color: var(--accent); background: var(--accent-light)
 /* ---------- layout ---------- */
 .grid { margin: 0 auto; padding: 18px 20px 60px; display: grid; gap: 18px; align-items: start; }
 .grid.tablet { max-width: 1200px; grid-template-columns: minmax(0, 1fr) 314px;
-  grid-template-areas: "vitals vitals" "abil abil" "center side" "center skills"; }
+  grid-template-areas: "vitals vitals" "abil abil" "center side" "center skills" "center detail"; }
 .grid.columns { max-width: 1460px; grid-template-columns: 288px minmax(0, 1fr) 322px;
-  grid-template-areas: "vitals vitals vitals" "abil center side" "skills center side"; }
+  grid-template-areas: "vitals vitals vitals" "abil center side" "detail center side" "skills center side"; }
 .grid.stacked { max-width: 860px; grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "vitals" "abil" "center" "side" "skills"; }
+  grid-template-areas: "vitals" "abil" "center" "side" "skills" "detail"; }
 .area-vitals { grid-area: vitals; }
+.area-detail { grid-area: detail; display: flex; flex-direction: column; gap: 14px; }
 .area-abil { grid-area: abil; } .area-skills { grid-area: skills; }
 .area-center { grid-area: center; min-width: 0; } .area-side { grid-area: side; }
 .grid.columns .area-side { position: sticky; top: 82px; }

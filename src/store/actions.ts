@@ -31,7 +31,9 @@ export function useSheetActions(character: Character | null) {
   const d20 = (label: string, modifier: number, type: 'attack' | 'check' | 'save', ability?: Ability) => {
     if (!character) return null
     const result = rollD20({ label, modifier, type, ability, mode: adv, conditions: activeConditions(character) })
-    push({ label, detail: result.detail, total: result.total, kind: result.kind })
+    // A save that fails outright has no total worth showing: printing one invites
+    // reading it against the DC.
+    push({ label, detail: result.detail, total: result.autoFail ? null : result.total, kind: result.kind })
     if (type === 'attack') setPendingCrit(result.kind === 'crit')
     return result
   }
@@ -53,6 +55,14 @@ export function useSheetActions(character: Character | null) {
     rollInitiative: () => d20('Initiative', abilityMod(character!, 'dex'), 'check', 'dex'),
     rollAttack: (label: string, mod: number) => d20(`${label} (${fmt(mod)})`, mod, 'attack'),
     rollDamageSpec: damage,
+
+    /** A plain handful of dice with nothing added: the roll you want when the
+     *  table asks for one and the sheet has no opinion about it. */
+    rollDice(count: number, size: number) {
+      const result = rollDamage(count, size, 0, [], false)
+      push({ label: `${count}d${size}`, detail: result.detail, total: result.total, kind: 'normal' })
+      return result
+    },
 
     /**
      * `type` mitigates against the character's stored resistances/immunities/vulnerabilities;

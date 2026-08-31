@@ -15,6 +15,10 @@ export type ConditionEffect = {
   adv?: RollType[]
   dis?: RollType[]
   disSave?: Ability[]
+  /** Paralysed, stunned, unconscious and petrified do not roll these saves at
+   *  all -- they fail. Disadvantage would be flattering, and this sheet exists
+   *  to get the maths right. */
+  autoFailSave?: Ability[]
   bonusDie?: { size: number; on: RollType[] }
 }
 

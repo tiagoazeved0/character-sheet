@@ -118,7 +118,7 @@ src/components/     Header, Vitals, Alerts, Abilities, Skills, Center, SideRail,
 
 ```bash
 npm install
-npm test           # 115 tests: dice, vitals, apply/history, rest, derive, tokens, packs/*, abilityScores
+npm test           # 121 tests: dice, vitals, apply/history, rest, derive, tokens, packs/*, abilityScores
 npm run build      # tsc --noEmit && vite build
 npm run dev
 ```
@@ -184,7 +184,12 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   confirmed from real source text) — the wizard's background step falls back to manual skill
   selection when `skillProficiencies` is absent. Don't fabricate specific grants; get real source
   text from the user the same way the Pugilist pack's gaps got closed.
-- Bundled condition and spell text is paraphrased placeholder, not SRD text yet.
+- Bundled condition and spell text is paraphrased placeholder, not SRD text yet. The condition
+  *list* is complete though: all fifteen plus six exhaustion levels, in `src/data/conditions.ts`.
+  Bane is deliberately absent -- `ConditionEffect` can add a die but not subtract one, and a chip
+  whose maths does nothing is worse than no chip.
+- The conditions panel is 21 chips tall, six of them exhaustion levels. Folding those into one chip
+  with a level stepper would read better and is also more correct, since the levels are exclusive.
 - **Sync is built but not switched on.** `supabase/README.md` has the five setup steps; until the
   two `VITE_SUPABASE_*` values exist the app is local-only, the indicator says "This device only",
   and the Supabase client is never even downloaded (dynamic import, so Vite splits it out). It has

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { AdvMode, Character, CoverDegree } from '../rules/types.ts'
 import { CONDITIONS, conditionById } from '../data/conditions.ts'
 import { useSession } from '../store/session.ts'
@@ -8,15 +9,18 @@ type Props = { character: Character; actions: ReturnType<typeof useSheetActions>
 export function SideRail({ character: c, actions }: Props) {
   return (
     <>
-      <DicePanel />
+      <DicePanel actions={actions} />
       <ConditionsPanel character={c} actions={actions} />
       <ResourcesPanel character={c} actions={actions} />
     </>
   )
 }
 
-function DicePanel() {
+const DICE = [4, 6, 8, 10, 12, 20, 100]
+
+function DicePanel({ actions }: { actions: Props['actions'] }) {
   const { adv, setAdv, cover, setCover, log, clearLog } = useSession()
+  const [count, setCount] = useState(1)
   return (
     <div className="dice">
       <div className="dice-head">
@@ -37,6 +41,24 @@ function DicePanel() {
           </button>
         ))}
       </div>
+      {/* The adv/disadv toggle above governs rolls the sheet makes for you. These
+          are plain dice with nothing added -- the roll you want when the table
+          asks for one and the sheet has no opinion about it. */}
+      <div className="tray">
+        <div className="tray-count">
+          <button onClick={() => setCount(Math.max(1, count - 1))} aria-label="One fewer die">&minus;</button>
+          <span className="mono">{count}d</span>
+          <button onClick={() => setCount(Math.min(20, count + 1))} aria-label="One more die">+</button>
+        </div>
+        <div className="tray-dice">
+          {DICE.map((size) => (
+            <button key={size} className="tray-die" onClick={() => actions.rollDice(count, size)}>
+              {size}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="log">
         {log.length === 0 ? (
           <p className="log-empty">

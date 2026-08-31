@@ -18,6 +18,8 @@ export type D20Request = {
 
 export type D20Result = {
   natural: number
+  /** True when a condition means the save fails regardless of the die. */
+  autoFail: boolean
   both: [number, number] | null
   modifier: number
   bonusDie: { size: number; value: number } | null
@@ -38,10 +40,14 @@ export function rollD20(req: D20Request, roll: Roller = defaultRoller): D20Resul
   let adv = req.mode === 'adv'
   let dis = req.mode === 'dis'
   let bonusSize = 0
+  let autoFail = false
   const causes: string[] = []
 
   for (const c of req.conditions) {
     const e = c.effect
+    if (req.ability && req.type === 'save' && e.autoFailSave?.includes(req.ability)) {
+      autoFail = true; causes.push(c.name)
+    }
     if (e.adv?.includes(req.type)) { adv = true; causes.push(c.name) }
     if (e.dis?.includes(req.type)) { dis = true; causes.push(c.name) }
     if (req.ability && req.type === 'save' && e.disSave?.includes(req.ability)) {
@@ -68,10 +74,12 @@ export function rollD20(req: D20Request, roll: Roller = defaultRoller): D20Resul
   if (bonus) parts.push(`+ ${bonus.value} (1d${bonus.size})`)
   if (adv) parts.push('advantage')
   if (dis) parts.push('disadvantage')
+  if (autoFail) parts.push('- automatic failure')
   if (causes.length) parts.push(`from ${[...new Set(causes)].join(', ')}`)
 
   return {
     natural,
+    autoFail,
     both: rollsTwice ? [a, b] : null,
     modifier: req.modifier,
     bonusDie: bonus,
@@ -80,7 +88,7 @@ export function rollD20(req: D20Request, roll: Roller = defaultRoller): D20Resul
     disadvantage: dis,
     causes: [...new Set(causes)],
     detail: parts.join(' '),
-    kind: natural === 20 ? 'crit' : natural === 1 ? 'fail' : 'normal',
+    kind: autoFail ? 'fail' : natural === 20 ? 'crit' : natural === 1 ? 'fail' : 'normal',
   }
 }
 

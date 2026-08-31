@@ -7,7 +7,7 @@ import { useSheetActions } from './store/actions.ts'
 import { Header } from './components/Header.tsx'
 import { Vitals } from './components/Vitals.tsx'
 import { Alerts } from './components/Alerts.tsx'
-import { Abilities } from './components/Abilities.tsx'
+import { Abilities, CharacterDetail } from './components/Abilities.tsx'
 import { Skills } from './components/Skills.tsx'
 import { Center } from './components/Center.tsx'
 import { SideRail } from './components/SideRail.tsx'
@@ -74,6 +74,7 @@ export default function App() {
         <div className="area-abil"><Abilities character={character} actions={actions} /></div>
         <div className="area-center"><Center character={character} actions={actions} /></div>
         <div className="area-side"><SideRail character={character} actions={actions} /></div>
+        <div className="area-detail"><CharacterDetail character={character} /></div>
         <div className="area-skills"><Skills character={character} actions={actions} /></div>
       </main>
       {editorOpen && (

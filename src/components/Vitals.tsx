@@ -91,8 +91,13 @@ export function Vitals({ character: c, actions }: Props) {
       </div>
 
       <div className="vitals-stats">
-        <div className="stat" title={cover !== 'none' ? `${c.ac} base + ${coverBonus(cover)} cover` : undefined}>
-          <span className="stat-value mono">{ac}</span>
+        <div className="stat stat-ac" title={cover !== 'none' ? `${c.ac} base + ${coverBonus(cover)} cover` : undefined}>
+          <span className="shield" aria-hidden>
+            <svg viewBox="0 0 40 46" role="presentation">
+              <path d="M20 1 L38 7 v16 c0 11-8 18-18 22 C10 41 2 34 2 23 V7 Z" />
+            </svg>
+            <span className="stat-value mono">{ac}</span>
+          </span>
           <span className="stat-label caps">Armor class</span>
         </div>
         <button className="stat" onClick={() => actions.rollInitiative()}>
