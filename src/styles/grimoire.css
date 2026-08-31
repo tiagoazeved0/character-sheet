@@ -1,0 +1,125 @@
+/*
+ * Grimoire theme layer. Import AFTER app.css:
+ *
+ *   import './styles/app.css'
+ *   import './styles/grimoire.css'
+ *
+ * tokens.css already carries the palette and type. This file only does what a
+ * variable cannot: paper texture, hard corners, letterpress edges, and the
+ * ornamental panel heads. No new classes — it restyles the existing ones.
+ */
+@import '@fontsource/im-fell-english-sc/400.css';
+@import '@fontsource/im-fell-english/400.css';
+@import '@fontsource/im-fell-english/400-italic.css';
+@import '@fontsource/eb-garamond/400.css';
+@import '@fontsource/eb-garamond/500.css';
+@import '@fontsource/eb-garamond/600.css';
+@import '@fontsource/cutive-mono/400.css';
+
+/* --- paper --- */
+body {
+  font-size: 15px;
+  background:
+    radial-gradient(120% 80% at 12% 0%, oklch(1 0.01 95 / 0.85), transparent 60%),
+    radial-gradient(90% 60% at 100% 100%, oklch(0.55 0.05 80 / 0.16), transparent 70%),
+    repeating-linear-gradient(0deg, oklch(0.45 0.03 75 / 0.035) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, oklch(0.45 0.03 75 / 0.03) 0 1px, transparent 1px 5px),
+    var(--page);
+  background-attachment: fixed;
+}
+::selection { background: var(--accent); color: oklch(0.96 0.02 90); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 0; }
+input::placeholder, textarea::placeholder { font-style: italic; color: var(--text-muted); }
+
+/* --- hard corners everywhere --- */
+.card, .tile, .hp-card, .abil-mod, .abil-save, .btn, .hbtn, .segmented, .segmented button,
+.tabs, .tabs button, .search, .pick-row, .dice, .log-entry, .chip, .pip, .badge, .tag,
+.modal, .json-area, .notes-area, .error, .history-revert, .hp-buttons button, .conc-pill,
+.portrait-frame {
+  border-radius: var(--r-md);
+}
+.hp-bar, .enc-bar { border-radius: 0; }
+.dot { border-radius: 0; transform: rotate(45deg); }
+
+/* --- vellum panels: double rule + hard offset shadow --- */
+.card, .pick-row {
+  background: linear-gradient(var(--surface), var(--surface-inset));
+  box-shadow: var(--press);
+}
+.modal { box-shadow: var(--shadow-panel); border: 1px solid var(--border-strong); }
+
+/* --- header: ink slab under a gold rule --- */
+.header {
+  background: linear-gradient(oklch(0.205 0.016 62), var(--dark-deep));
+  border-bottom: 1px solid var(--gold);
+  box-shadow: 0 3px 0 var(--dark), 0 4px 0 var(--gold-dim), 0 14px 22px oklch(0.3 0.02 70 / 0.18);
+}
+.header-name { font-size: 30px; font-weight: 400; letter-spacing: 0.01em; text-shadow: 0 1px 0 #000; }
+.header-class { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; }
+.tile, .hp-card { background: oklch(0.24 0.016 62); box-shadow: inset 0 0 0 1px oklch(0.66 0.1 85 / 0.10); }
+.tile-value { font-family: var(--font-display); font-size: 28px; font-weight: 400; }
+.tile-caption { font-family: var(--font-mono); font-size: 10px; }
+.hbtn, .segmented button { font-family: var(--font-mono); font-weight: 400; font-size: 11px; text-transform: uppercase; }
+
+/* --- ornamented panel heads: small-caps title, hairline rule, fleuron --- */
+.panel-head { align-items: center; gap: 10px; border-bottom: 1px solid var(--divider-2); }
+.panel-title { font-family: var(--font-display); font-weight: 400; font-size: 16px; letter-spacing: 0.06em; color: var(--text-secondary); }
+.panel-head::after {
+  content: '\2726';
+  order: 99; margin-left: auto;
+  color: var(--gold); font-size: 9px; line-height: 1;
+}
+.panel-title::after {
+  content: ''; display: block;
+}
+.panel-head > .panel-title + * { margin-left: 0; }
+
+/* --- display type on the things you read, mono on the things you count --- */
+.row-title { font-family: var(--font-display); font-weight: 400; font-size: 20px; letter-spacing: 0.01em; }
+.row-desc { font-size: 15px; line-height: 1.5; }
+.row-sub, .abil-score, .skill-mod, .log-detail, .log-total, .history-when { font-family: var(--font-mono); }
+.abil-mod { font-family: var(--font-display); font-size: 26px; font-weight: 400; }
+.abil-abbr, .tile-caption, .pool-recovery, .dice-clear, .skill-ability { font-family: var(--font-mono); letter-spacing: 0.12em; }
+.skill-row { font-size: 15px; }
+.tabs button, .chip, .pool-head { font-family: var(--font-display); font-weight: 400; font-size: 15px; letter-spacing: 0.03em; }
+.badge, .tag { font-family: var(--font-mono); font-weight: 400; letter-spacing: 0.08em; }
+
+/* --- brass press for the primary action --- */
+.btn.primary {
+  background: linear-gradient(oklch(0.47 0.14 30), var(--accent-hover));
+  border: 1px solid oklch(0.32 0.12 30);
+  font-family: var(--font-display); font-weight: 400; font-size: 15px; letter-spacing: 0.04em;
+}
+.btn.ghost { background: linear-gradient(var(--surface), var(--surface-inset)); }
+
+/* --- search reads as a ruled line, not a box --- */
+.search {
+  background: transparent; border: 0; border-bottom: 1px solid var(--border-strong);
+  border-radius: 0; font-family: var(--font-ui); font-style: italic; font-size: 16px; padding: 8px 4px;
+}
+.search:focus { border-bottom-color: var(--accent); }
+
+/* --- dice rail --- */
+.dice {
+  background: linear-gradient(oklch(0.205 0.016 62), var(--dark-deep));
+  border: 1px solid var(--dark-border);
+  box-shadow: inset 0 0 0 1px oklch(0.66 0.1 85 / 0.16), 3px 4px 0 oklch(0.35 0.02 70 / 0.14);
+}
+.log-entry { border: 1px solid var(--dark-border); }
+.log-total { font-family: var(--font-display); font-size: 24px; font-weight: 400; }
+
+/* --- the portrait sits in the page like a tipped-in plate --- */
+.portrait-frame.has-image { box-shadow: var(--press); border-color: var(--border-strong); }
+
+/* --- ability cards get a faint oxblood hatch --- */
+.abil {
+  background-image: repeating-linear-gradient(45deg, oklch(0.42 0.14 30 / 0.05) 0 6px, transparent 6px 12px);
+}
+
+/* --- the display faces are larger than the ones they replaced; give the
+       header back its compaction wherever it would otherwise wrap --- */
+@media (max-width: 1500px) {
+  .header-name { font-size: 25px; }
+  .tile-value { font-size: 23px; }
+  .row-title { font-size: 18px; }
+}

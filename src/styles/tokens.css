@@ -1,74 +1,96 @@
 /*
- * The handoff writes every colour as a literal oklch() so that its source is the
- * spec. Here they become variables once, and nothing downstream hardcodes a colour.
+ * Grimoire theme — drop-in replacement for src/styles/tokens.css.
+ * Same variable names as before, so nothing downstream changes.
+ * Colours stay literal oklch(), per the original file's convention.
  */
 :root {
-  --page:            oklch(0.955 0.008 85);
-  --surface:         #ffffff;
-  --surface-inset:   oklch(0.975 0.005 85);
-  --surface-inset-2: oklch(0.965 0.008 85);
-  --border:          oklch(0.88 0.01 80);
-  --border-strong:   oklch(0.82 0.015 80);
-  --divider:         oklch(0.955 0.006 80);
-  --divider-2:       oklch(0.92 0.008 80);
-  --track:           oklch(0.9 0.008 80);
+  /* aged vellum */
+  --page:            oklch(0.885 0.028 88);
+  --surface:         oklch(0.980 0.014 92);
+  --surface-inset:   oklch(0.958 0.020 90);
+  --surface-inset-2: oklch(0.945 0.024 90);
+  --border:          oklch(0.780 0.035 90);
+  --border-strong:   oklch(0.680 0.045 88);
+  --divider:         oklch(0.905 0.024 88);
+  --divider-2:       oklch(0.855 0.030 88);
+  --track:           oklch(0.845 0.032 88);
 
-  --text:            oklch(0.24 0.012 60);
-  --text-body:       oklch(0.38 0.012 60);
-  --text-secondary:  oklch(0.5 0.015 60);
-  --text-muted:      oklch(0.6 0.015 60);
+  --text:            oklch(0.250 0.015 65);
+  --text-body:       oklch(0.330 0.018 70);
+  --text-secondary:  oklch(0.440 0.025 78);
+  --text-muted:      oklch(0.620 0.030 85);
 
-  --dark:            oklch(0.22 0.014 60);
-  --dark-raised:     oklch(0.27 0.016 60);
-  --dark-raised-2:   oklch(0.28 0.016 60);
-  --dark-deep:       oklch(0.18 0.012 60);
-  --dark-border:     oklch(0.36 0.02 60);
-  --on-dark:         oklch(0.94 0.008 85);
-  --on-dark-muted:   oklch(0.72 0.02 80);
+  /* ink */
+  --dark:            oklch(0.190 0.014 62);
+  --dark-raised:     oklch(0.235 0.016 62);
+  --dark-raised-2:   oklch(0.255 0.018 62);
+  --dark-deep:       oklch(0.140 0.012 62);
+  --dark-border:     oklch(0.320 0.022 70);
+  --on-dark:         oklch(0.930 0.028 92);
+  --on-dark-muted:   oklch(0.720 0.026 85);
 
-  --accent:          oklch(0.52 0.13 25);
-  --accent-hover:    oklch(0.42 0.13 25);
-  --accent-light:    oklch(0.97 0.02 30);
-  --accent-mid:      oklch(0.72 0.09 25);
+  /* oxblood */
+  --accent:          oklch(0.420 0.140 30);
+  --accent-hover:    oklch(0.355 0.140 30);
+  --accent-light:    oklch(0.945 0.028 40);
+  --accent-mid:      oklch(0.600 0.100 30);
 
-  --arcane:          oklch(0.5 0.11 250);
-  --arcane-light:    oklch(0.94 0.04 250);
-  --arcane-text:     oklch(0.38 0.1 250);
+  --arcane:          oklch(0.430 0.100 265);
+  --arcane-light:    oklch(0.920 0.032 265);
+  --arcane-text:     oklch(0.340 0.090 265);
 
-  --violet:          oklch(0.48 0.12 300);
-  --violet-light:    oklch(0.92 0.05 300);
+  --violet:          oklch(0.420 0.105 310);
+  --violet-light:    oklch(0.905 0.040 310);
 
-  --green:           oklch(0.42 0.11 145);
-  --green-fill:      oklch(0.68 0.14 145);
-  --green-light:     oklch(0.96 0.02 145);
-  --green-bright:    oklch(0.86 0.11 150);
+  --green:           oklch(0.400 0.085 150);
+  --green-fill:      oklch(0.585 0.100 150);
+  --green-light:     oklch(0.935 0.024 150);
+  --green-bright:    oklch(0.810 0.090 152);
 
-  --danger:          oklch(0.44 0.15 25);
-  --danger-fill:     oklch(0.62 0.16 25);
-  --danger-light:    oklch(0.97 0.02 25);
-  --danger-bright:   oklch(0.82 0.1 25);
+  --danger:          oklch(0.400 0.145 30);
+  --danger-fill:     oklch(0.560 0.150 30);
+  --danger-light:    oklch(0.945 0.028 35);
+  --danger-bright:   oklch(0.790 0.095 33);
 
-  --warning:         oklch(0.5 0.12 45);
-  --inspiration:     oklch(0.75 0.13 85);
-  --encumbrance:     oklch(0.6 0.1 85);
-  --amber-bright:    oklch(0.85 0.09 55);
+  --warning:         oklch(0.480 0.110 55);
+  /* tarnished gold — also the ornament colour */
+  --inspiration:     oklch(0.660 0.100 85);
+  --gold:            oklch(0.660 0.100 85);
+  --gold-dim:        oklch(0.660 0.100 85 / 0.35);
+  --encumbrance:     oklch(0.580 0.080 85);
+  --amber-bright:    oklch(0.800 0.090 70);
 
-  --font-display: 'Spectral', Georgia, serif;
-  --font-ui: 'IBM Plex Sans', Helvetica, Arial, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  /* Tinted surfaces for the panels that sit on ink rather than vellum — the HP
+     card's damage/heal buttons and the dice log's crit/fail rows. The vellum
+     --danger/--green are far too light to read against --dark-raised. */
+  --ink-red:         oklch(0.300 0.060 30);
+  --ink-red-edge:    oklch(0.400 0.090 30);
+  --ink-red-text:    oklch(0.820 0.070 35);
+  --ink-green:       oklch(0.300 0.040 150);
+  --ink-green-edge:  oklch(0.400 0.060 150);
+  --ink-green-text:  oklch(0.820 0.060 150);
+  /* Temp HP keeps the conventional blue, lifted so it reads on the dark bar. */
+  --temp-hp:         oklch(0.640 0.090 265);
+  --scrim:           oklch(0.140 0.012 62 / 0.55);
 
-  --shadow-tab: 0 1px 3px oklch(0.5 0 0 / 0.14);
-  --shadow-panel: 0 6px 24px oklch(0.5 0 0 / 0.08);
+  --font-display: 'IM Fell English SC', 'IM Fell English', Georgia, serif;
+  --font-ui: 'EB Garamond', Georgia, serif;
+  --font-mono: 'Cutive Mono', ui-monospace, monospace;
+
+  /* letterpress: hairline highlight inside, hard offset shadow outside */
+  --shadow-tab: 2px 2px 0 oklch(0.35 0.02 70 / 0.10);
+  --shadow-panel: 6px 8px 0 oklch(0.35 0.02 70 / 0.10);
+  --press: inset 0 0 0 1px oklch(0.995 0.008 95), 3px 4px 0 oklch(0.35 0.02 70 / 0.07);
+
+  /* hard corners — the whole point of the treatment */
+  --r-sm: 1px;
+  --r-md: 2px;
+  --r-lg: 2px;
 
   /* Comfortable target on a mouse. Raised on touch, below. */
   --tap: 0px;
 }
 
-/*
- * The prototype is mouse-density throughout: 11px labels, 20px pips, 4px padding.
- * On a tablet at the table that is a misclick waiting to happen, so touch gets
- * bigger targets without changing the desktop layout.
- */
 @media (pointer: coarse) {
   :root { --tap: 44px; }
   button, .row-button, .chip { min-height: var(--tap); }

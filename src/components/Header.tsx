@@ -40,12 +40,12 @@ export function Header({ character: c, actions, layout, onOpenEditor, onOpenLeve
   return (
     <header className="header">
       <div className="header-inner">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 210 }}>
+        <div className="header-identity">
           <div className="header-name">{c.name}</div>
           <div className="header-class">{c.classLine}</div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'stretch', gap: 10, flexWrap: 'wrap', flex: 1 }}>
+        <div className="header-vitals">
           <div className="hp-card">
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
               <span className="caps" style={{ fontSize: 10, color: 'var(--on-dark-muted)' }}>Hit points</span>
@@ -55,7 +55,7 @@ export function Header({ character: c, actions, layout, onOpenEditor, onOpenLeve
             </div>
             <div className="hp-bar">
               <div style={{ width: `${frac * 100}%`, background: hpColour }} />
-              <div style={{ width: `${tempPct}%`, background: 'oklch(0.7 0.12 250)' }} />
+              <div style={{ width: `${tempPct}%`, background: 'var(--temp-hp)' }} />
             </div>
             <div className="hp-buttons">
               <button className="btn-dmg" onClick={() => actions.takeDamage(5)}>&minus;5</button>
@@ -95,14 +95,6 @@ export function Header({ character: c, actions, layout, onOpenEditor, onOpenLeve
             </div>
           </div>
 
-          <button
-            className={`hbtn inspiration ${c.heroicInspiration ? 'active' : ''}`}
-            style={{ alignSelf: 'center' }}
-            onClick={actions.toggleInspiration}
-            title="Heroic inspiration"
-          >
-            Inspiration
-          </button>
           <div className="tile" title={cover !== 'none' ? `${c.ac} base + ${coverBonus(cover)} cover` : undefined}>
             <div className="tile-value">{ac}</div>
             <div className="tile-caption">Armor</div>
@@ -120,13 +112,20 @@ export function Header({ character: c, actions, layout, onOpenEditor, onOpenLeve
           )}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <div className="header-actions">
+          <div>
+            <button
+              className={`hbtn inspiration ${c.heroicInspiration ? 'active' : ''}`}
+              onClick={actions.toggleInspiration}
+              title="Heroic inspiration"
+            >
+              Inspiration
+            </button>
             <button className="hbtn" onClick={actions.shortRest}>Short rest</button>
             <button className="hbtn" onClick={actions.longRest}>Long rest</button>
             <button className={`hbtn combat ${combat ? 'active' : ''}`} onClick={toggleCombat}>Combat mode</button>
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div>
             <button className="hbtn" onClick={onOpenEditor}>Characters &amp; edit</button>
             {c.classes.length > 0 && <button className="hbtn" onClick={onOpenLevelUp}>Level up</button>}
             <div className="segmented">
