@@ -11,33 +11,7 @@ export type FeatureDef = {
 
 export type FeatDef = { id: string; name: string; desc: string }
 
-export type AbilityBlock = { score: number; mod: number; save: number }
 
-/** A monster/mount/NPC stat block. Combat blocks (traits/actions/etc.) are prose, mirroring how the book itself presents them. */
-export type MonsterDef = {
-  id: string
-  name: string
-  size: string
-  type: string
-  alignment: string
-  ac: number
-  initiative: string
-  hp: string
-  speed: string
-  abilities: Record<Ability, AbilityBlock>
-  skills?: string
-  resistances?: string
-  immunities?: string
-  vulnerabilities?: string
-  senses: string
-  languages: string
-  cr: string
-  traits?: string
-  actions?: string
-  bonusActions?: string
-  reactions?: string
-  legendaryActions?: string
-}
 export type SpellDef = { id: string; name: string; level: number; sub: string; desc: string }
 export type ItemDef = { id: string; name: string; weight: number; desc: string }
 export type ConditionPackDef = { id: string; name: string; note: string }
@@ -124,6 +98,5 @@ export type RulesPack = {
     feats: FeatDef[]
     items: ItemDef[]
     features: FeatureDef[]
-    monsters: MonsterDef[]
   }
 }

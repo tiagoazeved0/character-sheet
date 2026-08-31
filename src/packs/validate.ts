@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import {
   backgroundDefSchema, classDefSchema, conditionPackDefSchema, featDefSchema,
-  featureDefSchema, itemDefSchema, monsterDefSchema, raceDefSchema, spellDefSchema,
+  featureDefSchema, itemDefSchema, raceDefSchema, spellDefSchema,
 } from './schema.ts'
 import type { RulesPack } from './types.ts'
 
@@ -22,7 +22,6 @@ const CATEGORY_SCHEMAS = {
   feats: featDefSchema,
   items: itemDefSchema,
   features: featureDefSchema,
-  monsters: monsterDefSchema,
 } as const
 
 export type PackImportResult = { pack: RulesPack | null; errors: string[] }
@@ -43,7 +42,7 @@ export function validatePackImport(raw: unknown): PackImportResult {
 
   const rawContent = typeof doc.content === 'object' && doc.content !== null ? (doc.content as Record<string, unknown>) : {}
   const errors: string[] = []
-  const content: RulesPack['content'] = { spells: [], conditions: [], classes: [], races: [], backgrounds: [], feats: [], items: [], features: [], monsters: [] }
+  const content: RulesPack['content'] = { spells: [], conditions: [], classes: [], races: [], backgrounds: [], feats: [], items: [], features: [] }
 
   for (const category of Object.keys(CATEGORY_SCHEMAS) as (keyof typeof CATEGORY_SCHEMAS)[]) {
     const list = rawContent[category]

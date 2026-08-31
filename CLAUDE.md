@@ -66,8 +66,12 @@ so History shows the before/after and revert is one click. See `PLAN.md` §2.
 ## Stack
 
 Vite + React 18 + TypeScript, Zustand for state, Zod for validation, IndexedDB for persistence,
-`vite-plugin-pwa` for offline. No CSS framework: `src/styles/tokens.css` defines the palette as
-custom properties, `src/styles/app.css` is one stylesheet of semantic classes.
+`vite-plugin-pwa` for offline. No CSS framework: `src/styles/tokens.css` defines the palette and
+type as custom properties, `src/styles/app.css` is one stylesheet of semantic classes, and
+`src/styles/grimoire.css` is the theme layer imported after it (paper texture, hard corners,
+letterpress edges — the things a variable cannot express). **Every colour in the app resolves to a
+token in `tokens.css`.** The one literal left is `theme-color` in `index.html`, which cannot take a
+`var()`; keep it in step with `--dark`. A restyle should be those two files and nothing else.
 
 TypeScript is strict, with `noUnusedLocals`, `noUncheckedIndexedAccess` and `verbatimModuleSyntax`
 on. **Relative imports carry explicit `.ts` / `.tsx` extensions** (`allowImportingTsExtensions`).
@@ -104,7 +108,7 @@ src/store/
   db.ts             IndexedDB wrapper (DB_VERSION 2: characters, changes, meta, rules_packs)
   labels.ts         JSON pointer -> human label for history
 src/data/           conditions, seed character, blank/duplicate factories
-src/components/     Header, Alerts, Abilities, Skills, Center, SideRail, History, Editor,
+src/components/     Header, Alerts, Abilities, Skills, Center, SideRail, History, Editor, Portrait,
                     CreateCharacter (guided-creation wizard), LevelUp, ChoicePicker (shared)
 ```
 
@@ -112,7 +116,7 @@ src/components/     Header, Alerts, Abilities, Skills, Center, SideRail, History
 
 ```bash
 npm install
-npm test           # 76 tests: dice, vitals, apply/history, rest, derive, tokens, packs/*, abilityScores
+npm test           # 85 tests: dice, vitals, apply/history, rest, derive, tokens, packs/*, abilityScores
 npm run build      # tsc --noEmit && vite build
 npm run dev
 ```
@@ -151,6 +155,14 @@ added in bulk, see `PLAN.md` §11).
 e.g. a subclass pick → applied as one batched, revertable History row). Both are additional routes
 alongside the pre-existing blank-slate and duplicate, which still work unchanged.
 
+**Combat RAW and the grimoire theme landed after phase 6.** Crits double base and rider dice but
+not flat modifiers; cover gives +2/+5 to AC and Dex saves only; damage taken at 0 HP is a death-save
+failure, two on a crit; Massive Damage kills outright. The Header's HP card carries the only damage
+path that can name a type or a crit, so `mitigateDamage` and the stored resistances are finally
+reachable. Portraits are live: `Portrait.tsx` downscales to 384px JPEG before storing, because
+`portraitUrl` lives in the character document and the `edit` channel is never pruned — a
+full-resolution photo would sit in the journal forever.
+
 **Known gaps and risks:**
 
 - AC and starting HP default to generic formulas in the wizard (10+DEX, average-per-level) since
@@ -166,6 +178,9 @@ alongside the pre-existing blank-slate and duplicate, which still work unchanged
 - There is no sync. `src/store/db.ts` is the only persistence; laptop and tablet do not share state
   until phase 4.
 - Combat mode has a toggle in the header and session state, but no UI.
+- The header is 330px on a 768px-wide screen (iPad mini portrait) because the layout segmented
+  control will not share a row. It is a set-once display preference sitting in prime real estate;
+  moving it into the Editor is the fix if that device ever matters.
 - Multiclassing isn't modeled — `Character.classes` is architecturally an array but `LevelUp.tsx`
   only ever touches `classes[0]`.
 

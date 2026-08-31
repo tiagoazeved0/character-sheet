@@ -13,23 +13,6 @@ export const spellDefSchema = z.object({
 export const itemDefSchema = z.object({ id: z.string().min(1), name: z.string().min(1), weight: z.number().min(0), desc: z.string() })
 export const conditionPackDefSchema = z.object({ id: z.string().min(1), name: z.string().min(1), note: z.string() })
 
-const abilityBlockSchema = z.object({ score: z.number().int(), mod: z.number().int(), save: z.number().int() })
-export const monsterDefSchema = z.object({
-  id: z.string().min(1), name: z.string().min(1),
-  size: z.string().min(1), type: z.string().min(1), alignment: z.string().min(1),
-  ac: z.number().int().min(0), initiative: z.string().min(1), hp: z.string().min(1), speed: z.string().min(1),
-  abilities: z.object({
-    str: abilityBlockSchema, dex: abilityBlockSchema, con: abilityBlockSchema,
-    int: abilityBlockSchema, wis: abilityBlockSchema, cha: abilityBlockSchema,
-  }),
-  skills: z.string().optional(),
-  resistances: z.string().optional(),
-  immunities: z.string().optional(),
-  vulnerabilities: z.string().optional(),
-  senses: z.string().min(1), languages: z.string().min(1), cr: z.string().min(1),
-  traits: z.string().optional(), actions: z.string().optional(), bonusActions: z.string().optional(),
-  reactions: z.string().optional(), legendaryActions: z.string().optional(),
-})
 
 const choiceDefSchema = z.object({
   id: z.string().min(1), label: z.string(), prerequisite: z.string().optional(),
@@ -90,7 +73,6 @@ export const rulesPackSchema = z.object({
     feats: z.array(featDefSchema),
     items: z.array(itemDefSchema),
     features: z.array(featureDefSchema),
-    monsters: z.array(monsterDefSchema),
   }),
 })
 

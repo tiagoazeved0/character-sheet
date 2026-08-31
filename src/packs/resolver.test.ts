@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { resolvePacks } from './resolver.ts'
 import type { RulesPack } from './types.ts'
 
-const emptyContent = { spells: [], conditions: [], classes: [], races: [], backgrounds: [], feats: [], items: [], features: [], monsters: [] }
+const emptyContent = { spells: [], conditions: [], classes: [], races: [], backgrounds: [], feats: [], items: [], features: [] }
 
 const pack = (over: Partial<RulesPack> & { packId: string; version: string }): RulesPack => ({
   title: over.packId, edition: 'custom', license: 'test', content: emptyContent, ...over,

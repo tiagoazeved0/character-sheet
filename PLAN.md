@@ -361,7 +361,10 @@ src/
     session.ts      # ephemeral: dice log, combat lanes, advantage mode
     sync.ts
   components/
-  styles/tokens.css
+  styles/
+    tokens.css      # the palette; every colour in the app resolves here
+    app.css         # semantic classes and layout
+    grimoire.css    # theme layer, imported after app.css
 ```
 
 `src/rules/` and `src/packs/` are framework-free and unit tested. A wrong `rollD20` is the kind of
@@ -373,6 +376,11 @@ bug that is embarrassing at the table and the cheapest thing in the app to test 
 
 The prototype has no media queries — the three layouts are a manual toggle.
 
+- **Header compaction.** The header is fixed furniture above every screen and was taking a third
+  of a portrait tablet before the sheet got a pixel. Below 1500px the tiles and buttons tighten;
+  below 1300px the button cluster takes a row of its own so the stat tiles stop wrapping into a
+  narrow column; below 900px the character name does too. Measured, not eyeballed: 136px on a
+  laptop, 236px on both realistic iPad orientations.
 - **Auto-select by viewport,** manual toggle retained as an override, persisted per device: under
   900px stacked, 900–1300px tablet, above 1300px columns.
 - **Coarse-pointer pass.** Under `@media (pointer: coarse)`, raise interactive elements to a 44px
@@ -383,9 +391,10 @@ The prototype has no media queries — the three layouts are a manual toggle.
 
 ## 9. Offline
 
-`vite-plugin-pwa` with app-shell precache, installable to the tablet home screen. Self-host
-Spectral, IBM Plex Sans and IBM Plex Mono via `@fontsource` — the handoff recommends it and offline
-makes it mandatory. Rules packs cache in IndexedDB, so a pack is available offline once imported.
+`vite-plugin-pwa` with app-shell precache, installable to the tablet home screen. Self-host every
+face via `@fontsource` — offline makes it mandatory, and a Google Fonts `<link>` would fall back to
+system serif at a table with no wifi. Currently IM Fell English SC, EB Garamond and Cutive Mono.
+Rules packs cache in IndexedDB, so a pack is available offline once imported.
 
 ---
 
@@ -401,6 +410,11 @@ makes it mandatory. Rules packs cache in IndexedDB, so a pack is available offli
 | 5 | History tab with per-field revert | yes | partial -- channel filter only, no field filter/jump-to-date/visual batch collapse yet |
 | 6 | Class tables in packs → guided creation and level-up, sharing one choice-rendering layer | yes | done -- `CreateCharacter.tsx` + `LevelUp.tsx` share `ChoicePicker.tsx` and `src/packs/levelup.ts`; known gaps: AC/HP defaults, resource-pool auto-wiring (see `CLAUDE.md`) |
 | 7 | Combat mode, lanes driven by tagged actions | yes | not started (toggle only, no UI) |
+
+The grimoire restyle (vellum, oxblood, letterpress; IM Fell / EB Garamond / Cutive Mono) is not a
+phase — it is a palette and type swap that ports as `tokens.css` plus `grimoire.css`, because no
+component holds a colour of its own. Keep it that way: the one colour literal left in the repo is
+`theme-color` in `index.html`, which cannot take a `var()`.
 
 Phase 2 is the first genuinely useful build. Phase 4 is the one that makes laptop-and-tablet work.
 Phases 5–7 are separable and can slip without hurting anything.
