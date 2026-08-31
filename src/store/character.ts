@@ -6,6 +6,7 @@ import { seedCharacter } from '../data/seed.ts'
 import { blankCharacter, duplicateCharacter } from '../data/blank.ts'
 import { coalesce, computeApply, prune, revertMutation, type Mutation } from './apply.ts'
 import { dbAll, dbChangesFor, dbDelete, dbGet, dbPut } from './db.ts'
+import { useSync } from './sync.ts'
 
 type Store = {
   characters: Character[]
@@ -45,6 +46,7 @@ export const useCharacters = create<Store>((set, get) => ({
       const seed = seedCharacter()
       characters.push(seed)
       await dbPut('characters', seed, seed.id)
+      useSync.getState().queueCharacter(seed)
     }
     const lastId = (await dbGet<string>('meta', 'activeId').catch(() => undefined)) ?? characters[0]!.id
     const activeId = characters.some((c) => c.id === lastId) ? lastId : characters[0]!.id
@@ -65,7 +67,11 @@ export const useCharacters = create<Store>((set, get) => ({
       history,
     })
     void dbPut('characters', next, next.id)
-    for (const change of changes) void dbPut('changes', change)
+    useSync.getState().queueCharacter(next)
+    for (const change of changes) {
+      void dbPut('changes', change)
+      useSync.getState().queueChange(change)
+    }
   },
 
   revert(change) {
@@ -93,6 +99,7 @@ export const useCharacters = create<Store>((set, get) => ({
     const character = blankCharacter(name)
     set((s) => ({ characters: [...s.characters, character] }))
     void dbPut('characters', character, character.id)
+    useSync.getState().queueCharacter(character)
     get().setActive(character.id)
   },
 
@@ -100,6 +107,7 @@ export const useCharacters = create<Store>((set, get) => ({
   createFromWizard(character) {
     set((s) => ({ characters: [...s.characters, character] }))
     void dbPut('characters', character, character.id)
+    useSync.getState().queueCharacter(character)
     get().setActive(character.id)
   },
 
@@ -109,6 +117,7 @@ export const useCharacters = create<Store>((set, get) => ({
     const copy = duplicateCharacter(current, name)
     set((s) => ({ characters: [...s.characters, copy] }))
     void dbPut('characters', copy, copy.id)
+    useSync.getState().queueCharacter(copy)
     get().setActive(copy.id)
   },
 
@@ -117,6 +126,7 @@ export const useCharacters = create<Store>((set, get) => ({
     if (remaining.length === 0) return
     set({ characters: remaining })
     void dbDelete('characters', id)
+    useSync.getState().queueDelete(id)
     if (get().activeId === id) get().setActive(remaining[0]!.id)
   },
 

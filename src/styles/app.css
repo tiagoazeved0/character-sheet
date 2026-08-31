@@ -130,6 +130,33 @@ button.tile:hover { border-color: var(--accent-mid); }
   .grid.columns .area-side { top: 18px; }
 }
 
+/* Sync status. Fixed rather than in the header: it must be glanceable without
+   taking a pixel of the sheet, and quiet unless it wants something. */
+.syncbar { position: fixed; left: 14px; bottom: 14px; z-index: 40; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.syncbar-pill {
+  display: inline-flex; align-items: center; gap: 7px; min-height: var(--tap);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 6px 11px; border-radius: 20px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary);
+  box-shadow: var(--shadow-tab);
+}
+.syncbar-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); flex: none; }
+.syncbar.synced .syncbar-pill { opacity: 0.55; }
+.syncbar.synced .syncbar-dot { background: var(--green-fill); }
+.syncbar.pending .syncbar-dot, .syncbar.syncing .syncbar-dot { background: var(--inspiration); }
+.syncbar.offline .syncbar-dot, .syncbar.signed-out .syncbar-dot { background: var(--text-muted); }
+.syncbar.conflict .syncbar-pill { background: var(--danger); border-color: var(--danger); color: var(--on-dark); opacity: 1; }
+.syncbar.conflict .syncbar-dot { background: var(--on-dark); }
+.syncbar-detail {
+  max-width: 260px; padding: 10px 12px; border-radius: 10px; font-size: 12px;
+  background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-panel);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.syncbar-detail p { margin: 0; color: var(--text-body); }
+.conflict-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.conflict-side { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; text-align: left; padding: 12px 13px 13px; }
+.conflict-side:hover { border-color: var(--accent); }
+
 /* ---------- alerts ---------- */
 .alert { padding: 10px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .alert-death { background: var(--danger); color: var(--on-dark); position: sticky; top: 0; z-index: 20; }

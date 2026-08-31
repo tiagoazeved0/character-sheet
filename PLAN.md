@@ -255,6 +255,12 @@ alter table rules_packs       enable row level security;
 Storing documents as `jsonb` keeps schema migrations in TypeScript alongside the Zod schema rather
 than split across Postgres migrations.
 
+Two corrections the implementation forced. `characters.id` is **text, not uuid**: ids are generated
+on the client and are not all uuids (the bundled seed is `seed-vessa`, and `uid()` falls back to a
+base-36 string where `crypto.randomUUID` is unavailable). And `rev` lives in a local `sync_meta`
+store, **never on the character document** -- on the document `apply()` would diff it and journal a
+history entry every time the app synced.
+
 ### The pause problem
 
 Free Supabase projects pause after about a week without database activity, and resuming is manual
@@ -428,7 +434,7 @@ Rules packs cache in IndexedDB, so a pack is available offline once imported.
 | 1 | `apply()` dispatch layer, `src/rules/` ported and tested, Zod schemas, history journal | no | done |
 | 2 | Full sheet UI on a fixture character, local persistence, responsive + touch pass | **yes**, one device | done |
 | 3 | Pack resolver, packs, pack import/export UI, character switcher, blank-slate creation | yes | done -- `src/packs/`, resolver, validator, level engine, two real packs (`homebrew-pugilist`, `phb-2024`, kept out of git per Hard Rule 5) |
-| 4 | Supabase auth, sync, conflict prompt, keepalive cron | **yes, both devices** | not started |
+| 4 | Supabase auth, sync, conflict prompt, keepalive cron | **yes, both devices** | built, not switched on -- `src/store/outbox.ts` (pure, tested) + `src/store/sync.ts`, DDL in `supabase/schema.sql`, setup in `supabase/README.md`. Untested against a real project |
 | 5 | History tab with per-field revert | yes | partial -- channel filter only, no field filter/jump-to-date/visual batch collapse yet |
 | 6 | Class tables in packs → guided creation and level-up, sharing one choice-rendering layer | yes | done -- `CreateCharacter.tsx` + `LevelUp.tsx` share `ChoicePicker.tsx` and `src/packs/levelup.ts`; known gaps: AC/HP defaults, resource-pool auto-wiring (see `CLAUDE.md`) |
 | 7 | Combat mode, lanes driven by tagged actions | yes | not started (toggle only, no UI) |

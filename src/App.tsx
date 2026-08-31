@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useCharacters, useActiveCharacter } from './store/character.ts'
 import { usePacks } from './store/packs.ts'
 import { useSession, type Layout } from './store/session.ts'
+import { useSync } from './store/sync.ts'
 import { useSheetActions } from './store/actions.ts'
 import { Header } from './components/Header.tsx'
 import { Alerts } from './components/Alerts.tsx'
@@ -12,6 +13,7 @@ import { SideRail } from './components/SideRail.tsx'
 import { Editor } from './components/Editor.tsx'
 import { CreateCharacter } from './components/CreateCharacter.tsx'
 import { LevelUp } from './components/LevelUp.tsx'
+import { ConflictModal, SyncBar } from './components/SyncBar.tsx'
 
 /**
  * The prototype makes layout a manual toggle with no media queries. Here the
@@ -50,6 +52,8 @@ export default function App() {
 
   useEffect(() => { void load() }, [load])
   useEffect(() => { void loadPacks() }, [loadPacks])
+  // Restores the durable outbox and, once signed in, pulls before pushing.
+  useEffect(() => { void useSync.getState().init() }, [])
 
   if (!loaded || !character) {
     return <p style={{ padding: 40, fontSize: 14 }} className="muted">Loading…</p>
@@ -78,6 +82,8 @@ export default function App() {
         />
       )}
       {guidedOpen && <CreateCharacter onClose={() => setGuidedOpen(false)} />}
+      <SyncBar />
+      <ConflictModal />
       {levelUpOpen && <LevelUp character={character} onClose={() => setLevelUpOpen(false)} />}
     </>
   )

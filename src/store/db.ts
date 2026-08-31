@@ -1,9 +1,11 @@
 /**
- * Minimal IndexedDB key-value store. Two object stores: whole character
- * documents, and the append-only change journal keyed by `${characterId}:${at}`.
+ * Minimal IndexedDB key-value store: whole character documents, the append-only
+ * change journal, installed rules packs, and the sync outbox plus its per-row
+ * server bookkeeping. The outbox is durable on purpose -- an HP change made on
+ * the tablet has to survive the app being closed before it reaches Supabase.
  */
 const DB_NAME = 'character-sheet'
-const DB_VERSION = 2
+const DB_VERSION = 3
 
 let dbPromise: Promise<IDBDatabase> | null = null
 
@@ -20,6 +22,8 @@ function open(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta')
       if (!db.objectStoreNames.contains('rules_packs')) db.createObjectStore('rules_packs')
+      if (!db.objectStoreNames.contains('outbox')) db.createObjectStore('outbox')
+      if (!db.objectStoreNames.contains('sync_meta')) db.createObjectStore('sync_meta')
     }
     req.onsuccess = () => resolve(req.result)
     req.onerror = () => reject(req.error)

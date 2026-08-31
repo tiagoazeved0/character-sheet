@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { RulesPack } from '../packs/types.ts'
 import { validatePackImport } from '../packs/validate.ts'
 import { dbAll, dbDelete, dbPut } from './db.ts'
+import { useSync } from './sync.ts'
 
 type Store = {
   packs: RulesPack[]
@@ -29,6 +30,7 @@ export const usePacks = create<Store>((set, get) => ({
     if (!pack) return { ok: false as const, errors }
     set((s) => ({ packs: [...s.packs.filter((p) => key(p.packId, p.version) !== key(pack.packId, pack.version)), pack] }))
     void dbPut('rules_packs', pack, key(pack.packId, pack.version))
+    useSync.getState().queuePack(pack.packId, pack.version)
     return { ok: true as const, errors }
   },
 

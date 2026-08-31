@@ -105,7 +105,9 @@ src/store/
   packs.ts          installed rules packs (IndexedDB `rules_packs` store)
   session.ts        ephemeral state
   actions.ts        every roll and state change the UI can trigger
-  db.ts             IndexedDB wrapper (DB_VERSION 2: characters, changes, meta, rules_packs)
+  db.ts             IndexedDB wrapper (DB_VERSION 3: characters, changes, meta, rules_packs, outbox, sync_meta)
+  outbox.ts         pure sync logic — queue, conflict resolution, status. unit tested
+  sync.ts           the Supabase half: auth, debounced push, pull, conflicts
   labels.ts         JSON pointer -> human label for history
 src/data/           conditions, seed character, blank/duplicate factories
 src/components/     Header, Alerts, Abilities, Skills, Center, SideRail, History, Editor, Portrait,
@@ -116,7 +118,7 @@ src/components/     Header, Alerts, Abilities, Skills, Center, SideRail, History
 
 ```bash
 npm install
-npm test           # 94 tests: dice, vitals, apply/history, rest, derive, tokens, packs/*, abilityScores
+npm test           # 115 tests: dice, vitals, apply/history, rest, derive, tokens, packs/*, abilityScores
 npm run build      # tsc --noEmit && vite build
 npm run dev
 ```
@@ -183,8 +185,10 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   selection when `skillProficiencies` is absent. Don't fabricate specific grants; get real source
   text from the user the same way the Pugilist pack's gaps got closed.
 - Bundled condition and spell text is paraphrased placeholder, not SRD text yet.
-- There is no sync. `src/store/db.ts` is the only persistence; laptop and tablet do not share state
-  until phase 4.
+- **Sync is built but not switched on.** `supabase/README.md` has the five setup steps; until the
+  two `VITE_SUPABASE_*` values exist the app is local-only, the indicator says "This device only",
+  and the Supabase client is never even downloaded (dynamic import, so Vite splits it out). It has
+  not been exercised against a real project yet — only the pure logic is tested.
 - Combat mode has a toggle in the header and session state, but no UI.
 - The header is 230px on the table tablet in landscape (Galaxy Tab S6 Lite, ~1000x600 CSS px), which
   is the floor while every touch target stays 44px. It is `position: static` under
@@ -197,12 +201,10 @@ Stat blocks are added and edited through the JSON editor, like every other entry
 
 ## Next work, in order
 
-1. **Phase 4 — Supabase.** Auth via GitHub OAuth, RLS scoped to `auth.uid()`, tables for
-   `characters`, `character_changes`, and `rules_packs` — DDL is in `PLAN.md`. Local-first: writes
-   land in IndexedDB synchronously and the push is debounced and allowed to fail. Per-row optimistic
-   concurrency on `rev`; on mismatch show a modal and let the user pick a side. Never merge, never
-   silently overwrite. Wire the keepalive workflow's secrets — free projects pause after ~7 days
-   of inactivity and a fortnightly campaign will hit that.
+1. **Finish phase 4** — the code is written; what is left is the setup in `supabase/README.md`
+   (project, `schema.sql`, GitHub OAuth app, the two build secrets, the two keepalive secrets) and
+   then a real two-device test: edit the same character on both while one is offline, and check the
+   conflict modal actually appears and neither side is merged.
 2. **Phase 5 — history polish.** Filter by field, jump-to-date, visual batch collapse in the UI (the
    data already supports all three; History currently only filters by channel).
 3. **Grow `phb-2024` incrementally** as new characters need content from it — real source text only,

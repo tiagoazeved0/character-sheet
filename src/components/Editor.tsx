@@ -1,6 +1,8 @@
 import { useEffect, useState, type ChangeEvent } from 'react'
 import { useCharacters } from '../store/character.ts'
 import { useSession, type Layout } from '../store/session.ts'
+import { isConfigured, useSync } from '../store/sync.ts'
+import { STATUS_LABEL } from '../store/outbox.ts'
 import { usePacks } from '../store/packs.ts'
 import { suggestedProficiency } from '../data/blank.ts'
 import type { Character } from '../rules/types.ts'
@@ -19,6 +21,7 @@ export function Editor({
 }) {
   const { characters, setActive, createBlank, duplicateActive, removeCharacter, replaceActive, apply } = useCharacters()
   const { packs, install: installPack, remove: removePack } = usePacks()
+  const sync = useSync()
   const layoutOverride = useSession((s) => s.layoutOverride)
   const setLayout = useSession((s) => s.setLayout)
   const [draft, setDraft] = useState(() => JSON.stringify(c, null, 2))
@@ -91,6 +94,27 @@ export function Editor({
             <NumField label="Max HP" value={c.maxHp} onChange={(v) => quick('max HP', (d) => ({ ...d, maxHp: v }))} />
             <NumField label="AC" value={c.ac} onChange={(v) => quick('AC', (d) => ({ ...d, ac: v }))} />
             <NumField label="Speed" value={c.speed} onChange={(v) => quick('speed', (d) => ({ ...d, speed: v }))} />
+          </section>
+
+          <section style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Sync</span>
+            <span style={{ fontSize: 13 }}>{STATUS_LABEL[sync.status]}</span>
+            {sync.email && <span className="muted" style={{ fontSize: 12 }}>{sync.email}</span>}
+            {!isConfigured && (
+              <span className="muted" style={{ fontSize: 12 }}>
+                Supabase is not configured for this build — see <code>supabase/README.md</code>.
+              </span>
+            )}
+            {isConfigured && !sync.email && (
+              <button className="btn ghost" onClick={() => void sync.signIn()}>Sign in with GitHub</button>
+            )}
+            {isConfigured && sync.email && (
+              <>
+                <button className="btn ghost" onClick={() => void sync.flush()}>Sync now</button>
+                <button className="btn ghost" onClick={() => void sync.signOut()}>Sign out</button>
+              </>
+            )}
+            {sync.lastError && <span style={{ fontSize: 12, color: 'var(--danger)' }}>{sync.lastError}</span>}
           </section>
 
           <section style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
