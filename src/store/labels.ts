@@ -21,12 +21,15 @@ const EXACT: Record<string, string> = {
   '/packs': 'Rules packs',
   '/appearance': 'Appearance',
   '/portraitUrl': 'Portrait',
+  '/companions': 'Companions',
 }
 
 const PREFIX: [string, string][] = [
   ['/scores/', 'Ability score: '],
   ['/skills/', 'Skill: '],
+  ['/companions/', 'Companion: '],
   ['/usage/', 'Resource: '],
+  ['/companionHp/', 'Companion HP: '],
   ['/spellcasting', 'Spellcasting'],
   ['/resources', 'Resource pools'],
   ['/spells', 'Spells'],

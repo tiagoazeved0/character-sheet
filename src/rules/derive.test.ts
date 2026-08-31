@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { coverBonus, mitigateDamage, passiveInsight, passiveInvestigation, passivePerception } from './derive.ts'
+import { coverBonus, damageLabel, mitigateDamage, passiveInsight, passiveInvestigation, passivePerception } from './derive.ts'
 import { seedCharacter } from '../data/seed.ts'
 
 describe('passive scores', () => {
@@ -46,5 +46,19 @@ describe('coverBonus', () => {
     expect(coverBonus('none')).toBe(0)
     expect(coverBonus('half')).toBe(2)
     expect(coverBonus('three-quarters')).toBe(5)
+  })
+})
+
+describe('damageLabel', () => {
+  it('writes dice and a flat bonus', () => {
+    expect(damageLabel({ count: 2, size: 6, flat: 3 })).toBe('2d6+3')
+  })
+
+  it('drops the bonus when there is none', () => {
+    expect(damageLabel({ count: 1, size: 10, flat: 0 })).toBe('1d10')
+  })
+
+  it('writes flat-only damage as a number, not 0dN', () => {
+    expect(damageLabel({ count: 0, size: 2, flat: 1 })).toBe('1')
   })
 })

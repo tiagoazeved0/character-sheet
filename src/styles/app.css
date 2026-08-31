@@ -121,6 +121,15 @@ button.tile:hover { border-color: var(--accent-mid); }
   .segmented button { padding: 5px 7px; }
 }
 
+/* A sticky header costs its full height on every screen, forever. On a tall
+   screen that is a fair price for keeping HP in view; on the table tablet in
+   landscape (600px) it was a third of everything you could see. Let it scroll
+   away there and the sheet gets all 230px back. */
+@media (max-height: 700px) {
+  .header { position: static; }
+  .grid.columns .area-side { top: 18px; }
+}
+
 /* ---------- alerts ---------- */
 .alert { padding: 10px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .alert-death { background: var(--danger); color: var(--on-dark); position: sticky; top: 0; z-index: 20; }
@@ -234,6 +243,17 @@ button.tile:hover { border-color: var(--accent-mid); }
 .portrait-frame.has-image { padding: 0; border-style: solid; border-color: var(--border); overflow: hidden; cursor: default; }
 .portrait-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .portrait-actions { display: flex; gap: 6px; }
+.companion { padding: 12px 13px 13px; display: flex; flex-direction: column; gap: 10px; }
+.companion-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.companion-hp { margin-left: auto; font-size: 15px; font-weight: 600; }
+.companion-hp-buttons { display: flex; gap: 5px; }
+.companion-hp-buttons button {
+  min-width: 38px; min-height: var(--tap);
+  font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 6px;
+}
+.companion-bar { height: 6px; border-radius: 6px; background: var(--track); overflow: hidden; display: flex; }
+.companion-bar > div { transition: width 220ms ease; }
+.companion-stats { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px 16px; }
 .chip { font-size: 11px; font-weight: 600; border-radius: 20px; padding: 5px 10px; border: 1px solid var(--border); background: var(--surface); }

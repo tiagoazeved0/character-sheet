@@ -41,6 +41,12 @@ const MIGRATIONS: Record<number, Migration> = {
     schemaVersion: 5,
     classes: [],
   }),
+  5: (doc) => ({
+    ...doc,
+    schemaVersion: 6,
+    companions: [],
+    companionHp: {},
+  }),
 }
 
 export type MigrationResult =

@@ -35,14 +35,14 @@ input::placeholder, textarea::placeholder { font-style: italic; color: var(--tex
 .card, .tile, .hp-card, .abil-mod, .abil-save, .btn, .hbtn, .segmented, .segmented button,
 .tabs, .tabs button, .search, .pick-row, .dice, .log-entry, .chip, .pip, .badge, .tag,
 .modal, .json-area, .notes-area, .error, .history-revert, .hp-buttons button, .conc-pill,
-.portrait-frame {
+.portrait-frame, .companion, .companion-hp-buttons button {
   border-radius: var(--r-md);
 }
-.hp-bar, .enc-bar { border-radius: 0; }
+.hp-bar, .enc-bar, .companion-bar { border-radius: 0; }
 .dot { border-radius: 0; transform: rotate(45deg); }
 
 /* --- vellum panels: double rule + hard offset shadow --- */
-.card, .pick-row {
+.card, .pick-row, .companion {
   background: linear-gradient(var(--surface), var(--surface-inset));
   box-shadow: var(--press);
 }

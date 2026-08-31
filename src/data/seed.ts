@@ -81,6 +81,22 @@ export function seedCharacter(): Character {
     riders: [{ name: 'Hex', count: 1, size: 6, type: 'necrotic', requiresConcentrationOn: 'Hex' }],
     packs: [],
     classes: [],
+    companionHp: {},
+    companions: [
+      {
+        id: 'familiar-owl', name: 'Sable', tag: 'Familiar (owl)',
+        ac: 11, maxHp: 1, speed: '5 ft, fly 60 ft',
+        senses: 'Darkvision 120 ft, passive Perception 13',
+        desc: 'Pact of the Chain familiar. Flyby, so it provokes no opportunity attack when it leaves reach. Can deliver your touch spells.',
+        actions: [
+          {
+            id: 'owl-talons', name: 'Talons', tag: 'Action', sub: '+3 to hit - reach 5 ft',
+            desc: '1 slashing damage.', attack: { mod: 3 },
+            damage: { count: 0, size: 2, flat: 1, type: 'slashing', label: 'Talons' },
+          },
+        ],
+      },
+    ],
     customTokens: {},
     notes: 'Session 12 - the Sanguine Ledger names a fourth signatory.\n\nOwed: 40gp to Brannock. Owed to me: one favour, House Velen.',
     heroicInspiration: false,

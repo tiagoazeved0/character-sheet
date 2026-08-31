@@ -122,6 +122,10 @@ export function Header({ character: c, actions, onOpenEditor, onOpenLevelUp }: P
             <button className="hbtn" onClick={actions.shortRest}>Short rest</button>
             <button className="hbtn" onClick={actions.longRest}>Long rest</button>
             <button className={`hbtn combat ${combat ? 'active' : ''}`} onClick={toggleCombat}>Combat mode</button>
+          </div>
+          {/* Split from the play controls above so the cluster stays narrow: as one
+              row it is 559px wide and squeezes a stat tile onto a second line. */}
+          <div>
             <button className="hbtn" onClick={onOpenEditor}>Characters &amp; edit</button>
             {c.classes.length > 0 && <button className="hbtn" onClick={onOpenLevelUp}>Level up</button>}
           </div>

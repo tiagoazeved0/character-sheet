@@ -330,6 +330,22 @@ build an expression evaluator. Ship fixed built-ins (`%ATK%`, `%DC%`, `%PROF%`, 
 `%MOD:cha%`) plus a `customTokens` map of literal strings. Good enough, and it cannot break at the
 table.
 
+### Companions
+
+Familiars, wild shape forms, steeds, summons and beast companions are creatures the player runs, so
+they belong to the character document rather than to a pack index — a bestiary in a player's sheet is
+metagaming, and a familiar's current hit points are state nobody else can track for you.
+
+```ts
+companions: CompanionEntry[]              // the stat block: ac, maxHp, speed, senses, actions
+companionHp: Record<string, number>       // id -> current HP; absent means undamaged
+```
+
+The split matters. `diffDocuments` compares arrays as whole values on purpose, so HP stored inside
+the entry would write two full copies of the array into the journal every time the familiar took a
+hit. `resources[]` + `usage{}` already solves exactly this, and companions follow it. Their attacks
+reuse `ActionEntry`, so they roll through the same path as everything else on the sheet.
+
 ### Schema migrations
 
 You will be shipping breaking changes to yourself while a live character exists. Non-negotiable:
@@ -381,8 +397,10 @@ The prototype has no media queries — the three layouts are a manual toggle.
   below 1300px the button cluster takes a row of its own so the stat tiles stop wrapping into a
   narrow column; below 900px the character name does too. Measured, not eyeballed: 136px on a
   laptop, 230px on the table tablet in landscape (Galaxy Tab S6 Lite, ~1000x600 CSS px), 236px on
-  a full-size iPad. The tablet number is close to the floor while the header stays sticky — see
-  `CLAUDE.md` for what going lower would cost.
+  a full-size iPad.
+- **Sticky only where it pays.** Under `@media (max-height: 700px)` the header is `position: static`.
+  A sticky header costs its full height on every screen forever; on a 600px-tall tablet that was a
+  third of everything visible, too much to pay for keeping HP in the corner. Taller screens keep it.
 - **Auto-select by viewport,** manual toggle retained as an override, persisted per device: under
   900px stacked, 900–1300px tablet, above 1300px columns. The override lives in the Editor, not the
   header — it is set once, and in the header it was the widest thing in a row already fighting for

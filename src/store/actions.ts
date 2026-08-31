@@ -162,6 +162,21 @@ export function useSheetActions(character: Character | null) {
       push({ label: 'Long rest', detail: 'Everything restored, conditions and concentration cleared', total: null, kind: 'system' })
     },
 
+    /** Companions take damage like anything else at the table, so their HP is
+     *  play-channel state, not something the editor has to be opened for. */
+    companionHp(id: string, delta: number) {
+      apply({
+        label: 'Companion HP',
+        channel: 'play',
+        mutate: (c) => {
+          const companion = c.companions.find((k) => k.id === id)
+          if (!companion) return c
+          const current = c.companionHp[id] ?? companion.maxHp
+          return { ...c, companionHp: { ...c.companionHp, [id]: Math.max(0, Math.min(companion.maxHp, current + delta)) } }
+        },
+      })
+    },
+
     edit(label: string, mutate: (c: Character) => Character) {
       apply({ label, channel: 'edit', mutate })
     },

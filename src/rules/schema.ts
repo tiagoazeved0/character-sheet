@@ -51,6 +51,16 @@ export const spellcastingSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('none') }),
 ])
 
+const actionEntry = z.object({
+  id: z.string(), name: z.string(), tag: z.string(), sub: z.string(), desc: z.string(),
+  lane: lane.optional(),
+  attack: z.object({ mod: z.number() }).optional(),
+  damage: damage.extend({ label: z.string() }).optional(),
+  check: z.object({ mod: z.number(), label: z.string() }).optional(),
+  concentrationOn: z.string().optional(),
+  favoredWhen: z.array(z.string()).optional(),
+})
+
 export const characterSchema = z.object({
   schemaVersion: z.number().int(),
   id: z.string().min(1),
@@ -78,14 +88,13 @@ export const characterSchema = z.object({
     lane: lane.optional(),
     favoredWhen: z.array(z.string()).optional(),
   })),
-  actions: z.array(z.object({
-    id: z.string(), name: z.string(), tag: z.string(), sub: z.string(), desc: z.string(),
-    lane: lane.optional(),
-    attack: z.object({ mod: z.number() }).optional(),
-    damage: damage.extend({ label: z.string() }).optional(),
-    check: z.object({ mod: z.number(), label: z.string() }).optional(),
-    concentrationOn: z.string().optional(),
-    favoredWhen: z.array(z.string()).optional(),
+  actions: z.array(actionEntry),
+  companions: z.array(z.object({
+    id: z.string(), name: z.string(), tag: z.string(),
+    ac: z.number().int().min(0),
+    maxHp: z.number().int().min(0),
+    speed: z.string(), senses: z.string(), desc: z.string(),
+    actions: z.array(actionEntry),
   })),
   features: z.array(z.object({
     id: z.string(), name: z.string(), tag: z.string(), sub: z.string(),
@@ -126,6 +135,7 @@ export const characterSchema = z.object({
     concentration: z.string().nullable(),
   }),
   usage: z.record(z.string(), z.number().int().min(0)),
+  companionHp: z.record(z.string(), z.number().int().min(0)),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

@@ -81,8 +81,8 @@ Keep that convention.
 
 ```
 src/rules/          pure, framework-free, unit tested
-  types.ts          Character, Vitals, ResourcePool, ConditionDef, entries, PackPin
-  version.ts        CURRENT_SCHEMA_VERSION (5) — dependency-free on purpose
+  types.ts          Character, Vitals, ResourcePool, ConditionDef, entries, CompanionEntry, PackPin
+  version.ts        CURRENT_SCHEMA_VERSION (6) — dependency-free on purpose
   dice.ts           rollD20 / rollDamage, injectable Roller seam
   vitals.ts         damage, healing, temp HP, death saves, concentration DC, startingHp
   rest.ts           short and long rest restoration
@@ -116,7 +116,7 @@ src/components/     Header, Alerts, Abilities, Skills, Center, SideRail, History
 
 ```bash
 npm install
-npm test           # 85 tests: dice, vitals, apply/history, rest, derive, tokens, packs/*, abilityScores
+npm test           # 94 tests: dice, vitals, apply/history, rest, derive, tokens, packs/*, abilityScores
 npm run build      # tsc --noEmit && vite build
 npm run dev
 ```
@@ -163,6 +163,14 @@ reachable. Portraits are live: `Portrait.tsx` downscales to 384px JPEG before st
 `portraitUrl` lives in the character document and the `edit` channel is never pruned — a
 full-resolution photo would sit in the journal forever.
 
+**Companions are on the sheet.** Familiars, wild shape forms, steeds, summons and beast companions
+live on the character as `companions: CompanionEntry[]`, with their attacks reusing `ActionEntry` so
+they roll like anything else. Their current HP is `companionHp: Record<id, number>`, deliberately
+*not* a field on the entry: `diffDocuments` compares arrays as whole values, so HP inside the entry
+would journal two full copies of the array every time the familiar took a hit. This is the same
+pattern `resources[]` + `usage{}` already uses, for the same reason. An absent key means undamaged.
+Stat blocks are added and edited through the JSON editor, like every other entry type.
+
 **Known gaps and risks:**
 
 - AC and starting HP default to generic formulas in the wizard (10+DEX, average-per-level) since
@@ -178,11 +186,12 @@ full-resolution photo would sit in the journal forever.
 - There is no sync. `src/store/db.ts` is the only persistence; laptop and tablet do not share state
   until phase 4.
 - Combat mode has a toggle in the header and session state, but no UI.
-- The header still costs 38% of the viewport on the table tablet in landscape (Galaxy Tab S6 Lite,
-  ~1000x600 CSS px). That is close to the floor while it stays sticky: the HP card is 153px because
-  two of its rows are 44px touch targets, and the button row is another 50px. Going lower means
-  either un-sticking the header on short viewports (`max-height`) or dropping the +/-5 quick
-  buttons, which are the only healing path. Neither is obviously right — ask before choosing.
+- The header is 230px on the table tablet in landscape (Galaxy Tab S6 Lite, ~1000x600 CSS px), which
+  is the floor while every touch target stays 44px. It is `position: static` under
+  `@media (max-height: 700px)` so it scrolls away there and the sheet gets the whole 600px; on taller
+  screens it stays sticky and HP stays in view.
+- The spell and inventory rows still build their dice label inline, so a flat-damage spell would read
+  `0d6+2`. `damageLabel()` in `derive.ts` fixes that shape; only the action row uses it so far.
 - Multiclassing isn't modeled — `Character.classes` is architecturally an array but `LevelUp.tsx`
   only ever touches `classes[0]`.
 

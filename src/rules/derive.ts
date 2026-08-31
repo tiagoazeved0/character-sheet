@@ -10,6 +10,12 @@ export const mod = (score: number) => Math.floor((score - 10) / 2)
 export const abilityMod = (c: Character, a: Ability) => mod(c.scores[a])
 export const fmt = (n: number) => (n >= 0 ? '+' : '') + n
 
+/** "2d6+3", or just "1" when a hit deals flat damage and rolls no dice. */
+export const damageLabel = (spec: { count: number; size: number; flat: number }) =>
+  spec.count > 0
+    ? `${spec.count}d${spec.size}${spec.flat ? `+${spec.flat}` : ''}`
+    : String(spec.flat)
+
 export const saveMod = (c: Character, a: Ability) =>
   abilityMod(c, a) + (c.saveProficiencies.includes(a) ? c.proficiencyBonus : 0)
 

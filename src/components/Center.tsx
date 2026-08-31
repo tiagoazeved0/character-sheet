@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { Character, SpellEntry } from '../rules/types.ts'
-import { carriedWeight, carryCapacity, castLevelFor, poolRemaining, slotsRemaining } from '../rules/derive.ts'
+import { carriedWeight, carryCapacity, castLevelFor, damageLabel, poolRemaining, slotsRemaining } from '../rules/derive.ts'
 import { expandTokens } from '../rules/tokens.ts'
 import { useSession, type Tab } from '../store/session.ts'
 import { useCharacters } from '../store/character.ts'
@@ -8,7 +8,7 @@ import type { useSheetActions } from '../store/actions.ts'
 import { History } from './History.tsx'
 import { Portrait } from './Portrait.tsx'
 
-const TABS: Tab[] = ['Actions', 'Spells', 'Features', 'Inventory', 'Background', 'Notes', 'History']
+const TABS: Tab[] = ['Actions', 'Spells', 'Features', 'Inventory', 'Companions', 'Background', 'Notes', 'History']
 
 type Props = { character: Character; actions: ReturnType<typeof useSheetActions> }
 
@@ -81,6 +81,8 @@ function TabBody({ character: c, actions, tok, tab }: Props & { tok: (s: string)
 
   if (tab === 'Background') return <BackgroundTab character={c} actions={actions} />
 
+  if (tab === 'Companions') return <CompanionsTab character={c} actions={actions} tok={tok} />
+
   if (tab === 'Inventory') {
     const carried = carriedWeight(c)
     const cap = carryCapacity(c)
@@ -121,6 +123,59 @@ function TabBody({ character: c, actions, tok, tab }: Props & { tok: (s: string)
     : c.features.map((f) => <FeatureRow key={f.id} entry={f} character={c} actions={actions} tok={tok} />)
 
   return <div className="rows">{list}</div>
+}
+
+function CompanionsTab({ character: c, actions, tok }: RowProps) {
+  if (c.companions.length === 0) {
+    return (
+      <div className="card side-card">
+        <p className="muted" style={{ fontSize: 12, margin: 0 }}>
+          No familiars, companions or wild shape forms yet. Add them under Characters &amp; edit —
+          they live on this character, so their hit points are tracked here and travel with the sheet.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {c.companions.map((k) => {
+        const hp = c.companionHp[k.id] ?? k.maxHp
+        const frac = k.maxHp === 0 ? 0 : hp / k.maxHp
+        return (
+          <div key={k.id} className="card companion">
+            <div className="companion-head">
+              <span className="row-title">{k.name}</span>
+              <span className="tag">{k.tag}</span>
+              <span className="companion-hp mono">{hp} / {k.maxHp}</span>
+              <div className="companion-hp-buttons">
+                <button className="btn-dmg" onClick={() => actions.companionHp(k.id, -5)}>&minus;5</button>
+                <button className="btn-dmg" onClick={() => actions.companionHp(k.id, -1)}>&minus;1</button>
+                <button className="btn-heal" onClick={() => actions.companionHp(k.id, 1)}>+1</button>
+                <button className="btn-heal" onClick={() => actions.companionHp(k.id, 5)}>+5</button>
+              </div>
+            </div>
+
+            <div className="companion-bar">
+              <div style={{ width: `${frac * 100}%`, background: frac < 0.34 ? 'var(--danger-fill)' : 'var(--green-fill)' }} />
+            </div>
+
+            <div className="companion-stats">
+              <span><b className="mono">{k.ac}</b> AC</span>
+              {k.speed && <span>{k.speed}</span>}
+              {k.senses && <span>{k.senses}</span>}
+            </div>
+
+            {k.desc && <p className="row-desc" style={{ margin: 0 }}>{tok(k.desc)}</p>}
+
+            {k.actions.map((entry) => (
+              <ActionRow key={entry.id} entry={entry} character={c} actions={actions} tok={tok} />
+            ))}
+          </div>
+        )
+      })}
+    </div>
+  )
 }
 
 function BackgroundTab({ character: c, actions }: Props) {
@@ -201,8 +256,7 @@ function ActionRow({ entry, character: c, actions, tok }: RowProps & { entry: Ch
           )}
           {entry.damage && (
             <button className="btn ghost" onClick={() => actions.rollDamageSpec(entry.damage!.label, entry.damage!)}>
-              {entry.damage.count}d{entry.damage.size}
-              {entry.damage.flat ? `+${entry.damage.flat}` : ''}
+              {damageLabel(entry.damage)}
             </button>
           )}
           {entry.check && (

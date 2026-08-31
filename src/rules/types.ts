@@ -184,11 +184,36 @@ export type Character = {
   proficiencies: Proficiencies
   appearance: string
   portraitUrl: string
+  companions: CompanionEntry[]
   vitals: Vitals
   /** Pool id -> pips spent. Spell slots use the reserved id 'slots:<level>'. */
   usage: Record<string, number>
+  /** Companion id -> current HP. Absent means undamaged, the same way `usage`
+   *  treats an absent pool as unspent. Kept out of the companion entry itself so
+   *  a round of chip damage diffs to one small leaf instead of rewriting the
+   *  whole array -- `diffDocuments` compares arrays as whole values. */
+  companionHp: Record<string, number>
   createdAt: string
   updatedAt: string
+}
+
+/**
+ * A familiar, wild shape form, steed, summon or beast companion -- a creature the
+ * character runs rather than one they fight. It belongs to the character and not
+ * to a pack index, because the thing that matters at the table is its current HP,
+ * and that is state nobody else can track for you.
+ */
+export type CompanionEntry = {
+  id: string
+  name: string
+  /** "Familiar", "Wild shape", "Summon", "Steed", "Companion" -- free text, it only labels the card. */
+  tag: string
+  ac: number
+  maxHp: number
+  speed: string
+  senses: string
+  desc: string
+  actions: ActionEntry[]
 }
 
 export type LogKind = 'normal' | 'crit' | 'fail' | 'damage' | 'system'
