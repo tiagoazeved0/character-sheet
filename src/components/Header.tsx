@@ -2,19 +2,17 @@ import { useState } from 'react'
 import { DAMAGE_TYPES, type Character, type DamageType } from '../rules/types.ts'
 import { abilityMod, coverBonus, fmt, spellAttack, spellDC } from '../rules/derive.ts'
 import { hpFraction } from '../rules/vitals.ts'
-import { useSession, type Layout } from '../store/session.ts'
+import { useSession } from '../store/session.ts'
 import type { useSheetActions } from '../store/actions.ts'
 
 type Props = {
   character: Character
   actions: ReturnType<typeof useSheetActions>
-  layout: Layout
   onOpenEditor: () => void
   onOpenLevelUp: () => void
 }
 
-export function Header({ character: c, actions, layout, onOpenEditor, onOpenLevelUp }: Props) {
-  const setLayout = useSession((s) => s.setLayout)
+export function Header({ character: c, actions, onOpenEditor, onOpenLevelUp }: Props) {
   const combat = useSession((s) => s.combat)
   const toggleCombat = useSession((s) => s.toggleCombat)
   const cover = useSession((s) => s.cover)
@@ -124,18 +122,8 @@ export function Header({ character: c, actions, layout, onOpenEditor, onOpenLeve
             <button className="hbtn" onClick={actions.shortRest}>Short rest</button>
             <button className="hbtn" onClick={actions.longRest}>Long rest</button>
             <button className={`hbtn combat ${combat ? 'active' : ''}`} onClick={toggleCombat}>Combat mode</button>
-          </div>
-          <div>
             <button className="hbtn" onClick={onOpenEditor}>Characters &amp; edit</button>
             {c.classes.length > 0 && <button className="hbtn" onClick={onOpenLevelUp}>Level up</button>}
-            <div className="segmented">
-              {(['columns', 'tablet', 'stacked'] as Layout[]).map((l) => (
-                <button key={l} className={layout === l ? 'on' : ''} onClick={() => setLayout(l)}>
-                  {l[0]!.toUpperCase() + l.slice(1)}
-                </button>
-              ))}
-              <button onClick={() => setLayout(null)} title="Follow the screen size">Auto</button>
-            </div>
           </div>
         </div>
       </div>

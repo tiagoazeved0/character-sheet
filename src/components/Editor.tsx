@@ -1,5 +1,6 @@
 import { useEffect, useState, type ChangeEvent } from 'react'
 import { useCharacters } from '../store/character.ts'
+import { useSession, type Layout } from '../store/session.ts'
 import { usePacks } from '../store/packs.ts'
 import { suggestedProficiency } from '../data/blank.ts'
 import type { Character } from '../rules/types.ts'
@@ -18,6 +19,8 @@ export function Editor({
 }) {
   const { characters, setActive, createBlank, duplicateActive, removeCharacter, replaceActive, apply } = useCharacters()
   const { packs, install: installPack, remove: removePack } = usePacks()
+  const layoutOverride = useSession((s) => s.layoutOverride)
+  const setLayout = useSession((s) => s.setLayout)
   const [draft, setDraft] = useState(() => JSON.stringify(c, null, 2))
   const [error, setError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
@@ -88,6 +91,18 @@ export function Editor({
             <NumField label="Max HP" value={c.maxHp} onChange={(v) => quick('max HP', (d) => ({ ...d, maxHp: v }))} />
             <NumField label="AC" value={c.ac} onChange={(v) => quick('AC', (d) => ({ ...d, ac: v }))} />
             <NumField label="Speed" value={c.speed} onChange={(v) => quick('speed', (d) => ({ ...d, speed: v }))} />
+          </section>
+
+          <section style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Layout</span>
+            <div className="segmented light">
+              {(['columns', 'tablet', 'stacked'] as Layout[]).map((l) => (
+                <button key={l} className={layoutOverride === l ? 'on' : ''} onClick={() => setLayout(l)}>
+                  {l[0]!.toUpperCase() + l.slice(1)}
+                </button>
+              ))}
+              <button className={layoutOverride === null ? 'on' : ''} onClick={() => setLayout(null)}>Auto</button>
+            </div>
           </section>
 
           <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 10 }}>

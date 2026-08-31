@@ -86,6 +86,10 @@ button.tile:hover { border-color: var(--accent-mid); }
   font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 6px;
 }
 .segmented button.on { background: var(--accent); color: var(--on-dark); }
+/* The layout picker lives in the Editor, on vellum rather than on the header's ink. */
+.segmented.light { background: var(--surface-inset); border: 1px solid var(--border); }
+.segmented.light button { color: var(--text-secondary); }
+.segmented.light button.on { background: var(--accent); color: var(--on-dark); }
 
 /* The header is fixed furniture above every screen, and on a tablet it was
    taking a third of the viewport before the sheet got a pixel. Below the

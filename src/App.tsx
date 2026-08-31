@@ -60,7 +60,6 @@ export default function App() {
       <Header
         character={character}
         actions={actions}
-        layout={layout}
         onOpenEditor={() => setEditorOpen(true)}
         onOpenLevelUp={() => setLevelUpOpen(true)}
       />

@@ -380,9 +380,13 @@ The prototype has no media queries — the three layouts are a manual toggle.
   of a portrait tablet before the sheet got a pixel. Below 1500px the tiles and buttons tighten;
   below 1300px the button cluster takes a row of its own so the stat tiles stop wrapping into a
   narrow column; below 900px the character name does too. Measured, not eyeballed: 136px on a
-  laptop, 236px on both realistic iPad orientations.
+  laptop, 230px on the table tablet in landscape (Galaxy Tab S6 Lite, ~1000x600 CSS px), 236px on
+  a full-size iPad. The tablet number is close to the floor while the header stays sticky — see
+  `CLAUDE.md` for what going lower would cost.
 - **Auto-select by viewport,** manual toggle retained as an override, persisted per device: under
-  900px stacked, 900–1300px tablet, above 1300px columns.
+  900px stacked, 900–1300px tablet, above 1300px columns. The override lives in the Editor, not the
+  header — it is set once, and in the header it was the widest thing in a row already fighting for
+  space on a small tablet.
 - **Coarse-pointer pass.** Under `@media (pointer: coarse)`, raise interactive elements to a 44px
   minimum target and grow resource pips from 20px to about 28px. Leave desktop density alone.
 - **Dice panel in stacked layout.** The side rail currently sorts last, putting the most-used

@@ -178,9 +178,11 @@ full-resolution photo would sit in the journal forever.
 - There is no sync. `src/store/db.ts` is the only persistence; laptop and tablet do not share state
   until phase 4.
 - Combat mode has a toggle in the header and session state, but no UI.
-- The header is 330px on a 768px-wide screen (iPad mini portrait) because the layout segmented
-  control will not share a row. It is a set-once display preference sitting in prime real estate;
-  moving it into the Editor is the fix if that device ever matters.
+- The header still costs 38% of the viewport on the table tablet in landscape (Galaxy Tab S6 Lite,
+  ~1000x600 CSS px). That is close to the floor while it stays sticky: the HP card is 153px because
+  two of its rows are 44px touch targets, and the button row is another 50px. Going lower means
+  either un-sticking the header on short viewports (`max-height`) or dropping the +/-5 quick
+  buttons, which are the only healing path. Neither is obviously right — ask before choosing.
 - Multiclassing isn't modeled — `Character.classes` is architecturally an array but `LevelUp.tsx`
   only ever touches `classes[0]`.
 
