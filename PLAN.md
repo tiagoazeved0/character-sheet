@@ -408,13 +408,26 @@ The prototype has no media queries — the three layouts are a manual toggle.
 - **Sticky only where it pays.** Under `@media (max-height: 700px)` the header is `position: static`.
   A sticky header costs its full height on every screen forever; on a 600px-tall tablet that was a
   third of everything visible, too much to pay for keeping HP in the corner. Taller screens keep it.
-- **Auto-select by viewport,** manual toggle retained as an override, persisted per device: under
-  900px stacked, 900–1300px tablet, above 1300px columns. The override lives in the Editor, not the
-  header — it is set once, and in the header it was the widest thing in a row already fighting for
-  space on a small tablet.
+- **Auto-select by viewport,** manual toggle retained as an override: under 900px stacked, otherwise
+  tablet, and `columns` only above 1300px *and* on a fine pointer. That last clause is load-bearing —
+  the Tab S6 Lite reports 1333 × 800 (2000 × 1200 at DPR 1.5) and used to land on the desktop layout.
+  A touchscreen at arm's length is not a desk, whatever width it claims. The override lives in the
+  Editor, not the header — it is set once, and in the header it was the widest thing in a row already
+  fighting for space on a small tablet.
+- **One number is the type scale.** Every font size in the app is `rem`, so the root `font-size` in
+  `tokens.css` scales all of it: 16px on a mouse, 20px under `@media (pointer: coarse)`. That tablet
+  puts ~149 CSS px in an inch against a laptop's ~108, so identical `px` are a third smaller in the
+  hand; the bump is the correction, not a preference. Boxes, gaps and `--tap` stay `px` — they are
+  laid out against the viewport, and scaling them here would fight the media queries.
 - **Coarse-pointer pass.** Under `@media (pointer: coarse)`, raise interactive elements to a 44px
-  minimum target and grow resource pips from 20px to about 28px. Leave desktop density alone.
-- **Dice panel in stacked layout.** The side rail currently sorts last, putting the most-used
+  minimum target and make resource pips `var(--tap)` square, wrapping to a second row past about
+  six. Sizing them by width alone gave 28 wide by 44 tall, because the same block sets `min-height`
+  on every `button`. Leave desktop density alone.
+- **Sticky only where it fits.** A sticky box taller than the viewport pins in place and will not
+  scroll until the page under it runs out — which is what the side rail did, since it grows with the
+  dice log and one pool per class feature. On a fine pointer it is capped to the viewport with its
+  own scroll; on a coarse one it is `static` and the page simply scrolls.
+- **Dice panel in stacked layout.** *Still open.* The side rail sorts last, putting the most-used
   control at the bottom of a long scroll on a portrait tablet. Recommend a sticky bottom sheet,
   collapsed to the last roll's total. A deliberate deviation from the handoff.
 
@@ -444,6 +457,11 @@ The grimoire restyle (vellum, oxblood, letterpress; IM Fell / EB Garamond / Cuti
 phase — it is a palette and type swap that ports as `tokens.css` plus `grimoire.css`, because no
 component holds a colour of its own. Keep it that way: the one colour literal left in the repo is
 `theme-color` in `index.html`, which cannot take a `var()`.
+
+Neither are the passes that landed between phases 6 and 7, all of them sheet work rather than new
+architecture: combat RAW (crits, cover, damage at 0 HP, Massive Damage), companions on the sheet,
+the masthead/vitals split, the conditions panel and cover rehoming, and the tablet legibility pass
+in §8. They are recorded in `CLAUDE.md`'s current-state section, not here.
 
 Phase 2 is the first genuinely useful build. Phase 4 is the one that makes laptop-and-tablet work.
 Phases 5–7 are separable and can slip without hurting anything.

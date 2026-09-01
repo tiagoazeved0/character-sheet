@@ -180,7 +180,7 @@ would journal two full copies of the array every time the familiar took a hit. T
 pattern `resources[]` + `usage{}` already uses, for the same reason. An absent key means undamaged.
 Stat blocks are added and edited through the JSON editor, like every other entry type.
 
-**Known gaps and risks:**
+**Known gaps and risks** — real holes, all fair game:
 
 - AC and starting HP default to generic formulas in the wizard (10+DEX, average-per-level) since
   `ClassDef` has no structured way yet to say "this class overrides AC" — both are plain editable
@@ -192,51 +192,106 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   selection when `skillProficiencies` is absent. Don't fabricate specific grants; get real source
   text from the user the same way the Pugilist pack's gaps got closed.
 - Bundled condition and spell text is paraphrased placeholder, not SRD text yet. The condition
-  *list* is complete: all fifteen plus six exhaustion levels, plus Bless and Bane, in
-  `src/data/conditions.ts`. Bane is `penaltyDie`, deliberately its own field rather than a negative
-  `bonusDie`, so a roll under both spells shows two dice and cancels where the player can see it.
+  *list* is complete: all fifteen plus six exhaustion levels, plus Bless and Bane.
 - **Sync is built but not switched on.** `supabase/README.md` has the five setup steps; until the
   two `VITE_SUPABASE_*` values exist the app is local-only, the indicator says "This device only",
   and the Supabase client is never even downloaded (dynamic import, so Vite splits it out). It has
   not been exercised against a real project yet — only the pure logic is tested.
 - Combat mode has a toggle in the header and session state, but no UI.
-- `App.tsx`'s `pick()` never gives a coarse-pointer device the three-column `columns` layout,
-  whatever width it reports: the Tab S6 Lite reports 1333 px and used to land on the laptop layout,
-  which also gave it the sticky side rail. That rail is capped to the viewport with its own scroll
-  on a mouse, and is plain static on touch — a sticky box taller than the viewport pins in place and
-  refuses to scroll until the page under it runs out.
-- Conditions are a panel of *active* chips plus one "Add" menu, with exhaustion as a 0-6 stepper
-  (`actions.setExhaustion` clears the other levels in the same `apply()`, so History shows one
-  change). Cover hangs off the AC tile in `Vitals.tsx`, not the dice rail: it is a fact about where
-  you are standing, and it belongs next to the two numbers it moves. Because the control is no
-  longer beside the log, a Dex save passes `notes` to `rollD20` so the detail line names the cover
-  that produced the bonus.
-- The header carries **identity and navigation only** — avatar, name, class line, and four controls
-  (Inspiration, Rest menu, Combat, Character menu). It is 65px. Everything about how the character is
-  doing lives in `Vitals.tsx`, a full-width strip at the top of the sheet body: hit points with the
-  bar and both damage paths, then AC / initiative / speed / proficiency / spell DC as stat tiles.
-  This is the shape every mature sheet app uses, and it is the reason the header stopped being 230px
-  of fixed furniture. Do not put combat state back in the masthead.
 - The spell and inventory rows still build their dice label inline, so a flat-damage spell would read
   `0d6+2`. `damageLabel()` in `derive.ts` fixes that shape; only the action row uses it so far.
 - Multiclassing isn't modeled — `Character.classes` is architecturally an array but `LevelUp.tsx`
   only ever touches `classes[0]`.
 
-## Next work, in order
+**Settled — these look like oversights and are not. Don't undo them:**
 
-1. **Finish phase 4** — the code is written; what is left is the setup in `supabase/README.md`
-   (project, `schema.sql`, GitHub OAuth app, the two build secrets, the two keepalive secrets) and
-   then a real two-device test: edit the same character on both while one is offline, and check the
-   conflict modal actually appears and neither side is merged.
-2. **Phase 5 — history polish.** Filter by field, jump-to-date, visual batch collapse in the UI (the
-   data already supports all three; History currently only filters by channel).
-3. **Grow `phb-2024` incrementally** as new characters need content from it — real source text only,
-   same process as the Pugilist pack.
-4. **Auto-wire resource pools from `ClassDef`** (Moxie-Points-style pools with a max-by-level table),
-   closing the biggest gap in the guided-creation wizard's automation.
-5. **Phase 7 — combat mode.** Lanes driven by tagged entries: each action/spell carries `lane`, a
-   `requires` resource cost, and `favoredWhen` tags that reorder options when a situation chip is
-   active. Do not hand-code per-character tactics.
+- **The header carries identity and navigation only** — avatar, name, class line, and four controls
+  (Inspiration, Rest menu, Combat, Character menu). It is 65px. Everything about how the character is
+  doing lives in `Vitals.tsx`, a full-width strip at the top of the sheet body: hit points with the
+  bar and both damage paths, then AC / initiative / speed / proficiency / spell DC as stat tiles.
+  This is the shape every mature sheet app uses, and it is why the header stopped being 230px of
+  fixed furniture. Do not put combat state back in the masthead.
+- **Conditions are active chips plus one "Add" menu**, with exhaustion as a 0-6 stepper, not
+  twenty-one chips. `actions.setExhaustion` clears the other levels in the same `apply()`, so
+  History shows one change and the six exclusive levels stay exclusive.
+- **Cover hangs off the AC tile**, not the dice rail: it is a fact about where you are standing, and
+  it belongs next to the two numbers it moves. Because the control is no longer beside the log, a
+  Dex save passes `notes` to `rollD20` so the detail line names the cover that produced the bonus.
+- **Bane is its own `penaltyDie` field**, not a negative `bonusDie`, so a roll under both spells
+  shows two dice and cancels where the player can watch it happen.
+- **`pick()` never gives a coarse-pointer device the `columns` layout**, whatever width it reports.
+  The Tab S6 Lite reports 1333 px and used to land on the laptop layout, which also handed it the
+  sticky side rail. That rail is capped to the viewport with its own scroll on a mouse and is plain
+  `static` on touch — a sticky box taller than the viewport pins in place and refuses to scroll
+  until the page under it runs out.
+- **Every font size is `rem`.** The root `font-size` in `tokens.css` is the type scale, 16px going
+  to 20px under `@media (pointer: coarse)`. Adding a `px` font size anywhere opts that text out.
+
+## Next work
+
+Ordered by what unblocks the most, but they are independent — pick any one cold. Each says where it
+lives and what "done" looks like. Read `PLAN.md` before the structural ones (2 and 3).
+
+### 1. Finish phase 4 — turn sync on · *setup, then one real test*
+
+The code is written and the pure half is tested; none of it has ever spoken to a real server. What
+is left is the five steps in `supabase/README.md` (project, `schema.sql`, GitHub OAuth app, the two
+build secrets, the two keepalive secrets), which need your account and are yours to do. Then the
+test that actually matters: **edit the same character on both devices with one of them offline, and
+check the conflict modal appears and neither side is silently merged.** Until that runs, treat
+`src/store/sync.ts` as unproven — `outbox.ts` is the tested part, `sync.ts` is the I/O around it.
+Done when two devices agree and a deliberate conflict is survivable.
+
+### 2. Phase 7 — combat mode · *the biggest missing feature*
+
+The toggle and session state exist; there is no UI. `PLAN.md` §10 has the design: each action and
+spell carries `lane` (`action`/`bonus`/`move`/`reaction`/`free`), a `requires` cost like
+`{ pool: 'pact', amount: 1 }`, and optional `favoredWhen` tags that reorder options when a situation
+chip is active. Options you cannot pay for disappear; the recommended one floats up. **Do not
+hand-code per-character tactics** — that is what the prototype did and why it only ever worked for
+one character. Needs new fields on `ActionEntry`/`SpellEntry` (schema + migration), a lane component,
+and session state for situation chips. Done when a round can be played from the combat view alone.
+
+### 3. Auto-wire resource pools from `ClassDef` · *closes the wizard's biggest gap*
+
+`ClassDef` has no pool-by-level table, so the wizard can only create hit dice — a Pugilist's Moxie
+Points have to be added by hand in the Editor after creation. Add the table to `src/packs/types.ts`
++ `schema.ts`, teach `src/packs/levelup.ts` to emit pools, and wire it into `CreateCharacter.tsx`
+and `LevelUp.tsx`. Same shape as the existing feature grants, so it follows an established path.
+Note the sibling gap while you are there: AC and starting HP fall back to 10+DEX and average-per-level
+because `ClassDef` cannot say "Iron Chin: 12+CON" either. Done when creating a Pugilist gives a
+correct Moxie pool with no manual editing.
+
+### 4. Phase 5 — history polish · *self-contained, data already exists*
+
+`History.tsx` filters by channel only. The journal already supports filter-by-field, jump-to-date
+and batch grouping — this is UI over data that is already there, no schema or store work. Done when
+you can find "when did AC change" without scrolling.
+
+### 5. Dice panel in the stacked layout · *small, real table annoyance*
+
+In portrait the side rail sorts last, so the most-used control on the sheet sits at the bottom of a
+long scroll. `PLAN.md` §8 recommends a sticky bottom sheet collapsed to the last roll's total. A
+deliberate deviation from the handoff, and worth it.
+
+### 6. Grow `phb-2024` · *do this when a character needs it, not in bulk*
+
+Real source text only, same process as the Pugilist pack: you supply the text, it gets transcribed
+and cross-checked. See `PLAN.md` §11. The nearest concrete gap is that its `BackgroundDef`s have no
+verified skill/tool/language grants, so the wizard falls back to manual skill selection. **Do not
+fabricate grants to fill it.**
+
+### Small and self-contained
+
+- **`damageLabel()` for the spell and inventory rows.** Both still build their dice label inline, so
+  a flat-damage spell reads `0d6+2`. `derive.ts` already has the fix; only the action row uses it.
+- **Real SRD text for conditions and spells.** `src/data/conditions.ts` is paraphrased placeholder.
+  The *list* is complete and the maths is right — this is a text swap plus the CC-BY-4.0 attribution.
+- **Multiclassing.** `Character.classes` is architecturally an array; `LevelUp.tsx` only ever touches
+  `classes[0]`. Not hard, but it also changes what `proficiencyBonus` means (see Hard Rule 2).
+- **The tablet type scale is one number.** `font-size` under `@media (pointer: coarse)` in
+  `tokens.css`, currently `20px`. If the sheet still reads small at the table, change that and
+  nothing else.
 
 ## Style
 
