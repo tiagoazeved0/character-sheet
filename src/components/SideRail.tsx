@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import type { AdvMode, Character, CoverDegree } from '../rules/types.ts'
+import type { AdvMode, Character } from '../rules/types.ts'
 import { CONDITIONS, conditionById } from '../data/conditions.ts'
 import { useSession } from '../store/session.ts'
+import { Menu } from './Menu.tsx'
 import type { useSheetActions } from '../store/actions.ts'
 
 type Props = { character: Character; actions: ReturnType<typeof useSheetActions> }
@@ -19,7 +20,7 @@ export function SideRail({ character: c, actions }: Props) {
 const DICE = [4, 6, 8, 10, 12, 20, 100]
 
 function DicePanel({ actions }: { actions: Props['actions'] }) {
-  const { adv, setAdv, cover, setCover, log, clearLog } = useSession()
+  const { adv, setAdv, log, clearLog } = useSession()
   const [count, setCount] = useState(1)
   return (
     <div className="dice">
@@ -31,13 +32,6 @@ function DicePanel({ actions }: { actions: Props['actions'] }) {
         {(['dis', 'normal', 'adv'] as AdvMode[]).map((m) => (
           <button key={m} className={adv === m ? 'on' : ''} onClick={() => setAdv(m)} style={{ flex: 1 }}>
             {m === 'dis' ? 'Disadv.' : m === 'adv' ? 'Adv.' : 'Normal'}
-          </button>
-        ))}
-      </div>
-      <div className="segmented" title="Cover you're behind, as a target -- bonus to AC and Dex saves until you change it">
-        {(['none', 'half', 'three-quarters'] as CoverDegree[]).map((m) => (
-          <button key={m} className={cover === m ? 'on' : ''} onClick={() => setCover(m)} style={{ flex: 1 }}>
-            {m === 'none' ? 'No cover' : m === 'half' ? 'Half cover' : '3/4 cover'}
           </button>
         ))}
       </div>
@@ -82,33 +76,65 @@ function DicePanel({ actions }: { actions: Props['actions'] }) {
 }
 
 function ConditionsPanel({ character: c, actions }: Props) {
-  const active = c.vitals.conditions.map(conditionById).filter(Boolean)
+  const active = c.vitals.conditions.map(conditionById).filter((x): x is NonNullable<typeof x> => Boolean(x))
+  const exhaustion = Number(c.vitals.conditions.find((x) => x.startsWith('exhaustion-'))?.split('-')[1] ?? 0)
+
+  // Twenty-one chips, most of them off, buried the two that were actually on.
+  // Active conditions stay visible; the rest live behind one button. Exhaustion
+  // is excluded from both -- the stepper below is its only control, since the
+  // six levels are exclusive and a chip per level says otherwise.
+  const isExhaustion = (id: string) => id.startsWith('exhaustion-')
+  const chips = active.filter((cond) => !isExhaustion(cond.id))
+  const inactive = CONDITIONS.filter(
+    (cond) => !isExhaustion(cond.id) && !c.vitals.conditions.includes(cond.id),
+  )
+
   return (
     <div className="card side-card">
       <div style={{ display: 'flex', alignItems: 'baseline' }}>
         <span className="panel-title">Conditions &amp; effects</span>
         {c.vitals.concentration && <span className="conc-pill">Conc: {c.vitals.concentration}</span>}
       </div>
+
       <div className="chips">
-        {CONDITIONS.map((cond) => (
+        {chips.map((cond) => (
           <button
             key={cond.id}
-            className={`chip ${c.vitals.conditions.includes(cond.id) ? 'on' : ''}`}
+            className={`chip on ${cond.good ? 'good' : ''}`}
             onClick={() => actions.toggleCondition(cond.id)}
+            title="Remove"
           >
-            {cond.name}
+            {cond.name} <span className="chip-x" aria-hidden>×</span>
           </button>
         ))}
+        <Menu label="Add" className="chip add" align="left">
+          {(close) => inactive.map((cond) => (
+            <button key={cond.id} onClick={() => { actions.toggleCondition(cond.id); close() }}>
+              {cond.name}
+            </button>
+          ))}
+        </Menu>
       </div>
+
+      <div className="exhaustion">
+        <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Exhaustion</span>
+        <div className="exhaustion-steps">
+          <button onClick={() => actions.setExhaustion(Math.max(0, exhaustion - 1))} aria-label="Less exhaustion">&minus;</button>
+          <span className="mono">{exhaustion}</span>
+          <button onClick={() => actions.setExhaustion(Math.min(6, exhaustion + 1))} aria-label="More exhaustion">+</button>
+        </div>
+      </div>
+
       {active.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
           {active.map((cond) => (
-            <div key={cond!.id} style={{ fontSize: 12, color: 'var(--text-body)', lineHeight: 1.45 }}>
-              <strong>{cond!.name}.</strong> {cond!.note}
+            <div key={cond.id} style={{ fontSize: 12, color: 'var(--text-body)', lineHeight: 1.45 }}>
+              <strong>{cond.name}.</strong> {cond.note}
             </div>
           ))}
         </div>
       )}
+
       {c.vitals.concentration && (
         <button className="btn ghost" onClick={() => actions.setConcentration(null)}>
           Drop concentration

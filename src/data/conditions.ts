@@ -137,16 +137,19 @@ export const CONDITIONS: ConditionDef[] = [
     turnText: 'Death.',
   },
 
-  // Not a condition, but it behaves like one on the sheet and gets toggled just
-  // as often. The panel is called "Conditions & effects" for this reason. Bane is
-  // the obvious counterpart and is deliberately absent: ConditionEffect can add a
-  // die but not subtract one, and a chip whose maths does nothing is worse than
-  // no chip at all.
+  // Not conditions, but they behave like one on the sheet and get toggled just as
+  // often. The panel is called "Conditions & effects" for this reason.
   {
     id: 'blessed', name: 'Blessed', good: true,
     effect: { bonusDie: { size: 4, on: ['attack', 'save'] } },
     note: 'Add 1d4 to attack rolls and saving throws. Concentration, from Bless.',
     turnText: 'Add 1d4 to every attack roll and saving throw.',
+  },
+  {
+    id: 'baned', name: 'Baned', good: false,
+    effect: { penaltyDie: { size: 4, on: ['attack', 'save'] } },
+    note: 'Subtract 1d4 from attack rolls and saving throws. Concentration, from Bane.',
+    turnText: 'Subtract 1d4 from every attack roll and saving throw.',
   },
 ]
 

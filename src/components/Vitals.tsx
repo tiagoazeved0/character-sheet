@@ -1,11 +1,20 @@
 import { useState } from 'react'
-import { DAMAGE_TYPES, type Character, type DamageType } from '../rules/types.ts'
+import { DAMAGE_TYPES, type Character, type CoverDegree, type DamageType } from '../rules/types.ts'
 import { abilityMod, coverBonus, fmt, spellAttack, spellDC } from '../rules/derive.ts'
 import { hpFraction } from '../rules/vitals.ts'
 import { useSession } from '../store/session.ts'
+import { Menu } from './Menu.tsx'
 import type { useSheetActions } from '../store/actions.ts'
 
 type Props = { character: Character; actions: ReturnType<typeof useSheetActions> }
+
+/** Cover is a property of where you are standing, not of how you want to roll --
+ *  so it hangs off the two numbers it changes rather than off the dice tray. */
+const COVERS: { id: CoverDegree; label: string }[] = [
+  { id: 'none', label: 'No cover' },
+  { id: 'half', label: 'Half cover · +2' },
+  { id: 'three-quarters', label: 'Three-quarters · +5' },
+]
 
 /**
  * Everything about how the character is doing right now, in one strip across the
@@ -15,6 +24,7 @@ type Props = { character: Character; actions: ReturnType<typeof useSheetActions>
  */
 export function Vitals({ character: c, actions }: Props) {
   const cover = useSession((s) => s.cover)
+  const setCover = useSession((s) => s.setCover)
   const ac = c.ac + coverBonus(cover)
 
   const [amount, setAmount] = useState('')
@@ -91,15 +101,29 @@ export function Vitals({ character: c, actions }: Props) {
       </div>
 
       <div className="vitals-stats">
-        <div className="stat stat-ac" title={cover !== 'none' ? `${c.ac} base + ${coverBonus(cover)} cover` : undefined}>
-          <span className="shield" aria-hidden>
-            <svg viewBox="0 0 40 46" role="presentation">
-              <path d="M20 1 L38 7 v16 c0 11-8 18-18 22 C10 41 2 34 2 23 V7 Z" />
-            </svg>
-            <span className="stat-value mono">{ac}</span>
-          </span>
-          <span className="stat-label caps">Armor class</span>
-        </div>
+        <Menu
+          className={`stat stat-ac ${cover === 'none' ? '' : 'covered'}`}
+          align="left"
+          label={
+            <>
+              <span className="shield" aria-hidden>
+                <svg viewBox="0 0 40 46" role="presentation">
+                  <path d="M20 1 L38 7 v16 c0 11-8 18-18 22 C10 41 2 34 2 23 V7 Z" />
+                </svg>
+                <span className="stat-value mono">{ac}</span>
+              </span>
+              <span className="stat-label caps">
+                {cover === 'none' ? 'Armor class' : `AC · +${coverBonus(cover)} cover`}
+              </span>
+            </>
+          }
+        >
+          {(close) => COVERS.map((o) => (
+            <button key={o.id} className={cover === o.id ? 'on' : ''} onClick={() => { setCover(o.id); close() }}>
+              {o.label}
+            </button>
+          ))}
+        </Menu>
         <button className="stat" onClick={() => actions.rollInitiative()}>
           <span className="stat-value mono">{fmt(abilityMod(c, 'dex'))}</span>
           <span className="stat-label caps">Initiative</span>

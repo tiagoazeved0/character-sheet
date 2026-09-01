@@ -76,7 +76,9 @@ button:disabled { cursor: not-allowed; }
   text-align: left; min-height: var(--tap); padding: 8px 10px; border: none; border-radius: 6px;
   background: transparent; color: var(--text); font-size: 13px;
 }
+.menu-list.left { left: 0; right: auto; }
 .menu-list button:hover { background: var(--surface-inset); color: var(--accent-hover); }
+.menu-list button.on { color: var(--accent-hover); font-weight: 700; }
 
 /* Segmented pickers. The dark variant is the default because it began life in
    the dice rail; `.light` is for the ones on vellum (Editor, History). */
@@ -143,6 +145,16 @@ button.stat:hover { border-color: var(--accent); background: var(--accent-light)
 .shield path { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.5; }
 .stat-ac .stat-value { position: relative; }
 .stat-label { font-size: 9px; color: var(--text-secondary); }
+
+/* AC is the only tile that opens a menu (cover), so it has to sit in the flex
+   row as if it were a plain tile rather than as the wrapper the menu needs. */
+.vitals-stats .menu { flex: 1 1 84px; max-width: 148px; display: flex; }
+.vitals-stats .menu .stat { flex: 1; max-width: none; }
+.stat.active { border-color: var(--accent); background: var(--accent-light); }
+.stat-ac { position: relative; }
+.stat-ac .menu-caret { position: absolute; top: 5px; right: 7px; }
+.stat-ac.covered { border-color: var(--accent); }
+.stat-ac.covered .stat-label { color: var(--accent-hover); }
 
 /* The header is now identity only, so it is cheap to keep pinned -- but a sticky
    bar still costs its height on every screen forever. On a 600px-tall tablet even
@@ -339,6 +351,18 @@ button.stat:hover { border-color: var(--accent); background: var(--accent-light)
 .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px 16px; }
 .chip { font-size: 11px; font-weight: 600; border-radius: 20px; padding: 5px 10px; border: 1px solid var(--border); background: var(--surface); }
 .chip.on { background: var(--accent); border-color: var(--accent); color: var(--on-dark); }
+.chip.on.good { background: var(--green); border-color: var(--green); }
+.chip-x { opacity: 0.65; margin-left: 2px; }
+.chip.add { border-style: dashed; color: var(--text-secondary); }
+.chip.add.active { border-style: solid; border-color: var(--accent); color: var(--accent-hover); }
+.exhaustion { display: flex; align-items: center; gap: 10px; }
+.exhaustion-steps { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+.exhaustion-steps button {
+  min-width: 26px; min-height: var(--tap); padding: 3px 7px; font-size: 14px; font-weight: 600;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 7px;
+}
+.exhaustion-steps button:hover { border-color: var(--accent); color: var(--accent-hover); }
+.exhaustion-steps .mono { min-width: 20px; text-align: center; font-size: 14px; font-weight: 700; }
 .conc-pill { margin-left: auto; font-size: 10px; font-weight: 700; border-radius: 20px; padding: 3px 9px; background: var(--arcane-light); color: var(--arcane-text); }
 .pool { display: flex; flex-direction: column; gap: 6px; }
 .pool-head { display: flex; align-items: baseline; gap: 8px; font-size: 12px; font-weight: 600; }

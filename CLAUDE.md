@@ -111,14 +111,14 @@ src/store/
   labels.ts         JSON pointer -> human label for history
 src/data/           conditions, seed character, blank/duplicate factories
 src/components/     Header, Vitals, Alerts, Abilities, Skills, Center, SideRail, History, Editor, Portrait,
-                    CreateCharacter (guided-creation wizard), LevelUp, ChoicePicker (shared)
+                    CreateCharacter (guided-creation wizard), LevelUp, ChoicePicker, Menu (shared)
 ```
 
 ## Verifying
 
 ```bash
 npm install
-npm test           # 121 tests: dice, vitals, apply/history, rest, derive, tokens, packs/*, abilityScores
+npm test           # 126 tests: dice, vitals, apply/history, rest, derive, tokens, migrations, packs/*, abilityScores
 npm run build      # tsc --noEmit && vite build
 npm run dev
 ```
@@ -185,16 +185,20 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   selection when `skillProficiencies` is absent. Don't fabricate specific grants; get real source
   text from the user the same way the Pugilist pack's gaps got closed.
 - Bundled condition and spell text is paraphrased placeholder, not SRD text yet. The condition
-  *list* is complete though: all fifteen plus six exhaustion levels, in `src/data/conditions.ts`.
-  Bane is deliberately absent -- `ConditionEffect` can add a die but not subtract one, and a chip
-  whose maths does nothing is worse than no chip.
-- The conditions panel is 21 chips tall, six of them exhaustion levels. Folding those into one chip
-  with a level stepper would read better and is also more correct, since the levels are exclusive.
+  *list* is complete: all fifteen plus six exhaustion levels, plus Bless and Bane, in
+  `src/data/conditions.ts`. Bane is `penaltyDie`, deliberately its own field rather than a negative
+  `bonusDie`, so a roll under both spells shows two dice and cancels where the player can see it.
 - **Sync is built but not switched on.** `supabase/README.md` has the five setup steps; until the
   two `VITE_SUPABASE_*` values exist the app is local-only, the indicator says "This device only",
   and the Supabase client is never even downloaded (dynamic import, so Vite splits it out). It has
   not been exercised against a real project yet — only the pure logic is tested.
 - Combat mode has a toggle in the header and session state, but no UI.
+- Conditions are a panel of *active* chips plus one "Add" menu, with exhaustion as a 0-6 stepper
+  (`actions.setExhaustion` clears the other levels in the same `apply()`, so History shows one
+  change). Cover hangs off the AC tile in `Vitals.tsx`, not the dice rail: it is a fact about where
+  you are standing, and it belongs next to the two numbers it moves. Because the control is no
+  longer beside the log, a Dex save passes `notes` to `rollD20` so the detail line names the cover
+  that produced the bonus.
 - The header carries **identity and navigation only** — avatar, name, class line, and four controls
   (Inspiration, Rest menu, Combat, Character menu). It is 65px. Everything about how the character is
   doing lives in `Vitals.tsx`, a full-width strip at the top of the sheet body: hit points with the

@@ -2,10 +2,14 @@ import { rollD20, rollDamage, type DamageRider } from '../rules/dice.ts'
 import { applyDamage, applyDeathSave, concentrationDC, grantTemp, heal } from '../rules/vitals.ts'
 import { longRest, shortRest } from '../rules/rest.ts'
 import { abilityMod, coverBonus, fmt, mitigateDamage, saveMod, skillMod } from '../rules/derive.ts'
-import { ABILITY_NAMES, type Ability, type Character, type DamageSpec, type DamageType } from '../rules/types.ts'
+import { ABILITY_NAMES, type Ability, type Character, type CoverDegree, type DamageSpec, type DamageType } from '../rules/types.ts'
 import { conditionById } from '../data/conditions.ts'
 import { useCharacters } from './character.ts'
 import { useSession } from './session.ts'
+
+const COVER_NAMES: Record<CoverDegree, string> = {
+  none: '', half: 'half cover', 'three-quarters': 'three-quarters cover',
+}
 
 const activeConditions = (c: Character) =>
   c.vitals.conditions.map(conditionById).filter((x): x is NonNullable<typeof x> => Boolean(x))
@@ -28,9 +32,11 @@ export function useSheetActions(character: Character | null) {
   const cover = useSession((s) => s.cover)
   const promptConcentration = useSession((s) => s.promptConcentration)
 
-  const d20 = (label: string, modifier: number, type: 'attack' | 'check' | 'save', ability?: Ability) => {
+  const d20 = (
+    label: string, modifier: number, type: 'attack' | 'check' | 'save', ability?: Ability, notes?: string[],
+  ) => {
     if (!character) return null
-    const result = rollD20({ label, modifier, type, ability, mode: adv, conditions: activeConditions(character) })
+    const result = rollD20({ label, modifier, type, ability, mode: adv, conditions: activeConditions(character), notes })
     // A save that fails outright has no total worth showing: printing one invites
     // reading it against the DC.
     push({ label, detail: result.detail, total: result.autoFail ? null : result.total, kind: result.kind })
@@ -49,8 +55,14 @@ export function useSheetActions(character: Character | null) {
 
   return {
     rollAbility: (a: Ability) => d20(`${ABILITY_NAMES[a]} check`, abilityMod(character!, a), 'check', a),
-    /** Cover adds its bonus to Dexterity saves only, per RAW. */
-    rollSave: (a: Ability) => d20(`${ABILITY_NAMES[a]} save`, saveMod(character!, a) + (a === 'dex' ? coverBonus(cover) : 0), 'save', a),
+    /** Cover adds its bonus to Dexterity saves only, per RAW. Since the control
+     *  now lives on the AC tile rather than beside the log, the roll has to say
+     *  so -- otherwise the +2 is a number with no visible source. */
+    rollSave: (a: Ability) => {
+      const bonus = a === 'dex' ? coverBonus(cover) : 0
+      return d20(`${ABILITY_NAMES[a]} save`, saveMod(character!, a) + bonus, 'save', a,
+        bonus ? [`${COVER_NAMES[cover]} (+${bonus})`] : undefined)
+    },
     rollSkill: (id: string, name: string) => d20(name, skillMod(character!, id), 'check'),
     rollInitiative: () => d20('Initiative', abilityMod(character!, 'dex'), 'check', 'dex'),
     rollAttack: (label: string, mod: number) => d20(`${label} (${fmt(mod)})`, mod, 'attack'),
@@ -91,6 +103,25 @@ export function useSheetActions(character: Character | null) {
 
     gainTemp(amount: number) {
       apply({ label: `Temp HP ${amount}`, channel: 'play', mutate: (c) => ({ ...c, vitals: grantTemp(c.vitals, amount) }) })
+    },
+
+    /** Exhaustion is one ladder, not six switches: setting a level clears the
+     *  others in the same apply(), so History records one change and not two. */
+    setExhaustion(level: number) {
+      apply({
+        label: 'Exhaustion',
+        channel: 'play',
+        mutate: (c) => ({
+          ...c,
+          vitals: {
+            ...c.vitals,
+            conditions: [
+              ...c.vitals.conditions.filter((x) => !x.startsWith('exhaustion-')),
+              ...(level > 0 ? [`exhaustion-${level}`] : []),
+            ],
+          },
+        }),
+      })
     },
 
     toggleCondition(id: string) {

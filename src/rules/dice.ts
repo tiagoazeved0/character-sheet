@@ -14,6 +14,9 @@ export type D20Request = {
   ability?: Ability
   mode: AdvMode
   conditions: ConditionDef[]
+  /** Reasons for part of `modifier` that are not conditions -- cover, so far.
+   *  Folded into `causes` so the log never shows a number it cannot account for. */
+  notes?: string[]
 }
 
 export type D20Result = {
@@ -23,6 +26,7 @@ export type D20Result = {
   both: [number, number] | null
   modifier: number
   bonusDie: { size: number; value: number } | null
+  penaltyDie: { size: number; value: number } | null
   total: number
   advantage: boolean
   disadvantage: boolean
@@ -40,8 +44,9 @@ export function rollD20(req: D20Request, roll: Roller = defaultRoller): D20Resul
   let adv = req.mode === 'adv'
   let dis = req.mode === 'dis'
   let bonusSize = 0
+  let penaltySize = 0
   let autoFail = false
-  const causes: string[] = []
+  const causes: string[] = [...(req.notes ?? [])]
 
   for (const c of req.conditions) {
     const e = c.effect
@@ -56,6 +61,9 @@ export function rollD20(req: D20Request, roll: Roller = defaultRoller): D20Resul
     if (e.bonusDie && e.bonusDie.on.includes(req.type)) {
       bonusSize = e.bonusDie.size; causes.push(c.name)
     }
+    if (e.penaltyDie && e.penaltyDie.on.includes(req.type)) {
+      penaltySize = e.penaltyDie.size; causes.push(c.name)
+    }
   }
 
   // 5e: advantage and disadvantage cancel entirely, however many of each.
@@ -66,12 +74,14 @@ export function rollD20(req: D20Request, roll: Roller = defaultRoller): D20Resul
   const rollsTwice = adv || dis
   const natural = adv ? Math.max(a, b) : dis ? Math.min(a, b) : a
   const bonus = bonusSize ? { size: bonusSize, value: roll(bonusSize) } : null
-  const total = natural + req.modifier + (bonus?.value ?? 0)
+  const penalty = penaltySize ? { size: penaltySize, value: roll(penaltySize) } : null
+  const total = natural + req.modifier + (bonus?.value ?? 0) - (penalty?.value ?? 0)
 
   const parts: string[] = []
   parts.push(rollsTwice ? `d20: ${a}, ${b} -> ${natural}` : `d20: ${natural}`)
   if (req.modifier !== 0) parts.push(`${req.modifier >= 0 ? '+' : '-'} ${Math.abs(req.modifier)}`)
   if (bonus) parts.push(`+ ${bonus.value} (1d${bonus.size})`)
+  if (penalty) parts.push(`- ${penalty.value} (1d${penalty.size})`)
   if (adv) parts.push('advantage')
   if (dis) parts.push('disadvantage')
   if (autoFail) parts.push('- automatic failure')
@@ -83,6 +93,7 @@ export function rollD20(req: D20Request, roll: Roller = defaultRoller): D20Resul
     both: rollsTwice ? [a, b] : null,
     modifier: req.modifier,
     bonusDie: bonus,
+    penaltyDie: penalty,
     total,
     advantage: adv,
     disadvantage: dis,

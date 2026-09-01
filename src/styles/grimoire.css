@@ -37,7 +37,7 @@ input::placeholder, textarea::placeholder { font-style: italic; color: var(--tex
 .modal, .json-area, .notes-area, .error, .history-revert, .hp-buttons button, .conc-pill,
 .portrait-frame, .companion, .companion-hp-buttons button, .syncbar-detail, .conflict-side,
 .vitals-quick button, .vitals-entry input, .vitals-entry select, .vitals-crit, .header-avatar, .menu-list,
-.tray-die, .tray-count button {
+.tray-die, .tray-count button, .exhaustion-steps button {
   border-radius: var(--r-md);
 }
 .vitals-bar, .enc-bar, .companion-bar { border-radius: 0; }

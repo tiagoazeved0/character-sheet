@@ -20,6 +20,9 @@ export type ConditionEffect = {
    *  to get the maths right. */
   autoFailSave?: Ability[]
   bonusDie?: { size: number; on: RollType[] }
+  /** Bane's mirror of Bless. Kept separate rather than allowing a negative
+   *  `bonusDie`, so a roll under both shows two dice and cancels honestly. */
+  penaltyDie?: { size: number; on: RollType[] }
 }
 
 export type ConditionDef = {

@@ -183,3 +183,64 @@ describe('the bundled condition list', () => {
     }
   })
 })
+
+describe('Bless and Bane', () => {
+  const blessed = conditionById('blessed')!
+  const baned = conditionById('baned')!
+
+  it('adds a d4 for Bless', () => {
+    const r = rollD20(
+      { label: 'Attack', modifier: 5, type: 'attack', mode: 'normal', conditions: [blessed] },
+      () => 3,
+    )
+    expect(r.bonusDie).toEqual({ size: 4, value: 3 })
+    expect(r.total).toBe(3 + 5 + 3)
+    expect(r.detail).toContain('+ 3 (1d4)')
+  })
+
+  it('subtracts a d4 for Bane', () => {
+    const r = rollD20(
+      { label: 'Attack', modifier: 5, type: 'attack', mode: 'normal', conditions: [baned] },
+      () => 3,
+    )
+    expect(r.penaltyDie).toEqual({ size: 4, value: 3 })
+    expect(r.total).toBe(3 + 5 - 3)
+    expect(r.detail).toContain('- 3 (1d4)')
+  })
+
+  it('shows both dice when both are active rather than quietly cancelling', () => {
+    const r = rollD20(
+      { label: 'Save', modifier: 0, type: 'save', mode: 'normal', conditions: [blessed, baned] },
+      () => 4,
+    )
+    expect(r.bonusDie).not.toBeNull()
+    expect(r.penaltyDie).not.toBeNull()
+    expect(r.total).toBe(4)                       // 4 natural + 4 - 4
+    expect(r.detail).toContain('+ 4 (1d4)')
+    expect(r.detail).toContain('- 4 (1d4)')
+  })
+
+  it('leaves ability checks alone, which neither spell touches', () => {
+    const r = rollD20(
+      { label: 'Check', modifier: 2, type: 'check', mode: 'normal', conditions: [blessed, baned] },
+      () => 10,
+    )
+    expect(r.bonusDie).toBeNull()
+    expect(r.penaltyDie).toBeNull()
+    expect(r.total).toBe(12)
+  })
+})
+
+describe('notes', () => {
+  it('names a non-condition source of the modifier alongside the conditions', () => {
+    const r = rollD20(
+      {
+        label: 'Dexterity save', modifier: 4, type: 'save', ability: 'dex', mode: 'normal',
+        conditions: [conditionById('baned')!], notes: ['half cover (+2)'],
+      },
+      () => 3,
+    )
+    expect(r.causes).toEqual(['half cover (+2)', 'Baned'])
+    expect(r.detail).toContain('from half cover (+2), Baned')
+  })
+})

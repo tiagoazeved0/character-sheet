@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Character } from '../rules/types.ts'
+import { Menu } from './Menu.tsx'
 import { useSession } from '../store/session.ts'
 import type { useSheetActions } from '../store/actions.ts'
 
@@ -8,30 +8,6 @@ type Props = {
   actions: ReturnType<typeof useSheetActions>
   onOpenEditor: () => void
   onOpenLevelUp: () => void
-}
-
-/** Closes on outside click and on Escape, so a menu never strands the sheet under it. */
-function Menu({ label, children }: { label: string; children: (close: () => void) => ReactNode }) {
-  const [open, setOpen] = useState(false)
-  const box = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!open) return
-    const away = (e: MouseEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false) }
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
-    document.addEventListener('mousedown', away)
-    document.addEventListener('keydown', esc)
-    return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc) }
-  }, [open])
-
-  return (
-    <div className="menu" ref={box}>
-      <button className={`hbtn ${open ? 'active' : ''}`} onClick={() => setOpen(!open)} aria-expanded={open}>
-        {label} <span className="menu-caret" aria-hidden>▾</span>
-      </button>
-      {open && <div className="menu-list">{children(() => setOpen(false))}</div>}
-    </div>
-  )
 }
 
 /**
