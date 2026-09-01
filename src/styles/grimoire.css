@@ -18,7 +18,7 @@
 
 /* --- paper --- */
 body {
-  font-size: 15px;
+  font-size: 0.9375rem;
   background:
     radial-gradient(120% 80% at 12% 0%, oklch(1 0.01 95 / 0.85), transparent 60%),
     radial-gradient(90% 60% at 100% 100%, oklch(0.55 0.05 80 / 0.16), transparent 70%),
@@ -56,25 +56,25 @@ input::placeholder, textarea::placeholder { font-style: italic; color: var(--tex
   border-bottom: 1px solid var(--gold);
   box-shadow: 0 3px 0 var(--dark), 0 4px 0 var(--gold-dim), 0 14px 22px oklch(0.3 0.02 70 / 0.18);
 }
-.header-name { font-size: 23px; font-weight: 400; letter-spacing: 0.01em; text-shadow: 0 1px 0 #000; }
-.header-class { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; }
-.hbtn, .segmented button { font-family: var(--font-mono); font-weight: 400; font-size: 11px; text-transform: uppercase; }
+.header-name { font-size: 1.4375rem; font-weight: 400; letter-spacing: 0.01em; text-shadow: 0 1px 0 #000; }
+.header-class { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.14em; }
+.hbtn, .segmented button { font-family: var(--font-mono); font-weight: 400; font-size: 0.6875rem; text-transform: uppercase; }
 .header-avatar.placeholder { font-family: var(--font-display); }
 
 /* the vitals strip is the sheet's masthead now, so it gets the plate treatment */
 .vitals { box-shadow: var(--press); }
 .stat { background: linear-gradient(var(--surface), var(--surface-inset)); }
-.stat-value { font-family: var(--font-display); font-size: 30px; font-weight: 400; }
+.stat-value { font-family: var(--font-display); font-size: 1.875rem; font-weight: 400; }
 .stat-label, .vitals-label { font-family: var(--font-mono); letter-spacing: 0.1em; }
-.vitals-hp-value { font-family: var(--font-display); font-size: 32px; font-weight: 400; }
+.vitals-hp-value { font-family: var(--font-display); font-size: 2rem; font-weight: 400; }
 
 /* --- ornamented panel heads: small-caps title, hairline rule, fleuron --- */
 .panel-head { align-items: center; gap: 10px; border-bottom: 1px solid var(--divider-2); }
-.panel-title { font-family: var(--font-display); font-weight: 400; font-size: 16px; letter-spacing: 0.06em; color: var(--text-secondary); }
+.panel-title { font-family: var(--font-display); font-weight: 400; font-size: 1rem; letter-spacing: 0.06em; color: var(--text-secondary); }
 .panel-head::after {
   content: '\2726';
   order: 99; margin-left: auto;
-  color: var(--gold); font-size: 9px; line-height: 1;
+  color: var(--gold); font-size: 0.5625rem; line-height: 1;
 }
 .panel-title::after {
   content: ''; display: block;
@@ -82,27 +82,27 @@ input::placeholder, textarea::placeholder { font-style: italic; color: var(--tex
 .panel-head > .panel-title + * { margin-left: 0; }
 
 /* --- display type on the things you read, mono on the things you count --- */
-.row-title { font-family: var(--font-display); font-weight: 400; font-size: 20px; letter-spacing: 0.01em; }
-.row-desc { font-size: 15px; line-height: 1.5; }
+.row-title { font-family: var(--font-display); font-weight: 400; font-size: 1.25rem; letter-spacing: 0.01em; }
+.row-desc { font-size: 0.9375rem; line-height: 1.5; }
 .row-sub, .abil-score, .skill-mod, .log-detail, .log-total, .history-when { font-family: var(--font-mono); }
-.abil-mod { font-family: var(--font-display); font-size: 26px; font-weight: 400; }
+.abil-mod { font-family: var(--font-display); font-size: 1.625rem; font-weight: 400; }
 .abil-abbr, .pool-recovery, .dice-clear, .skill-ability { font-family: var(--font-mono); letter-spacing: 0.12em; }
-.skill-row { font-size: 15px; }
-.tabs button, .chip, .pool-head { font-family: var(--font-display); font-weight: 400; font-size: 15px; letter-spacing: 0.03em; }
+.skill-row { font-size: 0.9375rem; }
+.tabs button, .chip, .pool-head { font-family: var(--font-display); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.03em; }
 .badge, .tag { font-family: var(--font-mono); font-weight: 400; letter-spacing: 0.08em; }
 
 /* --- brass press for the primary action --- */
 .btn.primary {
   background: linear-gradient(oklch(0.47 0.14 30), var(--accent-hover));
   border: 1px solid oklch(0.32 0.12 30);
-  font-family: var(--font-display); font-weight: 400; font-size: 15px; letter-spacing: 0.04em;
+  font-family: var(--font-display); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.04em;
 }
 .btn.ghost { background: linear-gradient(var(--surface), var(--surface-inset)); }
 
 /* --- search reads as a ruled line, not a box --- */
 .search {
   background: transparent; border: 0; border-bottom: 1px solid var(--border-strong);
-  border-radius: 0; font-family: var(--font-ui); font-style: italic; font-size: 16px; padding: 8px 4px;
+  border-radius: 0; font-family: var(--font-ui); font-style: italic; font-size: 1rem; padding: 8px 4px;
 }
 .search:focus { border-bottom-color: var(--accent); }
 
@@ -113,7 +113,7 @@ input::placeholder, textarea::placeholder { font-style: italic; color: var(--tex
   box-shadow: inset 0 0 0 1px oklch(0.66 0.1 85 / 0.16), 3px 4px 0 oklch(0.35 0.02 70 / 0.14);
 }
 .log-entry { border: 1px solid var(--dark-border); }
-.log-total { font-family: var(--font-display); font-size: 24px; font-weight: 400; }
+.log-total { font-family: var(--font-display); font-size: 1.5rem; font-weight: 400; }
 
 /* --- the portrait sits in the page like a tipped-in plate --- */
 .portrait-frame.has-image { box-shadow: var(--press); border-color: var(--border-strong); }
@@ -125,5 +125,5 @@ input::placeholder, textarea::placeholder { font-style: italic; color: var(--tex
 
 /* --- the display faces run larger than the ones they replaced --- */
 @media (max-width: 1500px) {
-  .row-title { font-size: 18px; }
+  .row-title { font-size: 1.125rem; }
 }

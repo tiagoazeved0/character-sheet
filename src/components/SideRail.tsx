@@ -25,7 +25,7 @@ function DicePanel({ actions }: { actions: Props['actions'] }) {
   return (
     <div className="dice">
       <div className="dice-head">
-        <span className="display" style={{ fontSize: 15 }}>Dice</span>
+        <span className="display" style={{ fontSize: '0.9375rem' }}>Dice</span>
         <button className="dice-clear" onClick={clearLog}>Clear</button>
       </div>
       <div className="segmented">
@@ -117,7 +117,7 @@ function ConditionsPanel({ character: c, actions }: Props) {
       </div>
 
       <div className="exhaustion">
-        <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Exhaustion</span>
+        <span className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Exhaustion</span>
         <div className="exhaustion-steps">
           <button onClick={() => actions.setExhaustion(Math.max(0, exhaustion - 1))} aria-label="Less exhaustion">&minus;</button>
           <span className="mono">{exhaustion}</span>
@@ -128,7 +128,7 @@ function ConditionsPanel({ character: c, actions }: Props) {
       {active.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
           {active.map((cond) => (
-            <div key={cond.id} style={{ fontSize: 12, color: 'var(--text-body)', lineHeight: 1.45 }}>
+            <div key={cond.id} style={{ fontSize: '0.75rem', color: 'var(--text-body)', lineHeight: 1.45 }}>
               <strong>{cond.name}.</strong> {cond.note}
             </div>
           ))}

@@ -85,10 +85,22 @@
 
   /* Comfortable target on a mouse. Raised on touch, below. */
   --tap: 0px;
+
+  /* Every font-size in the app is rem, so this one number is the type scale.
+     Boxes and gaps stay px on purpose: they are laid out against the viewport,
+     and scaling them here would fight the media queries below. */
+  font-size: 16px;
 }
 
+/* A ten-inch tablet reports ~1333 CSS px across 8.9 inches of glass -- about 149
+   CSS px to the inch, against a laptop's 108. Identical px are a third smaller
+   in the hand, which is why the sheet reads fine on a desk and squints on the
+   table. This is the correction, not a preference. */
 @media (pointer: coarse) {
-  :root { --tap: 44px; }
+  :root { --tap: 44px; font-size: 20px; }
   button, .row-button, .chip, .search { min-height: var(--tap); }
-  .pip { width: 28px !important; height: 28px !important; }
+  /* A pip is a square, so it has to opt out of the blanket button min-height --
+     otherwise it comes out 28 wide and 44 tall. Square at the full tap size and
+     wrapping is the honest trade: a class with twenty hit dice gets two rows. */
+  .pip { width: var(--tap) !important; height: var(--tap) !important; }
 }

@@ -17,7 +17,7 @@ export function ChoicePicker({
   return (
     <div className="card side-card">
       <span className="panel-title">{choice.label}</span>
-      {choice.prerequisite && <p className="muted" style={{ fontSize: 12, margin: 0 }}>{choice.prerequisite}</p>}
+      {choice.prerequisite && <p className="muted" style={{ fontSize: '0.75rem', margin: 0 }}>{choice.prerequisite}</p>}
       <div className="rows">
         {choice.options.map((opt) => (
           <button
@@ -27,7 +27,7 @@ export function ChoicePicker({
             onClick={() => onSelect(opt.id)}
           >
             <div className="row-top">
-              <span className="row-title" style={{ fontSize: 14 }}>{opt.label}</span>
+              <span className="row-title" style={{ fontSize: '0.875rem' }}>{opt.label}</span>
               {selected === opt.id && <span className="tag">Selected</span>}
             </div>
             {opt.requires && <div className="row-sub">{opt.requires}</div>}

@@ -32,7 +32,16 @@ function useAutoLayout(): Layout {
   return override ?? auto
 }
 
-const pick = (w: number): Layout => (w < 900 ? 'stacked' : w < 1300 ? 'tablet' : 'columns')
+/**
+ * A touch device reporting 1300+ CSS px is still a ten-inch tablet held at arm's
+ * length, not a laptop -- three columns at that density is unreadable, and it is
+ * how the Tab S6 Lite (1333 x 800) used to land on the desktop layout.
+ */
+const pick = (w: number): Layout => {
+  if (w < 900) return 'stacked'
+  const touch = window.matchMedia('(pointer: coarse)').matches
+  return touch || w < 1300 ? 'tablet' : 'columns'
+}
 
 export default function App() {
   const load = useCharacters((s) => s.load)
@@ -57,7 +66,7 @@ export default function App() {
   useEffect(() => { void useSync.getState().init() }, [])
 
   if (!loaded || !character) {
-    return <p style={{ padding: 40, fontSize: 14 }} className="muted">Loading…</p>
+    return <p style={{ padding: 40, fontSize: '0.875rem' }} className="muted">Loading…</p>
   }
 
   return (

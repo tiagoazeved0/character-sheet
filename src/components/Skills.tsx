@@ -8,7 +8,7 @@ export function Skills({ character: c, actions }: { character: Character; action
     <div className="card skills">
       <div className="panel-head">
         <span className="panel-title">Skills</span>
-        <span className="caps" style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--text-muted)' }}>
+        <span className="caps" style={{ marginLeft: 'auto', fontSize: '0.625rem', color: 'var(--text-muted)' }}>
           Prof {fmt(c.proficiencyBonus)}
         </span>
       </div>

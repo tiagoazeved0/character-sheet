@@ -40,8 +40,8 @@ function ProficienciesPanel({ character: c }: { character: Character }) {
       <span className="panel-title">Proficiencies &amp; training</span>
       {groups.map(([label, values]) => (
         <div key={label}>
-          <div className="caps" style={{ fontSize: 10, color: 'var(--text-muted)' }}>{label}</div>
-          <div style={{ fontSize: 13 }}>{values.join(', ')}</div>
+          <div className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>{label}</div>
+          <div style={{ fontSize: '0.8125rem' }}>{values.join(', ')}</div>
         </div>
       ))}
     </div>
@@ -78,8 +78,8 @@ function SensesPanel({ character: c }: { character: Character }) {
 function PassiveScore({ label, value }: { label: string; value: number }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <span className="mono" style={{ fontSize: 18, fontWeight: 600 }}>{value}</span>
-      <span className="caps" style={{ fontSize: 9, color: 'var(--text-muted)' }}>Passive {label}</span>
+      <span className="mono" style={{ fontSize: '1.125rem', fontWeight: 600 }}>{value}</span>
+      <span className="caps" style={{ fontSize: '0.5625rem', color: 'var(--text-muted)' }}>Passive {label}</span>
     </div>
   )
 }

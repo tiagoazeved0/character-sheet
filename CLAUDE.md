@@ -73,6 +73,13 @@ letterpress edges — the things a variable cannot express). **Every colour in t
 token in `tokens.css`.** The one literal left is `theme-color` in `index.html`, which cannot take a
 `var()`; keep it in step with `--dark`. A restyle should be those two files and nothing else.
 
+**Every font size in the app is `rem`**, so the root `font-size` in `tokens.css` is the whole type
+scale: 16px on a mouse, 20px under `@media (pointer: coarse)`. A ten-inch tablet reports ~1333 CSS
+px across 8.9 inches of glass — ~149 CSS px to the inch against a laptop's ~108 — so identical `px`
+are a third smaller in the hand, and that bump is the correction. Boxes, gaps and `--tap` stay `px`
+on purpose: they are laid out against the viewport, and scaling them here would fight the media
+queries. Adding a `px` font size anywhere, stylesheet or inline `style`, opts that text out.
+
 TypeScript is strict, with `noUnusedLocals`, `noUncheckedIndexedAccess` and `verbatimModuleSyntax`
 on. **Relative imports carry explicit `.ts` / `.tsx` extensions** (`allowImportingTsExtensions`).
 Keep that convention.
@@ -193,6 +200,11 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   and the Supabase client is never even downloaded (dynamic import, so Vite splits it out). It has
   not been exercised against a real project yet — only the pure logic is tested.
 - Combat mode has a toggle in the header and session state, but no UI.
+- `App.tsx`'s `pick()` never gives a coarse-pointer device the three-column `columns` layout,
+  whatever width it reports: the Tab S6 Lite reports 1333 px and used to land on the laptop layout,
+  which also gave it the sticky side rail. That rail is capped to the viewport with its own scroll
+  on a mouse, and is plain static on touch — a sticky box taller than the viewport pins in place and
+  refuses to scroll until the page under it runs out.
 - Conditions are a panel of *active* chips plus one "Add" menu, with exhaustion as a 0-6 stepper
   (`actions.setExhaustion` clears the other levels in the same `apply()`, so History shows one
   change). Cover hangs off the AC tile in `Vitals.tsx`, not the dice rail: it is a fact about where

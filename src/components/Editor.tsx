@@ -97,11 +97,11 @@ export function Editor({
           </section>
 
           <section style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Sync</span>
-            <span style={{ fontSize: 13 }}>{STATUS_LABEL[sync.status]}</span>
-            {sync.email && <span className="muted" style={{ fontSize: 12 }}>{sync.email}</span>}
+            <span className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Sync</span>
+            <span style={{ fontSize: '0.8125rem' }}>{STATUS_LABEL[sync.status]}</span>
+            {sync.email && <span className="muted" style={{ fontSize: '0.75rem' }}>{sync.email}</span>}
             {!isConfigured && (
-              <span className="muted" style={{ fontSize: 12 }}>
+              <span className="muted" style={{ fontSize: '0.75rem' }}>
                 Supabase is not configured for this build — see <code>supabase/README.md</code>.
               </span>
             )}
@@ -114,11 +114,11 @@ export function Editor({
                 <button className="btn ghost" onClick={() => void sync.signOut()}>Sign out</button>
               </>
             )}
-            {sync.lastError && <span style={{ fontSize: 12, color: 'var(--danger)' }}>{sync.lastError}</span>}
+            {sync.lastError && <span style={{ fontSize: '0.75rem', color: 'var(--danger)' }}>{sync.lastError}</span>}
           </section>
 
           <section style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Layout</span>
+            <span className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Layout</span>
             <div className="segmented light">
               {(['columns', 'tablet', 'stacked'] as Layout[]).map((l) => (
                 <button key={l} className={layoutOverride === l ? 'on' : ''} onClick={() => setLayout(l)}>
@@ -130,7 +130,7 @@ export function Editor({
           </section>
 
           <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 10 }}>
-            <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)', gridColumn: '1 / -1' }}>Currency</span>
+            <span className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)', gridColumn: '1 / -1' }}>Currency</span>
             {(['pp', 'gp', 'ep', 'sp', 'cp'] as const).map((coin) => (
               <NumField
                 key={coin}
@@ -143,7 +143,7 @@ export function Editor({
 
           <section style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Rules packs</span>
+              <span className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Rules packs</span>
               <label className="btn ghost" style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center' }}>
                 Import pack
                 <input type="file" accept="application/json" hidden onChange={(e) => importJson(e, (raw) => {
@@ -155,13 +155,13 @@ export function Editor({
               </label>
             </div>
             {packs.length === 0 ? (
-              <p className="muted" style={{ fontSize: 12 }}>No rules packs installed.</p>
+              <p className="muted" style={{ fontSize: '0.75rem' }}>No rules packs installed.</p>
             ) : (
               <div className="rows">
                 {packs.map((p) => (
                   <div key={`${p.packId}@${p.version}`} className="card row" style={{ padding: '9px 12px' }}>
                     <div className="row-top">
-                      <span className="row-title" style={{ fontSize: 14 }}>{p.title}</span>
+                      <span className="row-title" style={{ fontSize: '0.875rem' }}>{p.title}</span>
                       <span className="tag">{p.version}</span>
                       <button
                         className="btn ghost"
@@ -179,7 +179,7 @@ export function Editor({
           </section>
 
           <section style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Full document</span>
+            <span className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Full document</span>
             <textarea
               className="json-area"
               value={draft}
@@ -202,7 +202,7 @@ export function Editor({
 
 export function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11 }}>
+    <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.6875rem' }}>
       <span className="caps" style={{ color: 'var(--text-secondary)' }}>{label}</span>
       <input value={value} onChange={(e) => onChange(e.target.value)} style={inputStyle} />
     </label>
@@ -211,7 +211,7 @@ export function Field({ label, value, onChange }: { label: string; value: string
 
 export function NumField({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
-    <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11 }}>
+    <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.6875rem' }}>
       <span className="caps" style={{ color: 'var(--text-secondary)' }}>{label}</span>
       <input
         type="number"
@@ -223,7 +223,7 @@ export function NumField({ label, value, onChange }: { label: string; value: num
   )
 }
 
-const inputStyle = { padding: '8px 10px', borderRadius: 9, border: '1px solid var(--border)', fontSize: 13 } as const
+const inputStyle = { padding: '8px 10px', borderRadius: 9, border: '1px solid var(--border)', fontSize: '0.8125rem' } as const
 
 function exportJson(c: Character) {
   const blob = new Blob([JSON.stringify(c, null, 2)], { type: 'application/json' })

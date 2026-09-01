@@ -54,7 +54,7 @@ export function History({ characterId }: { characterId: string }) {
       </div>
 
       {rows.length === 0 && (
-        <p className="muted" style={{ padding: '14px', fontSize: 13 }}>
+        <p className="muted" style={{ padding: '14px', fontSize: '0.8125rem' }}>
           Nothing recorded yet. Every change to this character lands here.
         </p>
       )}

@@ -52,7 +52,7 @@ export function Center({ character: c, actions }: Props) {
           {results.spells.map((s) => <SpellRow key={s.id} spell={s} character={c} actions={actions} tok={tok} />)}
           {results.features.map((f) => <FeatureRow key={f.id} entry={f} character={c} actions={actions} tok={tok} />)}
           {results.items.map((i) => <ItemRow key={i.id} entry={i} actions={actions} />)}
-          <p className="muted" style={{ fontSize: 12 }}>{count} results across the whole sheet</p>
+          <p className="muted" style={{ fontSize: '0.75rem' }}>{count} results across the whole sheet</p>
         </div>
       ) : (
         <TabBody character={c} actions={actions} tok={tok} tab={tab} />
@@ -94,8 +94,8 @@ function TabBody({ character: c, actions, tok, tab }: Props & { tok: (s: string)
       <>
         <div className="card encumbrance">
           <div style={{ display: 'flex', alignItems: 'baseline' }}>
-            <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{status}</span>
-            <span className="mono" style={{ marginLeft: 'auto', fontSize: 13 }}>{carried} / {cap} lb</span>
+            <span className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>{status}</span>
+            <span className="mono" style={{ marginLeft: 'auto', fontSize: '0.8125rem' }}>{carried} / {cap} lb</span>
           </div>
           <div className="enc-bar">
             <div style={{ width: `${Math.min(100, ratio * 100)}%`, height: '100%', background: 'var(--encumbrance)' }} />
@@ -104,8 +104,8 @@ function TabBody({ character: c, actions, tok, tab }: Props & { tok: (s: string)
         {coins.some(([, n]) => n > 0) && (
           <div className="card side-card" style={{ flexDirection: 'row', gap: 16, marginBottom: 9 }}>
             {coins.filter(([, n]) => n > 0).map(([label, n]) => (
-              <div key={label} className="mono" style={{ fontSize: 13 }}>
-                {n} <span className="caps muted" style={{ fontSize: 10 }}>{label}</span>
+              <div key={label} className="mono" style={{ fontSize: '0.8125rem' }}>
+                {n} <span className="caps muted" style={{ fontSize: '0.625rem' }}>{label}</span>
               </div>
             ))}
           </div>
@@ -129,7 +129,7 @@ function CompanionsTab({ character: c, actions, tok }: RowProps) {
   if (c.companions.length === 0) {
     return (
       <div className="card side-card">
-        <p className="muted" style={{ fontSize: 12, margin: 0 }}>
+        <p className="muted" style={{ fontSize: '0.75rem', margin: 0 }}>
           No familiars, companions or wild shape forms yet. Add them under Characters &amp; edit —
           they live on this character, so their hit points are tracked here and travel with the sheet.
         </p>
@@ -208,13 +208,13 @@ function BackgroundTab({ character: c, actions }: Props) {
           <div className="field-grid">
             {filledChars.map(([label, value]) => (
               <div key={label}>
-                <div className="caps" style={{ fontSize: 10, color: 'var(--text-muted)' }}>{label}</div>
-                <div style={{ fontSize: 13 }}>{value}</div>
+                <div className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>{label}</div>
+                <div style={{ fontSize: '0.8125rem' }}>{value}</div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="muted" style={{ fontSize: 12 }}>Nothing set yet — edit via Characters &amp; edit.</p>
+          <p className="muted" style={{ fontSize: '0.75rem' }}>Nothing set yet — edit via Characters &amp; edit.</p>
         )}
       </div>
 
@@ -223,8 +223,8 @@ function BackgroundTab({ character: c, actions }: Props) {
           <span className="panel-title">Personality</span>
           {filledPersonality.map(([label, value]) => (
             <div key={label}>
-              <div className="caps" style={{ fontSize: 10, color: 'var(--text-muted)' }}>{label}</div>
-              <div style={{ fontSize: 13, lineHeight: 1.5 }}>{value}</div>
+              <div className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>{label}</div>
+              <div style={{ fontSize: '0.8125rem', lineHeight: 1.5 }}>{value}</div>
             </div>
           ))}
         </div>

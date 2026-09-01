@@ -63,29 +63,29 @@ export function ConflictModal() {
           <span className="panel-title">{conflict.local.name} changed in two places</span>
         </div>
         <div className="modal-body">
-          <p className="muted" style={{ fontSize: 12, margin: 0 }}>
+          <p className="muted" style={{ fontSize: '0.75rem', margin: 0 }}>
             This device and the server both have edits. Nothing is merged — pick the one to keep.
             The other is not deleted from History, so you can still see what it said.
           </p>
 
           <div className="conflict-sides">
             <button className="card conflict-side" onClick={() => void pick('local')}>
-              <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>This device</span>
+              <span className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>This device</span>
               <span className="row-title">{conflict.local.name}</span>
-              <span className="mono" style={{ fontSize: 12 }}>
+              <span className="mono" style={{ fontSize: '0.75rem' }}>
                 {conflict.local.vitals.hp} / {conflict.local.maxHp} HP · level {conflict.local.level}
               </span>
-              <span className="muted" style={{ fontSize: 11 }}>{when(conflict.localUpdatedAt)}</span>
+              <span className="muted" style={{ fontSize: '0.6875rem' }}>{when(conflict.localUpdatedAt)}</span>
               <span className="btn primary" style={{ marginTop: 6 }}>Keep this one</span>
             </button>
 
             <button className="card conflict-side" onClick={() => void pick('remote')}>
-              <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Other device</span>
+              <span className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Other device</span>
               <span className="row-title">{conflict.remote.name}</span>
-              <span className="mono" style={{ fontSize: 12 }}>
+              <span className="mono" style={{ fontSize: '0.75rem' }}>
                 {conflict.remote.vitals.hp} / {conflict.remote.maxHp} HP · level {conflict.remote.level}
               </span>
-              <span className="muted" style={{ fontSize: 11 }}>{when(conflict.remoteUpdatedAt)}</span>
+              <span className="muted" style={{ fontSize: '0.6875rem' }}>{when(conflict.remoteUpdatedAt)}</span>
               <span className="btn primary" style={{ marginTop: 6 }}>Keep this one</span>
             </button>
           </div>

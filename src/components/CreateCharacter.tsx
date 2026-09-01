@@ -193,8 +193,8 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
           {step === 'packs' && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <Field label="Character name" value={name} onChange={setName} />
-              <span className="caps" style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Rules packs to build from</span>
-              {installed.length === 0 && <p className="muted" style={{ fontSize: 13 }}>No packs installed. Install one via Characters &amp; edit first.</p>}
+              <span className="caps" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)' }}>Rules packs to build from</span>
+              {installed.length === 0 && <p className="muted" style={{ fontSize: '0.8125rem' }}>No packs installed. Install one via Characters &amp; edit first.</p>}
               <div className="rows">
                 {installed.map((p) => {
                   const key = packKey(p)
@@ -211,7 +211,7 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
                       })}
                     >
                       <div className="row-top">
-                        <span className="row-title" style={{ fontSize: 14 }}>{p.title}</span>
+                        <span className="row-title" style={{ fontSize: '0.875rem' }}>{p.title}</span>
                         <span className="tag">{p.version}</span>
                       </div>
                       <div className="row-sub">{p.license}</div>
@@ -232,7 +232,7 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
                     className={`pick-row ${race?.def.id === r.def.id ? 'on' : ''}`}
                     onClick={() => { setRace(r); setRaceChoiceSel({}) }}
                   >
-                    <div className="row-top"><span className="row-title" style={{ fontSize: 14 }}>{r.def.name}</span></div>
+                    <div className="row-top"><span className="row-title" style={{ fontSize: '0.875rem' }}>{r.def.name}</span></div>
                     <div className="row-desc">{r.def.desc}</div>
                   </button>
                 ))}
@@ -259,7 +259,7 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
                     onClick={() => { setCls(c); setClassChoiceSel({}) }}
                   >
                     <div className="row-top">
-                      <span className="row-title" style={{ fontSize: 14 }}>{c.def.name}</span>
+                      <span className="row-title" style={{ fontSize: '0.875rem' }}>{c.def.name}</span>
                       <span className="tag">d{c.def.hitDie}</span>
                     </div>
                   </button>
@@ -289,7 +289,7 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
                     className={`pick-row ${background?.def.id === b.def.id ? 'on' : ''}`}
                     onClick={() => setBackground(b)}
                   >
-                    <div className="row-top"><span className="row-title" style={{ fontSize: 14 }}>{b.def.name}</span></div>
+                    <div className="row-top"><span className="row-title" style={{ fontSize: '0.875rem' }}>{b.def.name}</span></div>
                     <div className="row-desc">{b.def.feature}</div>
                   </button>
                 ))}
@@ -297,7 +297,7 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
               {background && !background.def.skillProficiencies && (
                 <div className="card side-card">
                   <span className="panel-title">Skill proficiencies</span>
-                  <p className="muted" style={{ fontSize: 12, margin: 0 }}>
+                  <p className="muted" style={{ fontSize: '0.75rem', margin: 0 }}>
                     {background.def.name}'s exact grants aren't in the pack yet -- pick manually.
                   </p>
                   <div className="chips">
@@ -335,7 +335,7 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
               {scoreMethod === 'standard' && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
                   {ABILITIES.map((a) => (
-                    <label key={a} style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11 }}>
+                    <label key={a} style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.6875rem' }}>
                       <span className="caps" style={{ color: 'var(--text-secondary)' }}>{ABILITY_NAMES[a]}</span>
                       <select
                         value={standardAssign[a] ?? ''}
@@ -354,7 +354,7 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
 
               {scoreMethod === 'pointbuy' && (
                 <>
-                  <span className="mono" style={{ fontSize: 13 }}>
+                  <span className="mono" style={{ fontSize: '0.8125rem' }}>
                     {pointBuyCost(ABILITIES.map((a) => scores[a]))} / {POINT_BUY_BUDGET} points
                   </span>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
@@ -375,16 +375,16 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
 
               <div className="card side-card">
                 <span className="panel-title">Background ability score improvement</span>
-                <p className="muted" style={{ fontSize: 12, margin: 0 }}>2024 backgrounds grant +2 to one ability and +1 to another (optional).</p>
+                <p className="muted" style={{ fontSize: '0.75rem', margin: 0 }}>2024 backgrounds grant +2 to one ability and +1 to another (optional).</p>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11 }}>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.6875rem' }}>
                     <span className="caps" style={{ color: 'var(--text-secondary)' }}>+2</span>
                     <select value={asiPlus2} onChange={(e) => setAsiPlus2(e.target.value as Ability | '')} style={{ padding: '8px 10px', borderRadius: 9, border: '1px solid var(--border)' }}>
                       <option value="">--</option>
                       {ABILITIES.map((a) => <option key={a} value={a}>{ABILITY_NAMES[a]}</option>)}
                     </select>
                   </label>
-                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11 }}>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.6875rem' }}>
                     <span className="caps" style={{ color: 'var(--text-secondary)' }}>+1</span>
                     <select value={asiPlus1} onChange={(e) => setAsiPlus1(e.target.value as Ability | '')} style={{ padding: '8px 10px', borderRadius: 9, border: '1px solid var(--border)' }}>
                       <option value="">--</option>
@@ -425,14 +425,14 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
 
           {step === 'review' && race && cls && background && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <p style={{ fontSize: 14 }}>
+              <p style={{ fontSize: '0.875rem' }}>
                 <strong>{name}</strong> -- {race.def.name} {cls.def.name} {startLevel}{subclassId ? ` (${subclassId})` : ''}, {background.def.name}
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
                 <NumField label="Armor Class" value={ac} onChange={setAcOverride} />
                 <NumField label="Max HP" value={maxHp} onChange={setHpOverride} />
               </div>
-              <p className="muted" style={{ fontSize: 12 }}>
+              <p className="muted" style={{ fontSize: '0.75rem' }}>
                 AC defaults to 10 + DEX; HP uses average-per-level. Neither accounts for class features that
                 override them (e.g. an unarmored-defense-style feature) -- correct above if this class has one.
               </p>

@@ -10,8 +10,8 @@ export function Alerts({ character: c, actions }: { character: Character; action
     <>
       {c.vitals.hp === 0 && (
         <div className="alert alert-death">
-          <span className="display" style={{ fontSize: 17 }}>Unconscious &mdash; making death saves</span>
-          <span className="mono" style={{ fontSize: 12 }}>
+          <span className="display" style={{ fontSize: '1.0625rem' }}>Unconscious &mdash; making death saves</span>
+          <span className="mono" style={{ fontSize: '0.75rem' }}>
             Successes {c.vitals.deathSuccess}/3 &middot; Failures {c.vitals.deathFail}/3
           </span>
           <button style={{ marginLeft: 'auto' }} onClick={actions.rollDeathSave}>Roll death save</button>
@@ -20,7 +20,7 @@ export function Alerts({ character: c, actions }: { character: Character; action
 
       {prompt > 0 && c.vitals.concentration && (
         <div className="alert alert-conc">
-          <span style={{ fontSize: 13 }}>
+          <span style={{ fontSize: '0.8125rem' }}>
             You took damage while concentrating on <strong>{c.vitals.concentration}</strong> &mdash; CON save DC {prompt}
           </span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>

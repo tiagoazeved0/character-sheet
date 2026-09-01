@@ -34,7 +34,7 @@ export function LevelUp({ character: c, onClose }: { character: Character; onClo
             <button className="btn ghost" style={{ marginLeft: 'auto' }} onClick={onClose}>Close</button>
           </div>
           <div className="modal-body">
-            <p className="muted" style={{ fontSize: 13 }}>
+            <p className="muted" style={{ fontSize: '0.8125rem' }}>
               {classInfo ? 'This class\'s pack isn\'t installed, so its level table can\'t be resolved.' : 'This character wasn\'t built from a pack -- nothing to level up automatically.'}
             </p>
           </div>
@@ -92,7 +92,7 @@ export function LevelUp({ character: c, onClose }: { character: Character; onClo
           {baseGrants.features.length > 0 && (
             <div className="card side-card">
               <span className="panel-title">New features</span>
-              <p style={{ fontSize: 13, margin: 0 }}>{baseGrants.features.join(', ')}</p>
+              <p style={{ fontSize: '0.8125rem', margin: 0 }}>{baseGrants.features.join(', ')}</p>
             </div>
           )}
 
