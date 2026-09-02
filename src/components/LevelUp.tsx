@@ -86,6 +86,11 @@ export function LevelUp({ character: c, onClose }: { character: Character; onClo
 
   const packId = classInfo.classRef.split(':')[0]!
 
+  /** Grants arrive as feature ids; the pack knows their names. Falls back to the
+   *  id rather than hiding an entry the pack cannot resolve. */
+  const featureName = (id: string) =>
+    (index.get(`${packId}:features/${id}`)?.entry as { name?: string } | undefined)?.name ?? id
+
   const canApply = targetLevel > classInfo.level && targetLevel <= 20 && baseGrants.choices.every((ch) => choiceSel[ch.id])
 
   const applyLevelUp = () => {
@@ -129,7 +134,9 @@ export function LevelUp({ character: c, onClose }: { character: Character; onClo
           {baseGrants.features.length > 0 && (
             <div className="card side-card">
               <span className="panel-title">New features</span>
-              <p style={{ fontSize: '0.8125rem', margin: 0 }}>{baseGrants.features.join(', ')}</p>
+              <p style={{ fontSize: '0.8125rem', margin: 0 }}>
+                {baseGrants.features.map(featureName).join(', ')}
+              </p>
             </div>
           )}
 
