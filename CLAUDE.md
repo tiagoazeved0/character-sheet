@@ -155,9 +155,10 @@ characteristics/appearance/portrait, Heroic Inspiration, armor/weapon/tool profi
 type system, a resolver, a per-entry validator, and a level-application engine. Two real packs exist
 (kept out of git per Hard Rule 5 — ask the user for the files): `homebrew-pugilist` (a full 3rd-party
 OGL class, levels 1-20, 6 subclasses, transcribed and cross-checked against two independent source
-exports) and `phb-2024` (Human race with structured skill/feat choices, Noble background, Tavern
-Brawler/Skilled feats — grown incrementally, most of the 2024 PHB isn't in it yet and shouldn't be
-added in bulk, see `PLAN.md` §11).
+exports) and `phb-2024`, now at version 4.0.0 and substantially complete: 12 classes, 10 races, all
+16 backgrounds (every one with `skillProficiencies`, tools and its origin feat), 75 feats, 391
+spells, 203 items, 456 features, 15 conditions. It grew incrementally from real source text, one
+character's needs at a time, which is still the process — see `PLAN.md` §11.
 
 **Guided character creation and level-up (phase 6) are built**, driven entirely by installed packs:
 `CreateCharacter.tsx` (packs → race → class + starting level + any choices it surfaces → background
@@ -205,10 +206,10 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   fields, correct them after creation for a class like Pugilist (Iron Chin: 12+CON).
 - Resource pools beyond hit dice (e.g. Pugilist's Moxie Points) aren't auto-wired by the wizard —
   `ClassDef` doesn't carry pool-by-level data yet. Add them by hand via the Editor after creation.
-- `phb-2024`'s `BackgroundDef`s don't have verified skill/tool/language grants (Noble's aren't
-  confirmed from real source text) — the wizard's background step falls back to manual skill
-  selection when `skillProficiencies` is absent. Don't fabricate specific grants; get real source
-  text from the user the same way the Pugilist pack's gaps got closed.
+- **`phb-2024.json` carries 51 `monsters` and the importer silently drops them.** `RulesPack`
+  has eight content kinds and `monsters` is not one, so `validatePackImport()` — which builds
+  `content` from that fixed list — never reads the key and reports no error. Either add the kind
+  (it would feed `CompanionEntry`, which already exists) or the pack is carrying dead weight.
 - Bundled condition and spell text is paraphrased placeholder, not SRD text yet. The condition
   *list* is complete: all fifteen plus six exhaustion levels, plus Bless and Bane.
 - **Sync is built but not switched on.** `supabase/README.md` has the five setup steps; until the
@@ -309,12 +310,17 @@ In portrait the side rail sorts last, so the most-used control on the sheet sits
 long scroll. `PLAN.md` §8 recommends a sticky bottom sheet collapsed to the last roll's total. A
 deliberate deviation from the handoff, and worth it.
 
-### 5. Grow `phb-2024` · *do this when a character needs it, not in bulk*
+### 5. Teach the importer about monsters · *the pack already has 51 of them*
 
-Real source text only, same process as the Pugilist pack: you supply the text, it gets transcribed
-and cross-checked. See `PLAN.md` §11. The nearest concrete gap is that its `BackgroundDef`s have no
-verified skill/tool/language grants, so the wizard falls back to manual skill selection. **Do not
-fabricate grants to fill it.**
+`phb-2024.json` carries a `monsters` array that `validatePackImport()` never looks at, because
+`RulesPack['content']` has eight kinds and this is not one. Adding it means a `MonsterDef` in
+`src/packs/types.ts` + `schema.ts` and a ninth category in the validator's loop; the payoff is that
+`CompanionEntry` (familiars, wild shapes, summons, beast companions) could be populated from a pack
+instead of hand-typed in the JSON editor. Done when adding a familiar is a pick, not a transcription.
+
+Growing `phb-2024` further is no longer a listed task: it is at 4.0.0 and substantially complete.
+If something is missing, the process is unchanged — real source text only, you supply it, it gets
+transcribed and cross-checked (`PLAN.md` §11). **Do not fabricate content to fill a gap.**
 
 ### Small and self-contained
 
