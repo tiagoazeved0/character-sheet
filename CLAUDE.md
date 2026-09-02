@@ -204,13 +204,15 @@ Stat blocks are added and edited through the JSON editor, like every other entry
 - AC and starting HP default to generic formulas in the wizard (10+DEX, average-per-level) since
   `ClassDef` has no structured way yet to say "this class overrides AC" — both are plain editable
   fields, correct them after creation for a class like Pugilist (Iron Chin: 12+CON).
-- **Resource pools are wired but no pack carries a column yet**, so behaviour is unchanged until one
-  does. `ClassDef.pools` takes the class table's column verbatim (20 entries, index 0 = level 1) and
-  `poolsAtLevel` / `mergePools` in `src/packs/levelup.ts` feed both the wizard and level-up.
-  `mergePools` writes only `max`, so a pool the class doesn't define — hit dice, or one added by
-  hand — is never touched. The Pugilist's Moxie column is the missing piece and needs real source
-  text: its own feature text only says "2 at level 2, up to 12 at level 20", and interpolating that
-  is exactly what Hard Rule 5's process exists to prevent.
+- **Resource pools come off the class table.** `ClassDef.pools` holds the column verbatim (20
+  entries, index 0 = level 1) and `poolsAtLevel` / `mergePools` in `src/packs/levelup.ts` feed both
+  the wizard and level-up. `mergePools` writes only `max`, so a pool the class doesn't define — hit
+  dice, or one added by hand — is never touched. `homebrew-pugilist` **1.1.0** is the first pack to
+  carry one (Moxie: `[0,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,11,12]`, transcribed from the Pugilist
+  Features table; kept out of git per Hard Rule 5). Note the shape — 2 at levels 2 *and* 3, then
+  every other level with a break at 19 — which is why the column is stored and never interpolated.
+  1.1.0 also fixes the Fisticuffs die: the pack said 1d12 at level 10, the table says 1d10 through
+  10 and 1d12 from 11. A character on 1.0.0 needs a repin to see either.
 - Rules packs sync in both directions as of 2026-09-02, but only because a second device proved
   they did not: `rules_packs` was push-only, and packs installed before sync was switched on were
   never queued at all (`queuePack()` returns early when nothing is owed). A device that signed in
