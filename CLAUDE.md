@@ -213,6 +213,12 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   every other level with a break at 19 — which is why the column is stored and never interpolated.
   1.1.0 also fixes the Fisticuffs die: the pack said 1d12 at level 10, the table says 1d10 through
   10 and 1d12 from 11. A character on 1.0.0 needs a repin to see either.
+- `pinStates()` has four states, not two. `outdated` covers a pin that resolves perfectly while a
+  newer version of the same pack sits beside it — what importing an upgrade looks like, and
+  originally the case that produced no notice at all, because nothing was broken. It reads as news
+  rather than a fault in the Editor. `brokenPins()` is the subset that genuinely resolves to
+  nothing. Version comparison is dotted-numeric and makes no claim about a version string it cannot
+  read as numbers.
 - Rules packs sync in both directions as of 2026-09-02, but only because a second device proved
   they did not: `rules_packs` was push-only, and packs installed before sync was switched on were
   never queued at all (`queuePack()` returns early when nothing is owed). A device that signed in
