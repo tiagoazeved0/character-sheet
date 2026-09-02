@@ -24,6 +24,8 @@ type Session = {
   round: number
   situations: string[]
   lanes: Record<Lane, boolean>
+  /** Feet moved this round. Speed lives on the character; what is left of it does not. */
+  moved: number
 
   setAdv: (adv: AdvMode) => void
   setPendingCrit: (pendingCrit: boolean) => void
@@ -37,6 +39,8 @@ type Session = {
   toggleCombat: () => void
   toggleSituation: (id: string) => void
   spendLane: (lane: Lane) => void
+  restoreLane: (lane: Lane) => void
+  setMoved: (feet: number) => void
   endTurn: () => void
 }
 
@@ -56,6 +60,7 @@ export const useSession = create<Session>((set) => ({
   round: 1,
   situations: [],
   lanes: { ...EMPTY_LANES },
+  moved: 0,
 
   setAdv: (adv) => set({ adv }),
   setPendingCrit: (pendingCrit) => set({ pendingCrit }),
@@ -67,11 +72,13 @@ export const useSession = create<Session>((set) => ({
   setQuery: (query) => set({ query }),
   setLayout: (layoutOverride) => set({ layoutOverride }),
   promptConcentration: (concentrationPrompt) => set({ concentrationPrompt }),
-  toggleCombat: () => set((s) => ({ combat: !s.combat, round: 1, lanes: { ...EMPTY_LANES } })),
+  toggleCombat: () => set((s) => ({ combat: !s.combat, round: 1, lanes: { ...EMPTY_LANES }, moved: 0 })),
   toggleSituation: (id) =>
     set((s) => ({
       situations: s.situations.includes(id) ? s.situations.filter((x) => x !== id) : [...s.situations, id],
     })),
   spendLane: (lane) => set((s) => ({ lanes: { ...s.lanes, [lane]: true } })),
-  endTurn: () => set((s) => ({ round: s.round + 1, lanes: { ...EMPTY_LANES } })),
+  restoreLane: (lane) => set((s) => ({ lanes: { ...s.lanes, [lane]: false } })),
+  setMoved: (moved) => set({ moved: Math.max(0, moved) }),
+  endTurn: () => set((s) => ({ round: s.round + 1, lanes: { ...EMPTY_LANES }, moved: 0 })),
 }))

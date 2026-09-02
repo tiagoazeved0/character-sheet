@@ -11,6 +11,8 @@ const damage = z.object({
   type: z.string().optional(),
 })
 
+const requirement = z.object({ pool: z.string().min(1), amount: z.number().int().min(1) })
+
 const damageType = z.enum([
   'acid', 'bludgeoning', 'cold', 'fire', 'force', 'lightning', 'necrotic',
   'piercing', 'poison', 'psychic', 'radiant', 'slashing', 'thunder',
@@ -58,6 +60,7 @@ const actionEntry = z.object({
   damage: damage.extend({ label: z.string() }).optional(),
   check: z.object({ mod: z.number(), label: z.string() }).optional(),
   concentrationOn: z.string().optional(),
+  requires: requirement.optional(),
   favoredWhen: z.array(z.string()).optional(),
 })
 
@@ -86,6 +89,7 @@ export const characterSchema = z.object({
     attack: z.object({ mod: z.number().optional(), label: z.string().optional() }).optional(),
     damage: damage.extend({ label: z.string() }).optional(),
     lane: lane.optional(),
+    requires: requirement.optional(),
     favoredWhen: z.array(z.string()).optional(),
   })),
   actions: z.array(actionEntry),
@@ -98,7 +102,7 @@ export const characterSchema = z.object({
   })),
   features: z.array(z.object({
     id: z.string(), name: z.string(), tag: z.string(), sub: z.string(),
-    desc: z.string(), pool: z.string().optional(), ref: z.string().optional(),
+    desc: z.string(), pool: z.string().optional(), lane: lane.optional(), ref: z.string().optional(),
   })),
   items: z.array(z.object({
     id: z.string(), name: z.string(), qty: z.number().int().min(0),

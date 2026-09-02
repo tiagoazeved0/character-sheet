@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { Character, SpellEntry } from '../rules/types.ts'
-import { carriedWeight, carryCapacity, castLevelFor, damageLabel, poolRemaining, slotsRemaining } from '../rules/derive.ts'
+import { carriedWeight, carryCapacity, damageLabel, poolRemaining } from '../rules/derive.ts'
+import { spellAffordable, spellCost } from '../rules/combat.ts'
 import { expandTokens } from '../rules/tokens.ts'
 import { useSession, type Tab } from '../store/session.ts'
 import { useCharacters } from '../store/character.ts'
@@ -279,22 +280,13 @@ function ActionRow({ entry, character: c, actions, tok }: RowProps & { entry: Ch
 }
 
 function SpellRow({ spell, character: c, actions, tok }: RowProps & { spell: SpellEntry }) {
-  const castLevel = castLevelFor(c, spell.level)
-  const usesPool = Boolean(spell.pool)
-  const available = spell.level === 0
-    ? true
-    : usesPool
-      ? poolRemaining(c, spell.pool!) > 0
-      : slotsRemaining(c, castLevel) > 0
+  // What a cast costs lives in one place, so the sheet and the combat view can
+  // never charge different pools for the same spell.
+  const cost = spellCost(c, spell)
+  const available = spellAffordable(c, spell)
 
-  const badge = spell.level === 0 ? 'cantrip' : usesPool ? 'arcanum' : 'spell'
-  const badgeText = spell.level === 0 ? 'Cantrip' : usesPool ? 'Arcanum' : `Level ${spell.level}`
-
-  const cast = () => {
-    if (!available) return
-    if (spell.level > 0) actions.spendPool(usesPool ? spell.pool! : c.spellcasting.kind === 'pact' ? 'slots:pact' : `slots:${castLevel}`)
-    if (spell.concentration) actions.setConcentration(spell.name)
-  }
+  const badge = cost.kind === 'cantrip' ? 'cantrip' : cost.kind === 'pool' ? 'arcanum' : 'spell'
+  const badgeText = cost.kind === 'cantrip' ? 'Cantrip' : cost.kind === 'pool' ? 'Arcanum' : `Level ${spell.level}`
 
   return (
     <div className={`card row ${available ? '' : 'dead'}`}>
@@ -313,14 +305,14 @@ function SpellRow({ spell, character: c, actions, tok }: RowProps & { spell: Spe
               {spell.damage.count}d{spell.damage.size}
             </button>
           )}
-          {spell.level === 0 ? (
+          {cost.kind === 'cantrip' ? (
             <span className="btn dead">Cantrip</span>
           ) : available ? (
-            <button className="btn primary" onClick={cast}>
-              Cast{usesPool ? '' : ` (${ordinal(castLevel)} slot)`}
+            <button className="btn primary" onClick={() => actions.castSpell(spell)}>
+              Cast{cost.kind === 'slot' ? ` (${ordinal(cost.level)} slot)` : ''}
             </button>
           ) : (
-            <span className="btn dead">{usesPool ? 'Spent' : 'No slot'}</span>
+            <span className="btn dead">{cost.kind === 'pool' ? 'Spent' : 'No slot'}</span>
           )}
         </div>
       </div>

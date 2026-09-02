@@ -94,6 +94,7 @@ src/rules/          pure, framework-free, unit tested
   vitals.ts         damage, healing, temp HP, death saves, concentration DC, startingHp
   rest.ts           short and long rest restoration
   derive.ts         every computed value, including passive scores and mitigateDamage
+  combat.ts         lanePlan / turnPlan / spellCost -- what the character can do this turn
   abilityScores.ts  standard array, point-buy cost table
   tokens.ts         token expansion
   skills.ts         the 18 skills and their abilities
@@ -117,15 +118,15 @@ src/store/
   sync.ts           the Supabase half: auth, debounced push, pull, conflicts
   labels.ts         JSON pointer -> human label for history
 src/data/           conditions, seed character, blank/duplicate factories
-src/components/     Header, Vitals, Alerts, Abilities, Skills, Center, SideRail, History, Editor, Portrait,
-                    CreateCharacter (guided-creation wizard), LevelUp, ChoicePicker, Menu (shared)
+src/components/     Header, Vitals, Alerts, Abilities, Skills, Center, Combat, SideRail, History, Editor,
+                    Portrait, CreateCharacter (guided-creation wizard), LevelUp, ChoicePicker, Menu (shared)
 ```
 
 ## Verifying
 
 ```bash
 npm install
-npm test           # 126 tests: dice, vitals, apply/history, rest, derive, tokens, migrations, packs/*, abilityScores
+npm test           # 150 tests: dice, vitals, apply/history, rest, derive, combat, tokens, migrations, packs/*, abilityScores
 npm run build      # tsc --noEmit && vite build
 npm run dev
 ```
@@ -172,6 +173,23 @@ reachable. Portraits are live: `Portrait.tsx` downscales to 384px JPEG before st
 `portraitUrl` lives in the character document and the `edit` channel is never pruned — a
 full-resolution photo would sit in the journal forever.
 
+**Combat mode (phase 7) is built.** The header toggle swaps the centre column for `Combat.tsx`:
+the turn in lanes — action, bonus, move, reaction, free — each listing what this character can
+actually do right now. `src/rules/combat.ts` makes every decision and the component only draws it.
+`lanePlan()` reads `lane`, `requires` and `favoredWhen` off the entries themselves, drops the
+options there is nothing left to pay for (and says how many it dropped, so a spell vanishing
+mid-fight has a reason), and floats the ones an active situation chip favours to the top. It reads
+actions, spells **and features**: a feature is a turn option when it carries a `pool` or a `lane`,
+which is what puts a Pugilist's Moxie kit on the lanes and leaves Iron Chin off them. That last
+part was missing until the first real character walked into it — Damiana has two actions, no
+spells, and eleven features. The chips
+are built from the character's own `favoredWhen` tags rather than a fixed vocabulary. Nothing is
+hand-coded per character — that is what made the prototype's version fit exactly one warlock.
+`requires: { pool, amount }` is new on `ActionEntry`/`SpellEntry`; it is optional, so old documents
+still validate and there is no migration or schema bump. Casting goes through `actions.castSpell()`
+now, one `apply()` that spends the slot or pool and picks up concentration together, and the
+sheet's spell row shares its `spellCost()` — the two can never charge different pools.
+
 **Companions are on the sheet.** Familiars, wild shape forms, steeds, summons and beast companions
 live on the character as `companions: CompanionEntry[]`, with their attacks reusing `ActionEntry` so
 they roll like anything else. Their current HP is `companionHp: Record<id, number>`, deliberately
@@ -197,9 +215,15 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   two `VITE_SUPABASE_*` values exist the app is local-only, the indicator says "This device only",
   and the Supabase client is never even downloaded (dynamic import, so Vite splits it out). It has
   not been exercised against a real project yet — only the pure logic is tested.
-- Combat mode has a toggle in the header and session state, but no UI.
+- Combat mode is only as good as the tagging. An entry with no `lane` lands in the Action lane, and
+  `lane` / `requires` / `favoredWhen` are set by hand in the JSON editor — nothing in the pack
+  pipeline emits them yet, so a freshly created character opens combat mode with everything in one
+  lane. The seed character is tagged and is the worked example. A `FeatureEntry`'s `tag` often
+  already names the cost ("Bonus Action", "Reaction, 1/Short Rest") and is the honest source to
+  tag from; a tag like "Class 2" is a category, not a cost, and is not something to guess at.
 - The spell and inventory rows still build their dice label inline, so a flat-damage spell would read
-  `0d6+2`. `damageLabel()` in `derive.ts` fixes that shape; only the action row uses it so far.
+  `0d6+2`. `damageLabel()` in `derive.ts` fixes that shape; the action row and the combat view use
+  it, the other two do not.
 - Multiclassing isn't modeled — `Character.classes` is architecturally an array but `LevelUp.tsx`
   only ever touches `classes[0]`.
 
@@ -224,6 +248,24 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   sticky side rail. That rail is capped to the viewport with its own scroll on a mouse and is plain
   `static` on touch — a sticky box taller than the viewport pins in place and refuses to scroll
   until the page under it runs out.
+- **A used lane mutes its own heading and nothing else.** It never locks — Extra Attack is two
+  swings out of one Action — and it never dims the options, which made the thing you had just
+  rolled look disabled. There is no "mark used" button either: using something marks its lane, and
+  the only control is the `Used ↺` pill that puts it back. One button per header, on the four
+  headers you never touch, was all noise.
+- **An attack asks before it rolls damage.** The DM calls hits, so the row asks "Did it hit?" and
+  the damage button only appears on Hit. The two ends skip the question, because the die already
+  answered: a natural 20 hits, a natural 1 misses. Options with damage and no attack roll — a
+  save-for-half spell — keep their damage button at all times.
+- **Move carries a distance, not a used flag.** Movement is the one part of a turn that is a
+  quantity, so the lane gets a ±5 ft stepper reading what is left. Going past your speed is allowed
+  and shown as "ft over": Dash doubles it and the sheet has no way to know you took it.
+- **A feature reaches the lanes only with a `pool` or a `lane`.** Iron Chin and Creature Type are
+  facts about the character, not things you do on a turn, and a lane full of them is worse than an
+  empty one. `featureIsOption()` in `src/rules/combat.ts` is that rule.
+- **An entry with no `lane` is an action**, and situation chips are built from the tags the
+  character's own entries carry. A fixed chip vocabulary would fill the row with chips that reorder
+  nothing, and defaulting the lane is what stops a pre-lanes character opening to five empty panels.
 - **Every font size is `rem`.** The root `font-size` in `tokens.css` is the type scale, 16px going
   to 20px under `@media (pointer: coarse)`. Adding a `px` font size anywhere opts that text out.
 
@@ -231,6 +273,9 @@ Stat blocks are added and edited through the JSON editor, like every other entry
 
 Ordered by what unblocks the most, but they are independent — pick any one cold. Each says where it
 lives and what "done" looks like. Read `PLAN.md` before the structural ones (2 and 3).
+
+Combat mode was phase 7 and is now built; what is left of it is content, not code — tagging a real
+character's entries with `lane` and `requires` in the editor.
 
 ### 1. Finish phase 4 — turn sync on · *setup, then one real test*
 
@@ -242,17 +287,7 @@ check the conflict modal appears and neither side is silently merged.** Until th
 `src/store/sync.ts` as unproven — `outbox.ts` is the tested part, `sync.ts` is the I/O around it.
 Done when two devices agree and a deliberate conflict is survivable.
 
-### 2. Phase 7 — combat mode · *the biggest missing feature*
-
-The toggle and session state exist; there is no UI. `PLAN.md` §10 has the design: each action and
-spell carries `lane` (`action`/`bonus`/`move`/`reaction`/`free`), a `requires` cost like
-`{ pool: 'pact', amount: 1 }`, and optional `favoredWhen` tags that reorder options when a situation
-chip is active. Options you cannot pay for disappear; the recommended one floats up. **Do not
-hand-code per-character tactics** — that is what the prototype did and why it only ever worked for
-one character. Needs new fields on `ActionEntry`/`SpellEntry` (schema + migration), a lane component,
-and session state for situation chips. Done when a round can be played from the combat view alone.
-
-### 3. Auto-wire resource pools from `ClassDef` · *closes the wizard's biggest gap*
+### 2. Auto-wire resource pools from `ClassDef` · *closes the wizard's biggest gap*
 
 `ClassDef` has no pool-by-level table, so the wizard can only create hit dice — a Pugilist's Moxie
 Points have to be added by hand in the Editor after creation. Add the table to `src/packs/types.ts`
@@ -262,19 +297,19 @@ Note the sibling gap while you are there: AC and starting HP fall back to 10+DEX
 because `ClassDef` cannot say "Iron Chin: 12+CON" either. Done when creating a Pugilist gives a
 correct Moxie pool with no manual editing.
 
-### 4. Phase 5 — history polish · *self-contained, data already exists*
+### 3. Phase 5 — history polish · *self-contained, data already exists*
 
 `History.tsx` filters by channel only. The journal already supports filter-by-field, jump-to-date
 and batch grouping — this is UI over data that is already there, no schema or store work. Done when
 you can find "when did AC change" without scrolling.
 
-### 5. Dice panel in the stacked layout · *small, real table annoyance*
+### 4. Dice panel in the stacked layout · *small, real table annoyance*
 
 In portrait the side rail sorts last, so the most-used control on the sheet sits at the bottom of a
 long scroll. `PLAN.md` §8 recommends a sticky bottom sheet collapsed to the last roll's total. A
 deliberate deviation from the handoff, and worth it.
 
-### 6. Grow `phb-2024` · *do this when a character needs it, not in bulk*
+### 5. Grow `phb-2024` · *do this when a character needs it, not in bulk*
 
 Real source text only, same process as the Pugilist pack: you supply the text, it gets transcribed
 and cross-checked. See `PLAN.md` §11. The nearest concrete gap is that its `BackgroundDef`s have no

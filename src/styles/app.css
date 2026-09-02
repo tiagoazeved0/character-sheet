@@ -325,6 +325,45 @@ button.stat:hover { border-color: var(--accent); background: var(--accent-light)
 .enc-bar { height: 7px; border-radius: 5px; background: var(--divider-2); overflow: hidden; }
 .notes-area { width: 100%; min-height: 280px; padding: 16px; border-radius: 12px; border: 1px solid var(--border); font-size: 0.875rem; line-height: 1.6; resize: vertical; }
 
+/* ---------- combat mode ---------- */
+.combat { display: flex; flex-direction: column; gap: 14px; }
+.combat-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.combat-round { font-family: var(--font-display); font-weight: 600; font-size: 1.125rem; margin-right: auto; }
+.combat-situations { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.combat-legend { font-size: 0.625rem; color: var(--text-secondary); }
+.combat-conditions { padding: 10px 14px; display: flex; flex-direction: column; gap: 5px; }
+.combat-conditions p { margin: 0; font-size: 0.8125rem; line-height: 1.45; color: var(--text-body); }
+.lane { display: flex; flex-direction: column; gap: 7px; }
+.lane-head { display: flex; align-items: baseline; gap: 9px; padding-bottom: 3px; border-bottom: 1px solid var(--divider-2); }
+.lane-name { font-family: var(--font-display); font-weight: 600; font-size: 0.9375rem; }
+/* Only a used lane carries a flag, and it is the control that puts it back.
+   A "mark used" button on every header was noise on the four you never touch. */
+.lane-flag {
+  margin-left: auto; min-height: var(--tap);
+  font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.08em;
+  background: var(--accent); border: 1px solid var(--accent); border-radius: 20px;
+  padding: 3px 10px; color: var(--on-dark);
+}
+/* The lane heading carries the used state. Dimming the options underneath made
+   the thing you had just rolled look disabled, which is the opposite of true. */
+.lane.spent .lane-name { color: var(--text-muted); }
+.move-track { display: flex; align-items: center; gap: 7px; margin-left: auto; }
+.move-track button {
+  min-width: 30px; min-height: var(--tap); padding: 3px 8px;
+  font-size: 0.8125rem; font-weight: 600; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); border-radius: 7px;
+}
+.move-track button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-hover); }
+.move-track button:disabled { opacity: 0.4; }
+.move-left { font-size: 0.9375rem; font-weight: 600; min-width: 74px; text-align: center; }
+.move-unit { font-size: 0.625rem; color: var(--text-secondary); }
+.move-of { font-size: 0.625rem; color: var(--text-muted); }
+.hit-ask { align-self: center; font-size: 0.75rem; color: var(--text-secondary); }
+.lane-empty { margin: 0; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+.combat-option { padding: 10px 13px 11px; display: flex; flex-direction: column; gap: 4px; }
+.combat-option.favored { border-left: 3px solid var(--gold); }
+.favored-tag { border-color: var(--gold); color: var(--warning); }
+
 /* ---------- side rail ---------- */
 .dice { background: var(--dark); border-radius: 12px; color: var(--on-dark); padding: 12px 13px 13px; display: flex; flex-direction: column; gap: 10px; }
 .dice-head { display: flex; align-items: baseline; }

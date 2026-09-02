@@ -10,6 +10,7 @@ import { Alerts } from './components/Alerts.tsx'
 import { Abilities, CharacterDetail } from './components/Abilities.tsx'
 import { Skills } from './components/Skills.tsx'
 import { Center } from './components/Center.tsx'
+import { Combat } from './components/Combat.tsx'
 import { SideRail } from './components/SideRail.tsx'
 import { Editor } from './components/Editor.tsx'
 import { CreateCharacter } from './components/CreateCharacter.tsx'
@@ -48,6 +49,7 @@ export default function App() {
   const loaded = useCharacters((s) => s.loaded)
   const loadPacks = usePacks((s) => s.load)
   const character = useActiveCharacter()
+  const combat = useSession((s) => s.combat)
   const actions = useSheetActions(character)
   const layout = useAutoLayout()
   const [editorOpen, setEditorOpen] = useState(false)
@@ -81,7 +83,11 @@ export default function App() {
       <main className={`grid ${layout}`}>
         <div className="area-vitals"><Vitals character={character} actions={actions} /></div>
         <div className="area-abil"><Abilities character={character} actions={actions} /></div>
-        <div className="area-center"><Center character={character} actions={actions} /></div>
+        <div className="area-center">
+          {combat
+            ? <Combat character={character} actions={actions} />
+            : <Center character={character} actions={actions} />}
+        </div>
         <div className="area-side"><SideRail character={character} actions={actions} /></div>
         <div className="area-detail"><CharacterDetail character={character} /></div>
         <div className="area-skills"><Skills character={character} actions={actions} /></div>

@@ -34,10 +34,10 @@ input::placeholder, textarea::placeholder { font-style: italic; color: var(--tex
 /* --- hard corners everywhere --- */
 .card, .stat, .abil-mod, .abil-save, .btn, .hbtn, .segmented, .segmented button,
 .tabs, .tabs button, .search, .pick-row, .dice, .log-entry, .chip, .pip, .badge, .tag,
-.modal, .json-area, .notes-area, .error, .history-revert, .hp-buttons button, .conc-pill,
+.modal, .json-area, .notes-area, .error, .history-revert, .hp-buttons button, .conc-pill, .lane-flag,
 .portrait-frame, .companion, .companion-hp-buttons button, .syncbar-detail, .conflict-side,
 .vitals-quick button, .vitals-entry input, .vitals-entry select, .vitals-crit, .header-avatar, .menu-list,
-.tray-die, .tray-count button, .exhaustion-steps button {
+.tray-die, .tray-count button, .exhaustion-steps button, .move-track button {
   border-radius: var(--r-md);
 }
 .vitals-bar, .enc-bar, .companion-bar { border-radius: 0; }
@@ -89,6 +89,12 @@ input::placeholder, textarea::placeholder { font-style: italic; color: var(--tex
 .abil-abbr, .pool-recovery, .dice-clear, .skill-ability { font-family: var(--font-mono); letter-spacing: 0.12em; }
 .skill-row { font-size: 0.9375rem; }
 .tabs button, .chip, .pool-head { font-family: var(--font-display); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.03em; }
+.combat-round, .lane-name { font-family: var(--font-display); font-weight: 400; letter-spacing: 0.05em; }
+.combat-round { font-size: 1.375rem; }
+.lane-name { font-size: 1.125rem; }
+.lane-flag, .combat-legend, .move-unit, .move-of { font-family: var(--font-mono); letter-spacing: 0.12em; }
+.hit-ask { font-style: italic; }
+.combat-option .row-title { font-size: 1.0625rem; }
 .badge, .tag { font-family: var(--font-mono); font-weight: 400; letter-spacing: 0.08em; }
 
 /* --- brass press for the primary action --- */

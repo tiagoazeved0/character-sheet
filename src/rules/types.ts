@@ -51,6 +51,10 @@ export type Spellcasting =
 
 export type DamageSpec = { count: number; size: number; flat: number; type?: string }
 
+/** What using an option costs out of a resource pool, e.g. `{ pool: 'moxie', amount: 1 }`.
+ *  Spell slots are not written here -- a spell's slot cost falls out of its level. */
+export type Requirement = { pool: string; amount: number }
+
 export type SpellEntry = {
   id: string
   name: string
@@ -63,6 +67,7 @@ export type SpellEntry = {
   attack?: { mod?: number; label?: string }
   damage?: DamageSpec & { label: string }
   lane?: Lane
+  requires?: Requirement
   favoredWhen?: string[]
 }
 
@@ -80,6 +85,7 @@ export type ActionEntry = {
   check?: { mod: number; label: string }
   /** Sets concentration on this spell name when used. */
   concentrationOn?: string
+  requires?: Requirement
   favoredWhen?: string[]
 }
 
@@ -91,6 +97,9 @@ export type FeatureEntry = {
   desc: string
   /** Spends a pip from this resource pool when used. */
   pool?: string
+  /** Which part of the turn it costs. A feature is a combat option when it has a
+   *  `pool` or a `lane`; everything else is passive and stays off the lanes. */
+  lane?: Lane
   /** Fully-qualified pack id this was populated from, e.g. "homebrew-pugilist:features/fisticuffs". The fields above ARE the cached snapshot. */
   ref?: string
 }

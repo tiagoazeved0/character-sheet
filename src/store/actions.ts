@@ -2,7 +2,8 @@ import { rollD20, rollDamage, type DamageRider } from '../rules/dice.ts'
 import { applyDamage, applyDeathSave, concentrationDC, grantTemp, heal } from '../rules/vitals.ts'
 import { longRest, shortRest } from '../rules/rest.ts'
 import { abilityMod, coverBonus, fmt, mitigateDamage, saveMod, skillMod } from '../rules/derive.ts'
-import { ABILITY_NAMES, type Ability, type Character, type CoverDegree, type DamageSpec, type DamageType } from '../rules/types.ts'
+import { spellCost } from '../rules/combat.ts'
+import { ABILITY_NAMES, type Ability, type Character, type CoverDegree, type DamageSpec, type DamageType, type SpellEntry } from '../rules/types.ts'
 import { conditionById } from '../data/conditions.ts'
 import { useCharacters } from './character.ts'
 import { useSession } from './session.ts'
@@ -158,6 +159,33 @@ export function useSheetActions(character: Character | null) {
           if (used <= 0) delete usage[poolId]
           else usage[poolId] = used
           return { ...c, usage }
+        },
+      })
+    },
+
+    /**
+     * Casting spends its slot or pool and picks up concentration in one apply(),
+     * so History reads "Cast Hold Person" once and reverts as one row rather
+     * than leaving the slot spent and the concentration dropped.
+     */
+    castSpell(spell: SpellEntry) {
+      if (!character) return
+      const cost = spellCost(character, spell)
+      const charges: [string, number][] = []
+      if (cost.kind !== 'cantrip') charges.push([cost.poolId, 1])
+      if (spell.requires) charges.push([spell.requires.pool, spell.requires.amount])
+
+      apply({
+        label: `Cast ${spell.name}`,
+        channel: 'play',
+        mutate: (c) => {
+          const usage = { ...c.usage }
+          for (const [poolId, amount] of charges) usage[poolId] = (usage[poolId] ?? 0) + amount
+          return {
+            ...c,
+            usage,
+            vitals: spell.concentration ? { ...c.vitals, concentration: spell.name } : c.vitals,
+          }
         },
       })
     },

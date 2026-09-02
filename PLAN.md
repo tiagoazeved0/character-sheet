@@ -451,7 +451,7 @@ Rules packs cache in IndexedDB, so a pack is available offline once imported.
 | 4 | Supabase auth, sync, conflict prompt, keepalive cron | **yes, both devices** | built, not switched on -- `src/store/outbox.ts` (pure, tested) + `src/store/sync.ts`, DDL in `supabase/schema.sql`, setup in `supabase/README.md`. Untested against a real project |
 | 5 | History tab with per-field revert | yes | partial -- channel filter only, no field filter/jump-to-date/visual batch collapse yet |
 | 6 | Class tables in packs → guided creation and level-up, sharing one choice-rendering layer | yes | done -- `CreateCharacter.tsx` + `LevelUp.tsx` share `ChoicePicker.tsx` and `src/packs/levelup.ts`; known gaps: AC/HP defaults, resource-pool auto-wiring (see `CLAUDE.md`) |
-| 7 | Combat mode, lanes driven by tagged actions | yes | not started (toggle only, no UI) |
+| 7 | Combat mode, lanes driven by tagged actions | yes | done -- `Combat.tsx` over `src/rules/combat.ts`; `requires` added to `ActionEntry`/`SpellEntry` |
 
 The grimoire restyle (vellum, oxblood, letterpress; IM Fell / EB Garamond / Cutive Mono) is not a
 phase — it is a palette and type swap that ports as `tokens.css` plus `grimoire.css`, because no
@@ -471,12 +471,27 @@ mutation, or it is missing exactly the period when you were breaking things most
 
 ### Combat mode, in brief
 
-The prototype's lane options are hand-authored for one character. Data-driven replacement: each
-action and spell carries `lane: 'action' | 'bonus' | 'move' | 'reaction' | 'free'`, a `requires`
-cost (`{ pool: 'pact', amount: 1 }`), and optional `favoredWhen: ['range', 'dim']` tags that
-reorder options when a situation chip is active. Keeps most of the value — options disappear when
-you cannot pay for them, the recommended option floats up — without hand-coding each character's
-tactics.
+The prototype's lane options are hand-authored for one character. Data-driven replacement, built:
+each action and spell carries `lane: 'action' | 'bonus' | 'move' | 'reaction' | 'free'`, a
+`requires` cost (`{ pool: 'pact', amount: 1 }`), and optional `favoredWhen: ['range', 'dim']` tags
+that reorder options when a situation chip is active. `lanePlan()` in `src/rules/combat.ts` is the
+whole decision and `Combat.tsx` only draws it: options you cannot pay for drop out — counted, not
+silently — the favoured ones float up, and no character's tactics are hand-coded.
+
+Features are options too, which the original sketch missed. A `FeatureEntry` reaches the lanes when
+it carries a `pool` or a `lane`, so a Pugilist's Moxie kit — Brace Up, One-Two Punch, Stick and
+Move — sits in the Bonus lane and empties out of it when the pool does, while Iron Chin stays off
+the lanes where it belongs. A class whose whole kit lives in `features[]` is the common case, not
+the exception.
+
+Shapes that look like oversights and are not. A used lane **mutes its heading only** — it never
+locks (Extra Attack is two swings out of one Action) and never dims its options (that made the row
+you had just rolled look disabled), and there is no manual "mark used" control. An entry with **no
+`lane` is an action**, or every character written before lanes existed would open combat mode to
+five empty panels. **Move holds a distance rather than a flag**, since it is the one part of a turn
+that is a quantity. And **an attack asks "did it hit?" before offering damage**, because the DM
+calls hits — skipping the question only on a natural 20 or a natural 1, where the die already
+answered.
 
 ---
 
