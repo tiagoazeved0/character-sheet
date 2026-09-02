@@ -3,7 +3,7 @@ import { usePacks } from '../store/packs.ts'
 import { useCharacters } from '../store/character.ts'
 import { suggestedProficiency } from '../data/blank.ts'
 import { pinStates, resolvePacks } from '../packs/resolver.ts'
-import { grantsForLevelRange } from '../packs/levelup.ts'
+import { grantsForLevelRange, mergePools, poolsAtLevel } from '../packs/levelup.ts'
 import type { Character, FeatureEntry } from '../rules/types.ts'
 import type { ClassDef } from '../packs/types.ts'
 import { ChoicePicker } from './ChoicePicker.tsx'
@@ -82,7 +82,10 @@ export function LevelUp({ character: c, onClose }: { character: Character; onClo
         proficiencyBonus: suggestedProficiency(targetLevel),
         classes: [{ ...classInfo, level: targetLevel, subclassId: newSubclassId }],
         features: [...doc.features, ...newFeatures],
-        resources: doc.resources.map((r) => (r.id === 'hit-dice' ? { ...r, max: targetLevel } : r)),
+        resources: mergePools(
+          doc.resources.map((r) => (r.id === 'hit-dice' ? { ...r, max: targetLevel } : r)),
+          poolsAtLevel(classDef, targetLevel),
+        ),
       }),
     })
     onClose()

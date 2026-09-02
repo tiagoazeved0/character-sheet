@@ -3,7 +3,7 @@ import { usePacks } from '../store/packs.ts'
 import { useCharacters } from '../store/character.ts'
 import { blankCharacter, suggestedProficiency } from '../data/blank.ts'
 import { resolvePacks, type ResolvedEntry } from '../packs/resolver.ts'
-import { grantsForLevelRange } from '../packs/levelup.ts'
+import { grantsForLevelRange, poolsAtLevel } from '../packs/levelup.ts'
 import { startingHp } from '../rules/vitals.ts'
 import { mod } from '../rules/derive.ts'
 import { ABILITIES, ABILITY_NAMES, type Ability, type Character, type FeatureEntry, type PackPin } from '../rules/types.ts'
@@ -170,7 +170,10 @@ export function CreateCharacter({ onClose }: { onClose: () => void }) {
       maxHp,
       ac,
       features,
-      resources: [{ id: 'hit-dice', name: `Hit dice (d${cls.def.hitDie})`, max: startLevel, recovery: 'long', colour: 'green' }],
+      resources: [
+        { id: 'hit-dice', name: `Hit dice (d${cls.def.hitDie})`, max: startLevel, recovery: 'long', colour: 'green' },
+        ...poolsAtLevel(cls.def, startLevel),
+      ],
       packs: pins,
       raceRef: `${race.packId}:races/${race.def.id}`,
       backgroundRef: `${background.packId}:backgrounds/${background.def.id}`,

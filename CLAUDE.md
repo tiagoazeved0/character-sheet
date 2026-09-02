@@ -204,8 +204,13 @@ Stat blocks are added and edited through the JSON editor, like every other entry
 - AC and starting HP default to generic formulas in the wizard (10+DEX, average-per-level) since
   `ClassDef` has no structured way yet to say "this class overrides AC" — both are plain editable
   fields, correct them after creation for a class like Pugilist (Iron Chin: 12+CON).
-- Resource pools beyond hit dice (e.g. Pugilist's Moxie Points) aren't auto-wired by the wizard —
-  `ClassDef` doesn't carry pool-by-level data yet. Add them by hand via the Editor after creation.
+- **Resource pools are wired but no pack carries a column yet**, so behaviour is unchanged until one
+  does. `ClassDef.pools` takes the class table's column verbatim (20 entries, index 0 = level 1) and
+  `poolsAtLevel` / `mergePools` in `src/packs/levelup.ts` feed both the wizard and level-up.
+  `mergePools` writes only `max`, so a pool the class doesn't define — hit dice, or one added by
+  hand — is never touched. The Pugilist's Moxie column is the missing piece and needs real source
+  text: its own feature text only says "2 at level 2, up to 12 at level 20", and interpolating that
+  is exactly what Hard Rule 5's process exists to prevent.
 - Rules packs sync in both directions as of 2026-09-02, but only because a second device proved
   they did not: `rules_packs` was push-only, and packs installed before sync was switched on were
   never queued at all (`queuePack()` returns early when nothing is owed). A device that signed in
@@ -289,15 +294,14 @@ lives and what "done" looks like. Read `PLAN.md` before the structural ones (1 a
 Combat mode was phase 7 and is now built; what is left of it is content, not code — tagging a real
 character's entries with `lane` and `requires` in the editor.
 
-### 1. Auto-wire resource pools from `ClassDef` · *closes the wizard's biggest gap*
+### 1. Let a `ClassDef` override AC and starting HP · *the sibling of the pools work*
 
-`ClassDef` has no pool-by-level table, so the wizard can only create hit dice — a Pugilist's Moxie
-Points have to be added by hand in the Editor after creation. Add the table to `src/packs/types.ts`
-+ `schema.ts`, teach `src/packs/levelup.ts` to emit pools, and wire it into `CreateCharacter.tsx`
-and `LevelUp.tsx`. Same shape as the existing feature grants, so it follows an established path.
-Note the sibling gap while you are there: AC and starting HP fall back to 10+DEX and average-per-level
-because `ClassDef` cannot say "Iron Chin: 12+CON" either. Done when creating a Pugilist gives a
-correct Moxie pool with no manual editing.
+Pools now come off the class table; AC and HP still don't. The wizard falls back to 10+DEX and
+average-per-level because `ClassDef` cannot say "Iron Chin: AC 12+CON", so every Pugilist is created
+wrong and corrected by hand. Unlike pools this is a design question before it is a transcription
+one: the honest options are a small named set of AC formulas (`unarmoured: { base, ability }`) or a
+`%MOD:con%`-style token, and **not** an expression evaluator — Hard Rule 6 exists for the same
+reason here as for `%DC%`. Done when creating a Pugilist gives AC 12+CON without editing.
 
 ### 2. Phase 5 — history polish · *self-contained, data already exists*
 

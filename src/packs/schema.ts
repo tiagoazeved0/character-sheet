@@ -46,6 +46,14 @@ export const classDefSchema = z.object({
     }),
     z.object({ kind: z.literal('slots'), table: z.array(z.array(z.number().int().min(0))) }),
   ]).optional(),
+  pools: z.array(z.object({
+    id: z.string().min(1), name: z.string().min(1),
+    recovery: z.enum(['short', 'long', 'none']),
+    colour: z.enum(['arcane', 'violet', 'green', 'accent']),
+    // Exactly 20: a short column is a transcription that stopped early, and the
+    // levels past its end would silently read 0 -- a pool that vanishes at 11.
+    byLevel: z.array(z.number().int().min(0)).length(20),
+  })).optional(),
   levels: z.array(z.object({
     level: z.number().int().min(1).max(20),
     proficiencyBonus: z.number().int().min(0).max(10),

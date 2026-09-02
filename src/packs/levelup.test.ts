@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { featuresAtLevel, grantsForLevelRange } from './levelup.ts'
+import { featuresAtLevel, grantsForLevelRange, mergePools, poolsAtLevel } from './levelup.ts'
 import type { ClassDef } from './types.ts'
 
 /** A trimmed stand-in for the real Pugilist ClassDef -- same shape, fewer levels. */
@@ -90,5 +90,56 @@ describe('grantsForLevelRange', () => {
       ],
     }
     expect(grantsForLevelRange(dup, undefined, 0, 2).features).toEqual(['fisticuffs'])
+  })
+})
+
+describe('poolsAtLevel', () => {
+  // A plateau then a jump, which is what a real class table looks like and why
+  // the column is stored rather than interpolated.
+  const withPools: ClassDef = {
+    ...pugilist,
+    pools: [{
+      id: 'moxie', name: 'Moxie Points', recovery: 'short', colour: 'accent',
+      byLevel: [0, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 11, 12, 12],
+    }],
+  }
+
+  it('omits a pool the class has none of yet', () => {
+    expect(poolsAtLevel(withPools, 1)).toEqual([])
+  })
+
+  it('reads the column at the character level, plateaus included', () => {
+    expect(poolsAtLevel(withPools, 2)[0]).toMatchObject({ id: 'moxie', max: 2, recovery: 'short' })
+    expect(poolsAtLevel(withPools, 3)[0]).toMatchObject({ max: 3 })
+    expect(poolsAtLevel(withPools, 4)[0]).toMatchObject({ max: 3 })
+    expect(poolsAtLevel(withPools, 20)[0]).toMatchObject({ max: 12 })
+  })
+
+  it('is empty for a class that defines no pools', () => {
+    expect(poolsAtLevel(pugilist, 5)).toEqual([])
+  })
+})
+
+describe('mergePools', () => {
+  const hitDice = { id: 'hit-dice', name: 'Hit dice (d10)', max: 2, recovery: 'long' as const, colour: 'green' as const }
+  const moxie2 = { id: 'moxie', name: 'Moxie Points', max: 2, recovery: 'short' as const, colour: 'accent' as const }
+  const moxie3 = { ...moxie2, max: 3 }
+
+  it('raises the max of a pool the class defines', () => {
+    expect(mergePools([hitDice, moxie2], [moxie3])).toEqual([hitDice, moxie3])
+  })
+
+  it('leaves pools the class knows nothing about untouched', () => {
+    const homebrew = { id: 'luck', name: 'Luck', max: 1, recovery: 'long' as const, colour: 'violet' as const }
+    expect(mergePools([homebrew], [moxie3])).toEqual([homebrew, moxie3])
+  })
+
+  it('writes only max, so a renamed or recoloured pool survives a level-up', () => {
+    const renamed = { ...moxie2, name: 'Grit', colour: 'violet' as const }
+    expect(mergePools([renamed], [moxie3])).toEqual([{ ...renamed, max: 3 }])
+  })
+
+  it('appends a pool that first appears at this level', () => {
+    expect(mergePools([hitDice], [moxie2])).toEqual([hitDice, moxie2])
   })
 })

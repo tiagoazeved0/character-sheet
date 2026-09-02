@@ -1,4 +1,4 @@
-import type { Ability } from '../rules/types.ts'
+import type { Ability, ResourcePool } from '../rules/types.ts'
 
 export type FeatureDef = {
   id: string
@@ -70,6 +70,23 @@ export type SubclassDef = {
   levels: { level: number; features: string[] }[]
 }
 
+export type ClassPoolDef = {
+  /** Matches the ResourcePool id on the character, e.g. 'moxie'. */
+  id: string
+  name: string
+  recovery: ResourcePool['recovery']
+  colour: ResourcePool['colour']
+  /**
+   * The maximum at each class level, read straight off the column in the class
+   * table: index 0 is level 1. Levels the class has none of it are 0, and a 0
+   * is never emitted as a pool -- a Pugilist has no Moxie until level 2. Kept
+   * as the whole column rather than a formula because class tables are not
+   * formulas; they have plateaus and jumps, and interpolating one is how you
+   * end up confidently wrong at the table.
+   */
+  byLevel: number[]
+}
+
 export type ClassDef = {
   id: string
   name: string
@@ -79,6 +96,8 @@ export type ClassDef = {
   spellcasting?:
     | { kind: 'pact'; table: { level: number; slots: number; castLevel: number }[] }
     | { kind: 'slots'; table: number[][] } // [charLevel][spellLevel]
+  /** Resource pools the class grants, beyond hit dice. Absent on classes that have none. */
+  pools?: ClassPoolDef[]
   levels: ClassLevel[]
   subclasses?: SubclassDef[]
 }

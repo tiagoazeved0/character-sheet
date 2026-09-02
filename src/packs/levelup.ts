@@ -1,3 +1,4 @@
+import type { ResourcePool } from '../rules/types.ts'
 import type { ChoiceDef, ClassDef } from './types.ts'
 
 export type LevelGrants = { features: string[]; choices: ChoiceDef[] }
@@ -49,4 +50,35 @@ export function grantsForLevelRange(
   }
 
   return { features, choices }
+}
+
+/**
+ * The pools a class grants at exactly this level, as ResourcePools ready to sit
+ * on a character. A pool whose column reads 0 here is omitted rather than
+ * emitted empty: a Pugilist has no Moxie track at level 1, and a row of zero
+ * pips is worse than no row.
+ */
+export function poolsAtLevel(classDef: ClassDef, level: number): ResourcePool[] {
+  return (classDef.pools ?? [])
+    .map((p) => ({ id: p.id, name: p.name, max: p.byLevel[level - 1] ?? 0, recovery: p.recovery, colour: p.colour }))
+    .filter((p) => p.max > 0)
+}
+
+/**
+ * Class pools folded into what the character already has. A pool the class
+ * defines gets its new `max` and keeps everything else, so a renamed or
+ * recoloured pool survives a level-up; one the class doesn't define -- hit
+ * dice, or anything added by hand in the editor -- is left completely alone.
+ * Only `max` is ever written, because the class table is the authority on that
+ * number and on nothing else.
+ */
+export function mergePools(existing: ResourcePool[], fromClass: ResourcePool[]): ResourcePool[] {
+  const incoming = new Map(fromClass.map((p) => [p.id, p]))
+  const merged = existing.map((r) => {
+    const p = incoming.get(r.id)
+    if (!p) return r
+    incoming.delete(r.id)
+    return { ...r, max: p.max }
+  })
+  return [...merged, ...incoming.values()]
 }
