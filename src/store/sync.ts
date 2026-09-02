@@ -7,7 +7,7 @@ import { validatePackImport } from '../packs/validate.ts'
 import type { RulesPack } from '../packs/types.ts'
 import { dbAll, dbGet, dbPut, dbDelete } from './db.ts'
 import {
-  changeRow, characterRow, dequeue, enqueue, pendingKey, resolveConflict, statusFor,
+  authRedirectTo, changeRow, characterRow, dequeue, enqueue, pendingKey, resolveConflict, statusFor,
   type Conflict, type Pending, type SyncMeta, type SyncStatus,
 } from './outbox.ts'
 
@@ -204,7 +204,7 @@ export const useSync = create<Store>((set, get) => {
       if (!supabase) return
       await supabase.auth.signInWithOAuth({
         provider: 'github',
-        options: { redirectTo: window.location.href },
+        options: { redirectTo: authRedirectTo(window.location.href) },
       })
     },
 

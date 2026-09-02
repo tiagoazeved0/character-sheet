@@ -160,3 +160,19 @@ export const changeRow = (change: Change) => ({
   channel: change.channel,
   data: change as unknown,
 })
+
+/**
+ * Where OAuth should return to: origin and path only, never the hash or query.
+ *
+ * This was `window.location.href`, which accumulates. Supabase returns from a
+ * sign-in with the session in the fragment -- `#access_token=<jwt>&refresh_token=
+ * ...` -- so a second sign-in from that page sends the whole token blob to GitHub
+ * as `redirect_to`, comes back with the new fragment appended, and roughly
+ * doubles each round trip until GitHub answers 414 "request URL is too long".
+ * Origin plus path is also exactly what gets allowlisted in Supabase's URL
+ * configuration, so this cannot drift out of that list either.
+ */
+export const authRedirectTo = (href: string): string => {
+  const url = new URL(href)
+  return url.origin + url.pathname
+}

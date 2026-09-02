@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dequeue, enqueue, QUEUE_LIMIT, resolveConflict, statusFor, type Pending } from './outbox.ts'
+import { authRedirectTo, dequeue, enqueue, type Pending, QUEUE_LIMIT, resolveConflict, statusFor } from './outbox.ts'
 import { seedCharacter } from '../data/seed.ts'
 
 const char = (id: string, updatedAt: string): Pending => ({ kind: 'character', id, updatedAt })
@@ -144,5 +144,32 @@ describe('queue ceiling', () => {
     expect(q).toContainEqual(char('keep', '1'))
     expect(q).toContainEqual({ kind: 'delete', id: 'gone' })
     expect(q.length).toBeLessThanOrEqual(QUEUE_LIMIT)
+  })
+})
+
+describe('authRedirectTo', () => {
+  const app = 'https://tiagoazeved0.github.io/character-sheet/'
+
+  it('keeps origin and path', () => {
+    expect(authRedirectTo(app)).toBe(app)
+    expect(authRedirectTo('http://localhost:5173/character-sheet/')).toBe('http://localhost:5173/character-sheet/')
+  })
+
+  // The 414 case: a second sign-in from a page still carrying the returned
+  // session would otherwise hand GitHub the whole token blob, and nest it again
+  // on every attempt.
+  it('drops a returned session fragment instead of forwarding it', () => {
+    const jwt = 'eyJ' + 'x'.repeat(700)
+    const after = `${app}#access_token=${jwt}&refresh_token=${jwt}&expires_at=1234567890&token_type=bearer`
+    expect(after.length).toBeGreaterThan(1400)
+    expect(authRedirectTo(after)).toBe(app)
+  })
+
+  it('drops a query string too, so the result matches the allowlisted URL exactly', () => {
+    expect(authRedirectTo(`${app}?code=abc&state=xyz`)).toBe(app)
+  })
+
+  it('is idempotent, so repeated sign-ins cannot grow it', () => {
+    expect(authRedirectTo(authRedirectTo(`${app}#access_token=abc`))).toBe(app)
   })
 })
