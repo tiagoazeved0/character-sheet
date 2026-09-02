@@ -182,28 +182,38 @@ export function Editor({
             </div>
             {pinProblems.length > 0 && (
               <div className="rows">
-                {pinProblems.map((s) => (
-                  <div key={s.pin.packId} className="card row" style={{ padding: '9px 12px' }}>
-                    <div className="row-top">
-                      <span className="row-title" style={{ fontSize: '0.875rem' }}>{s.pin.packId}</span>
-                      <span className="tag" style={{ color: 'var(--danger)' }}>pinned {s.pin.version}</span>
-                      {s.state === 'version-mismatch' && (
-                        <span style={{ marginLeft: 'auto', display: 'inline-flex', gap: 6, flexWrap: 'wrap' }}>
-                          {s.available.map((v) => (
-                            <button key={v} className="btn ghost" onClick={() => repin(s.pin.packId, v)}>
-                              Repin to {v}
-                            </button>
-                          ))}
+                {pinProblems.map((s) => {
+                  const targets = s.state === 'version-mismatch' ? s.available : s.state === 'outdated' ? s.newer : []
+                  // An upgrade waiting is news, not a fault; only a pin that
+                  // resolves to nothing earns the danger colour.
+                  const broken = s.state !== 'outdated'
+                  return (
+                    <div key={s.pin.packId} className="card row" style={{ padding: '9px 12px' }}>
+                      <div className="row-top">
+                        <span className="row-title" style={{ fontSize: '0.875rem' }}>{s.pin.packId}</span>
+                        <span className="tag" style={broken ? { color: 'var(--danger)' } : undefined}>
+                          pinned {s.pin.version}
                         </span>
-                      )}
+                        {targets.length > 0 && (
+                          <span style={{ marginLeft: 'auto', display: 'inline-flex', gap: 6, flexWrap: 'wrap' }}>
+                            {targets.map((v) => (
+                              <button key={v} className="btn ghost" onClick={() => repin(s.pin.packId, v)}>
+                                Repin to {v}
+                              </button>
+                            ))}
+                          </span>
+                        )}
+                      </div>
+                      <div className="row-sub">
+                        {s.state === 'outdated'
+                          ? `Resolving fine, and ${s.newer.join(', ')} ${s.newer.length === 1 ? 'is' : 'are'} also installed. Repinning changes only which version this character reads; every entry keeps its stored copy until you use "Update from pack".`
+                          : s.state === 'version-mismatch'
+                            ? `Installed: ${s.available.join(', ')}. Until this is repinned, every reference into ${s.pin.packId} resolves to nothing — the sheet still reads correctly from its stored copy, but "Update from pack" finds nothing to check against.`
+                            : `Not installed. Import the pack file to restore this character's references; the sheet itself keeps working from its stored copy meanwhile.`}
+                      </div>
                     </div>
-                    <div className="row-sub">
-                      {s.state === 'version-mismatch'
-                        ? `Installed: ${s.available.join(', ')}. Until this is repinned, every reference into ${s.pin.packId} resolves to nothing — the sheet still reads correctly from its stored copy, but "Update from pack" finds nothing to check against.`
-                        : `Not installed. Import the pack file to restore this character's references; the sheet itself keeps working from its stored copy meanwhile.`}
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
             {packs.length === 0 ? (

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { pinStates, resolvePacks, unresolvedPins } from './resolver.ts'
+import { brokenPins, pinStates, resolvePacks, unresolvedPins } from './resolver.ts'
 import type { RulesPack } from './types.ts'
 
 const emptyContent = { spells: [], conditions: [], classes: [], races: [], backgrounds: [], feats: [], items: [], features: [] }
@@ -98,5 +98,43 @@ describe('pinStates', () => {
     const pins = [{ packId: 'phb-2024', version: '0.1.0' }]
     expect(resolvePacks(installed, pins).get('phb-2024:feats/tavern-brawler')).toBeUndefined()
     expect(pinStates(installed, pins)[0]).toMatchObject({ state: 'version-mismatch' })
+  })
+})
+
+describe('pinStates: an upgrade sitting next to a working pin', () => {
+  const pug = (version: string) => pack({ packId: 'homebrew-pugilist', version })
+
+  it('reports outdated when a newer version is installed alongside', () => {
+    const states = pinStates([pug('1.0.0'), pug('1.1.0')], [{ packId: 'homebrew-pugilist', version: '1.0.0' }])
+    expect(states[0]).toMatchObject({ state: 'outdated', newer: ['1.1.0'] })
+  })
+
+  it('stays ok when the pin is already the newest', () => {
+    const states = pinStates([pug('1.0.0'), pug('1.1.0')], [{ packId: 'homebrew-pugilist', version: '1.1.0' }])
+    expect(states[0]).toMatchObject({ state: 'ok' })
+  })
+
+  it('compares numerically, not as strings', () => {
+    const states = pinStates([pug('1.9.0'), pug('1.10.0')], [{ packId: 'homebrew-pugilist', version: '1.9.0' }])
+    expect(states[0]).toMatchObject({ state: 'outdated', newer: ['1.10.0'] })
+  })
+
+  it('never offers an older version as an upgrade', () => {
+    const states = pinStates([pug('1.0.0'), pug('1.1.0'), pug('0.9.0')], [{ packId: 'homebrew-pugilist', version: '1.1.0' }])
+    expect(states[0]).toMatchObject({ state: 'ok' })
+  })
+
+  // A version string it cannot read must make no claim at all: a wrong
+  // "update available" that is really a downgrade is worse than staying quiet.
+  it('says nothing when a version is not dotted numbers', () => {
+    const states = pinStates([pug('1.0.0'), pug('2024-beta')], [{ packId: 'homebrew-pugilist', version: '1.0.0' }])
+    expect(states[0]).toMatchObject({ state: 'ok' })
+  })
+
+  it('brokenPins excludes outdated, unresolvedPins includes it', () => {
+    const installed = [pug('1.0.0'), pug('1.1.0')]
+    const pins = [{ packId: 'homebrew-pugilist', version: '1.0.0' }]
+    expect(brokenPins(installed, pins)).toEqual([])
+    expect(unresolvedPins(installed, pins)).toHaveLength(1)
   })
 })

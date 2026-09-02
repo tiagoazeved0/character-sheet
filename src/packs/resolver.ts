@@ -38,10 +38,29 @@ export function resolvePacks(installed: RulesPack[], pins: PackPin[]): Map<strin
 
 export type PinState =
   | { pin: PackPin; state: 'ok' }
+  /** Resolves fine, but a newer version of the same pack is installed alongside it. */
+  | { pin: PackPin; state: 'outdated'; newer: string[] }
   /** Right pack, wrong version. One click from correct, because the file is already here. */
   | { pin: PackPin; state: 'version-mismatch'; available: string[] }
   /** No copy of this pack at all. Needs the file, not a decision. */
   | { pin: PackPin; state: 'missing' }
+
+/**
+ * Dotted-numeric comparison, and deliberately not a semver library. Returns 0
+ * for anything it cannot read as numbers, so an unfamiliar version string makes
+ * this claim nothing rather than guess -- an "update available" that is actually
+ * a downgrade is worse than no prompt at all.
+ */
+function compareVersions(a: string, b: string): number {
+  const pa = a.split('.').map(Number)
+  const pb = b.split('.').map(Number)
+  if ([...pa, ...pb].some((n) => !Number.isFinite(n))) return 0
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const diff = (pa[i] ?? 0) - (pb[i] ?? 0)
+    if (diff !== 0) return diff
+  }
+  return 0
+}
 
 /**
  * Which of a character's pins actually resolve, and why not when they don't.
@@ -49,19 +68,32 @@ export type PinState =
  * Skipping an unmatched pin is right for resolution and wrong for the person
  * holding the sheet: the cached snapshots on each entry keep rendering (that is
  * their job, see CLAUDE.md Hard Rule 2), so nothing looks broken while every
- * `ref` has quietly stopped pointing anywhere. The two failures need different
- * things from the reader, which is why they are different states rather than
- * one "unresolved".
+ * `ref` has quietly stopped pointing anywhere. The three non-ok cases need
+ * different things from the reader, which is why they are separate states.
+ *
+ * `outdated` is the quiet one and was missing at first: a pin that resolves
+ * perfectly while a newer version of the same pack sits beside it. Nothing is
+ * broken, so nothing complained, and importing an updated pack appeared to do
+ * nothing at all. Pins are version-exact by design (Hard Rule 7 -- pack content
+ * never reaches a character on its own), so the offer has to be visible or the
+ * upgrade never happens.
  */
 export function pinStates(installed: RulesPack[], pins: PackPin[]): PinState[] {
   return pins.map((pin) => {
     const available = installed.filter((p) => p.packId === pin.packId).map((p) => p.version)
-    if (available.includes(pin.version)) return { pin, state: 'ok' }
+    if (available.includes(pin.version)) {
+      const newer = available.filter((v) => compareVersions(v, pin.version) > 0)
+      return newer.length > 0 ? { pin, state: 'outdated', newer } : { pin, state: 'ok' }
+    }
     if (available.length > 0) return { pin, state: 'version-mismatch', available }
     return { pin, state: 'missing' }
   })
 }
 
-/** The pins a caller should complain about. */
+/** Every pin worth showing the reader: broken ones, and ones with an upgrade waiting. */
 export const unresolvedPins = (installed: RulesPack[], pins: PackPin[]) =>
   pinStates(installed, pins).filter((s) => s.state !== 'ok')
+
+/** Only the pins that actually resolve to nothing. */
+export const brokenPins = (installed: RulesPack[], pins: PackPin[]) =>
+  pinStates(installed, pins).filter((s) => s.state === 'missing' || s.state === 'version-mismatch')
