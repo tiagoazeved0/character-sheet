@@ -25,6 +25,38 @@ export function LevelUp({ character: c, onClose }: { character: Character; onClo
   const [targetLevel, setTargetLevel] = useState((classInfo?.level ?? 1) + 1)
   const [choiceSel, setChoiceSel] = useState<Record<string, string>>({})
 
+  const currentLevel = classInfo?.level ?? 0
+  const baseGrants = classDef
+    ? grantsForLevelRange(classDef, classInfo?.subclassId, currentLevel, targetLevel)
+    : { features: [], choices: [] }
+  const subclassChoice = baseGrants.choices.find((ch) => ch.kind === 'subclass')
+  const newSubclassId = subclassChoice ? (choiceSel[subclassChoice.id] ?? classInfo?.subclassId) : classInfo?.subclassId
+
+  // Every hook has to run on the unresolved render too. classDef appears and
+  // disappears as packs load, get removed or get repinned, and a hook placed
+  // after the early return below changes the hook count between those renders.
+  const featureIds = useMemo(
+    () => (classDef ? grantsForLevelRange(classDef, newSubclassId, currentLevel, targetLevel).features : []),
+    [classDef, newSubclassId, currentLevel, targetLevel],
+  )
+
+  /**
+   * What this level-up will do to the resources it governs -- hit dice, plus
+   * whatever pools the class table defines. Rows that do not move are listed
+   * rather than hidden: "Moxie stays at 2 from level 2 to 3" is a real answer,
+   * and showing nothing instead reads as the feature being broken.
+   */
+  const poolPreview = useMemo(() => {
+    if (!classDef) return []
+    const governed = new Set(['hit-dice', ...(classDef.pools ?? []).map((p) => p.id)])
+    return mergePools(
+      c.resources.map((r) => (r.id === 'hit-dice' ? { ...r, max: targetLevel } : r)),
+      poolsAtLevel(classDef, targetLevel),
+    )
+      .filter((r) => governed.has(r.id))
+      .map((r) => ({ id: r.id, name: r.name, before: c.resources.find((x) => x.id === r.id)?.max ?? null, after: r.max }))
+  }, [classDef, c.resources, targetLevel])
+
   if (!classInfo || !classDef) {
     // "Isn't installed" was the message for both failures, and it is wrong the
     // moment a pack is upgraded underneath a character -- the file is right
@@ -53,13 +85,6 @@ export function LevelUp({ character: c, onClose }: { character: Character; onClo
   }
 
   const packId = classInfo.classRef.split(':')[0]!
-  const baseGrants = grantsForLevelRange(classDef, classInfo.subclassId, classInfo.level, targetLevel)
-  const subclassChoice = baseGrants.choices.find((ch) => ch.kind === 'subclass')
-  const newSubclassId = subclassChoice ? (choiceSel[subclassChoice.id] ?? classInfo.subclassId) : classInfo.subclassId
-  const featureIds = useMemo(
-    () => grantsForLevelRange(classDef, newSubclassId, classInfo.level, targetLevel).features,
-    [classDef, newSubclassId, classInfo.level, targetLevel],
-  )
 
   const canApply = targetLevel > classInfo.level && targetLevel <= 20 && baseGrants.choices.every((ch) => choiceSel[ch.id])
 
@@ -105,6 +130,22 @@ export function LevelUp({ character: c, onClose }: { character: Character; onClo
             <div className="card side-card">
               <span className="panel-title">New features</span>
               <p style={{ fontSize: '0.8125rem', margin: 0 }}>{baseGrants.features.join(', ')}</p>
+            </div>
+          )}
+
+          {poolPreview.length > 0 && (
+            <div className="card side-card">
+              <span className="panel-title">Resources at level {targetLevel}</span>
+              {poolPreview.map((p) => (
+                <p key={p.id} style={{ fontSize: '0.8125rem', margin: 0 }}>
+                  {p.name}{' '}
+                  {p.before === null
+                    ? <strong>new, {p.after}</strong>
+                    : p.before === p.after
+                      ? <span className="muted">{p.after}, unchanged</span>
+                      : <strong>{p.before} &rarr; {p.after}</strong>}
+                </p>
+              ))}
             </div>
           )}
 
