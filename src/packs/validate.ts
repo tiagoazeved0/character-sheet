@@ -57,3 +57,9 @@ export function validatePackImport(raw: unknown): PackImportResult {
 
   return { pack: { ...shell.data, content }, errors }
 }
+
+/** The mirror of `looksLikeCharacter`: which of the two importers a file wanted. */
+export const looksLikeRulesPack = (raw: unknown): boolean =>
+  typeof raw === 'object' && raw !== null &&
+  typeof (raw as { packId?: unknown }).packId === 'string' &&
+  typeof (raw as { content?: unknown }).content === 'object'

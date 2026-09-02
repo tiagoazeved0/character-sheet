@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import { unresolvedPins } from '../packs/resolver.ts'
+import { looksLikeRulesPack } from '../packs/validate.ts'
+import { looksLikeCharacter } from '../rules/schema.ts'
 import { useCharacters } from '../store/character.ts'
 import { useSession, type Layout } from '../store/session.ts'
 import { isConfigured, useSync } from '../store/sync.ts'
@@ -89,6 +91,10 @@ export function Editor({
             <label className="btn ghost" style={{ display: 'inline-flex', alignItems: 'center' }}>
               Import
               <input type="file" accept="application/json" hidden onChange={(e) => importJson(e, (raw) => {
+                if (looksLikeRulesPack(raw)) {
+                  setError(`That is a rules pack (${(raw as { packId: string }).packId}), not a character. Use "Import pack" further down.`)
+                  return
+                }
                 const result = replaceActive(raw)
                 if (!result.ok) setError(result.error)
               })} />
@@ -164,6 +170,10 @@ export function Editor({
                 Import pack
                 <input type="file" accept="application/json" hidden onChange={(e) => importJson(e, (raw) => {
                   if (raw === null) { setError('Pack import: invalid JSON'); return }
+                  if (looksLikeCharacter(raw)) {
+                    setError(`That is a character (${(raw as { name: string }).name}), not a rules pack. Use "Import" at the top.`)
+                    return
+                  }
                   const result = installPack(raw)
                   if (result.errors.length === 0) setError(null)
                   else setError(`Pack import: ${result.errors.length} ${result.ok ? 'entries skipped' : 'error(s)'} -- ${result.errors.join('; ')}`)

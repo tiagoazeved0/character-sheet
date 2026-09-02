@@ -159,3 +159,14 @@ export const changeSchema = z.object({
 
 export type CharacterInput = z.infer<typeof characterSchema>
 export type Change = z.infer<typeof changeSchema>
+
+/**
+ * A shape sniff, not validation -- enough to tell a misdirected import apart
+ * from a broken one. `migrate()` already refuses anything that isn't a
+ * character, but "No migration from schema version 0" describes the machinery
+ * rather than the mistake, and the mistake is nearly always the wrong file.
+ */
+export const looksLikeCharacter = (raw: unknown): boolean =>
+  typeof raw === 'object' && raw !== null &&
+  typeof (raw as { name?: unknown }).name === 'string' &&
+  typeof (raw as { scores?: unknown }).scores === 'object'

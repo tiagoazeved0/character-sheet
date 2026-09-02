@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { validatePackImport } from './validate.ts'
+import { looksLikeRulesPack, validatePackImport } from './validate.ts'
+import { looksLikeCharacter } from '../rules/schema.ts'
 
 const shell = { packId: 'homebrew-pugilist', version: '1.0.0', title: 'Pugilist', edition: 'custom' as const, license: 'Homebrew' }
 
@@ -40,5 +41,24 @@ describe('validatePackImport', () => {
     expect(pack?.content.features[0]?.id).toBe('fisticuffs')
     expect(errors.length).toBeGreaterThan(0)
     expect(errors[0]).toMatch(/^content\.features\[1\]/)
+  })
+})
+
+describe('looksLikeRulesPack / looksLikeCharacter', () => {
+  const packFile = { packId: 'phb-2024', version: '4.0.0', title: 'PHB', edition: '2024', license: 'x', content: {} }
+  const characterFile = { schemaVersion: 6, name: 'Damiana', scores: { str: 17 }, packs: [] }
+
+  it('tells the two importable files apart', () => {
+    expect(looksLikeRulesPack(packFile)).toBe(true)
+    expect(looksLikeRulesPack(characterFile)).toBe(false)
+    expect(looksLikeCharacter(characterFile)).toBe(true)
+    expect(looksLikeCharacter(packFile)).toBe(false)
+  })
+
+  it('claims nothing about junk, so a broken file still gets the real error', () => {
+    for (const junk of [null, undefined, 42, 'x', [], {}, { packId: 'a' }, { name: 'b' }]) {
+      expect(looksLikeRulesPack(junk)).toBe(false)
+      expect(looksLikeCharacter(junk)).toBe(false)
+    }
   })
 })
