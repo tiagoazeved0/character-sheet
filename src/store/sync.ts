@@ -130,6 +130,12 @@ export const useSync = create<Store>((set, get) => {
       if (typeof window !== 'undefined') {
         window.addEventListener('online', () => { recompute(); schedule() })
         window.addEventListener('offline', recompute)
+        // Pushes are debounced and automatic; pulls were not, so a device left
+        // open never learned what the other one did. Coming back to the tablet
+        // is the moment you want it current, and pull() no-ops when signed out.
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') void get().pull()
+        })
       }
       recompute()
       if (data.session) {
@@ -281,6 +287,7 @@ export const useSync = create<Store>((set, get) => {
       const { data, error } = await supabase.from('characters').select('id, rev, updated_at, data')
       if (error || !data) return
       const deleting = new Set(get().queue.filter((p) => p.kind === 'delete').map((p) => p.id))
+      let adopted = false
       for (const row of data) {
         if (deleting.has(row.id)) continue
         const local = await dbGet<Character>('characters', row.id).catch(() => undefined)
@@ -293,6 +300,16 @@ export const useSync = create<Store>((set, get) => {
         if (!parsed.ok) continue
         await dbPut('characters', parsed.character, row.id)
         await dbPut('sync_meta', { characterId: row.id, rev: row.rev, pushedAt: parsed.character.updatedAt }, row.id)
+        adopted = true
+      }
+
+      // IndexedDB is not the screen. Without this a first sign-in writes the
+      // character and keeps showing the old list until the page is reloaded --
+      // which is exactly how this was found. The import is dynamic because
+      // character.ts imports this module, and a static one would be a cycle.
+      if (adopted) {
+        const { useCharacters } = await import('./character.ts')
+        await useCharacters.getState().load()
       }
     },
 

@@ -212,10 +212,13 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   (it would feed `CompanionEntry`, which already exists) or the pack is carrying dead weight.
 - Bundled condition and spell text is paraphrased placeholder, not SRD text yet. The condition
   *list* is complete: all fifteen plus six exhaustion levels, plus Bless and Bane.
-- **Sync is built but not switched on.** `supabase/README.md` has the five setup steps; until the
-  two `VITE_SUPABASE_*` values exist the app is local-only, the indicator says "This device only",
-  and the Supabase client is never even downloaded (dynamic import, so Vite splits it out). It has
-  not been exercised against a real project yet — only the pure logic is tested.
+- **Sync is on and proven** against a real project, laptop and tablet, on 2026-09-02: a deliberate
+  offline divergence raised the conflict modal, the chosen side propagated, and neither side was
+  merged. Unconfigured is still a supported state — without the two `VITE_SUPABASE_*` values the
+  app is local-only, says "This device only", and never downloads the client. What the first real
+  use exposed and this session did *not* fix: a device only pulls at load and on becoming visible,
+  so two devices open side by side still lag each other by a tab switch, and there is no realtime
+  subscription. Push stays debounced at 1.5s.
 - Combat mode is only as good as the tagging. An entry with no `lane` lands in the Action lane, and
   `lane` / `requires` / `favoredWhen` are set by hand in the JSON editor — nothing in the pack
   pipeline emits them yet, so a freshly created character opens combat mode with everything in one
@@ -278,15 +281,21 @@ lives and what "done" looks like. Read `PLAN.md` before the structural ones (2 a
 Combat mode was phase 7 and is now built; what is left of it is content, not code — tagging a real
 character's entries with `lane` and `requires` in the editor.
 
-### 1. Finish phase 4 — turn sync on · *setup, then one real test*
+### 1. Stale pack pins fail silently · *a live character is already wrong*
 
-The code is written and the pure half is tested; none of it has ever spoken to a real server. What
-is left is the five steps in `supabase/README.md` (project, `schema.sql`, GitHub OAuth app, the two
-build secrets, the two keepalive secrets), which need your account and are yours to do. Then the
-test that actually matters: **edit the same character on both devices with one of them offline, and
-check the conflict modal appears and neither side is silently merged.** Until that runs, treat
-`src/store/sync.ts` as unproven — `outbox.ts` is the tested part, `sync.ts` is the I/O around it.
-Done when two devices agree and a deliberate conflict is survivable.
+`resolvePacks()` keys installed packs by `packId@version` and skips any pin it cannot match, on the
+stated grounds that "the caller decides how to surface a missing pack". No caller does. Damiana pins
+`phb-2024@0.1.0` against an installed 4.0.0, so her `raceRef`, `backgroundRef` and three feature
+`ref`s resolve to nothing: the sheet looks right because the cached snapshot is doing its job (that
+is the design, see Hard Rule 2), but "Update from pack" finds nothing and no screen says why.
+
+Have `resolvePacks()` report unmatched pins, separating *not installed at all* from *installed at a
+different version* — only the second is one click from correct. Surface it in the Editor's Packs
+section with a Repin action through `apply()` on the `edit` channel, so it lands in History and
+reverts. Repinning must change `packs[]` only and never touch the cached snapshots; refreshing text
+stays the per-feature "Update from pack" button, per Hard Rule 7. While there, `LevelUp.tsx` says
+"This class's pack isn't installed" for both cases, which is one version bump from being a lie.
+Done when a version mismatch is visible and fixable without hand-editing JSON.
 
 ### 2. Auto-wire resource pools from `ClassDef` · *closes the wizard's biggest gap*
 
@@ -324,6 +333,9 @@ transcribed and cross-checked (`PLAN.md` §11). **Do not fabricate content to fi
 
 ### Small and self-contained
 
+- **Sync pulls only at load and on becoming visible.** Push is debounced and automatic; pull is not
+  scheduled at all. Two devices open side by side lag each other until one is tabbed away and back.
+  A Supabase realtime subscription on `characters` is the real fix; an interval is the cheap one.
 - **`damageLabel()` for the spell and inventory rows.** Both still build their dice label inline, so
   a flat-damage spell reads `0d6+2`. `derive.ts` already has the fix; only the action row uses it.
 - **Real SRD text for conditions and spells.** `src/data/conditions.ts` is paraphrased placeholder.

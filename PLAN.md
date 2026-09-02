@@ -448,7 +448,7 @@ Rules packs cache in IndexedDB, so a pack is available offline once imported.
 | 1 | `apply()` dispatch layer, `src/rules/` ported and tested, Zod schemas, history journal | no | done |
 | 2 | Full sheet UI on a fixture character, local persistence, responsive + touch pass | **yes**, one device | done |
 | 3 | Pack resolver, packs, pack import/export UI, character switcher, blank-slate creation | yes | done -- `src/packs/`, resolver, validator, level engine, two real packs (`homebrew-pugilist`, `phb-2024`, kept out of git per Hard Rule 5) |
-| 4 | Supabase auth, sync, conflict prompt, keepalive cron | **yes, both devices** | built, not switched on -- `src/store/outbox.ts` (pure, tested) + `src/store/sync.ts`, DDL in `supabase/schema.sql`, setup in `supabase/README.md`. Untested against a real project |
+| 4 | Supabase auth, sync, conflict prompt, keepalive cron | **yes, both devices** | done -- `src/store/outbox.ts` (pure, tested) + `src/store/sync.ts`, DDL in `supabase/schema.sql`, setup in `supabase/README.md`. Switched on and exercised across two real devices on 2026-09-02, conflict included |
 | 5 | History tab with per-field revert | yes | partial -- channel filter only, no field filter/jump-to-date/visual batch collapse yet |
 | 6 | Class tables in packs → guided creation and level-up, sharing one choice-rendering layer | yes | done -- `CreateCharacter.tsx` + `LevelUp.tsx` share `ChoicePicker.tsx` and `src/packs/levelup.ts`; known gaps: AC/HP defaults, resource-pool auto-wiring (see `CLAUDE.md`) |
 | 7 | Combat mode, lanes driven by tagged actions | yes | done -- `Combat.tsx` over `src/rules/combat.ts`; `requires` added to `ActionEntry`/`SpellEntry` |
