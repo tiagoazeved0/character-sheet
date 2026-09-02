@@ -227,6 +227,16 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   behind until it is repinned. The Editor's Rules packs section now names an unresolved pin and
   offers Repin, and `pinStates()` in `src/packs/resolver.ts` separates *wrong version* from *not
   installed*, but nothing repins automatically — that would be Hard Rule 7 in reverse.
+- **A removed pack comes back.** `usePacks.remove()` deletes from memory and IndexedDB and tells
+  sync nothing, so the row survives on the server and `pullPacks()` reinstalls it on the next pull
+  — page load or tab focus. Harmless before pack pulling existed on 2026-09-02; a real hole since.
+  The character half already does this properly: `removeCharacter()` calls `queueDelete()`.
+- **A pack import silently drops fields the build doesn't understand.** `classDefSchema` and friends
+  are plain `z.object`, and Zod strips unknown keys, so `validatePackImport()` reports **zero
+  errors** while discarding them. This bit for real: `homebrew-pugilist` 1.1.0 imported into a build
+  predating `ClassDef.pools` installed cleanly and silently without its Moxie column, and stayed
+  that way — `pullPacks()` skips a `packId@version` already held, so nothing ever corrects it.
+  Re-importing on a newer build is the only cure, and nothing in the app hints that it is needed.
 - **`phb-2024.json` carries 51 `monsters` and the importer silently drops them.** `RulesPack`
   has eight content kinds and `monsters` is not one, so `validatePackImport()` — which builds
   `content` from that fixed list — never reads the key and reports no error. Either add the kind
@@ -297,12 +307,31 @@ Stat blocks are added and edited through the JSON editor, like every other entry
 ## Next work
 
 Ordered by what unblocks the most, but they are independent — pick any one cold. Each says where it
-lives and what "done" looks like. Read `PLAN.md` before the structural ones (1 and 2).
+lives and what "done" looks like. Read `PLAN.md` before the structural ones (3 and 4).
 
 Combat mode was phase 7 and is now built; what is left of it is content, not code — tagging a real
 character's entries with `lane` and `requires` in the editor.
 
-### 1. Let a `ClassDef` override AC and starting HP · *the sibling of the pools work*
+### 1. Make a pack deletion leave the device · *a regression from 2026-09-02*
+
+`usePacks.remove()` never tells sync, so the server keeps the row and `pullPacks()` puts the pack
+straight back. Packs cannot be removed from a synced set at all. Mirror what characters already do:
+a `queuePackDelete` on the store, a `PendingPackDelete` in `src/store/outbox.ts`, a delete branch in
+`flush()` against `rules_packs` keyed on `pack_id` + `version`. Watch the ordering — `pullPacks()`
+must skip anything sitting in the queue as a delete, exactly as `pull()` already does for characters
+via its `deleting` set, or the pull races the push and resurrects it anyway. Done when removing a
+pack on one device removes it on both and it stays gone after a reload.
+
+### 2. Say when an import dropped something · *silent data loss, found the hard way*
+
+`validatePackImport()` returns zero errors while Zod strips every key the schema doesn't declare.
+A pack imported into an older build is quietly a different pack from the file on disk, forever.
+Compare the raw entry's keys against the parsed result and report the difference the same way
+per-entry errors are reported — it does not need to reject anything, just say "3 fields ignored:
+pools". Cheap, and it turns an invisible failure into a line of text. `src/packs/validate.ts`, and
+`validate.test.ts` already has the fixtures.
+
+### 3. Let a `ClassDef` override AC and starting HP · *the sibling of the pools work*
 
 Pools now come off the class table; AC and HP still don't. The wizard falls back to 10+DEX and
 average-per-level because `ClassDef` cannot say "Iron Chin: AC 12+CON", so every Pugilist is created
@@ -311,19 +340,19 @@ one: the honest options are a small named set of AC formulas (`unarmoured: { bas
 `%MOD:con%`-style token, and **not** an expression evaluator — Hard Rule 6 exists for the same
 reason here as for `%DC%`. Done when creating a Pugilist gives AC 12+CON without editing.
 
-### 2. Phase 5 — history polish · *self-contained, data already exists*
+### 4. Phase 5 — history polish · *self-contained, data already exists*
 
 `History.tsx` filters by channel only. The journal already supports filter-by-field, jump-to-date
 and batch grouping — this is UI over data that is already there, no schema or store work. Done when
 you can find "when did AC change" without scrolling.
 
-### 3. Dice panel in the stacked layout · *small, real table annoyance*
+### 5. Dice panel in the stacked layout · *small, real table annoyance*
 
 In portrait the side rail sorts last, so the most-used control on the sheet sits at the bottom of a
 long scroll. `PLAN.md` §8 recommends a sticky bottom sheet collapsed to the last roll's total. A
 deliberate deviation from the handoff, and worth it.
 
-### 4. Teach the importer about monsters · *the pack already has 51 of them*
+### 6. Teach the importer about monsters · *the pack already has 51 of them*
 
 `phb-2024.json` carries a `monsters` array that `validatePackImport()` never looks at, because
 `RulesPack['content']` has eight kinds and this is not one. Adding it means a `MonsterDef` in
