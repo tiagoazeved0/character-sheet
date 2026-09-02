@@ -206,6 +206,10 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   fields, correct them after creation for a class like Pugilist (Iron Chin: 12+CON).
 - Resource pools beyond hit dice (e.g. Pugilist's Moxie Points) aren't auto-wired by the wizard —
   `ClassDef` doesn't carry pool-by-level data yet. Add them by hand via the Editor after creation.
+- Rules packs sync in both directions as of 2026-09-02, but only because a second device proved
+  they did not: `rules_packs` was push-only, and packs installed before sync was switched on were
+  never queued at all (`queuePack()` returns early when nothing is owed). A device that signed in
+  fresh got characters, no packs, and every pin reading "Not installed".
 - Pack pins are version-exact and that is deliberate, so a pack upgrade leaves every character
   behind until it is repinned. The Editor's Rules packs section now names an unresolved pin and
   offers Repin, and `pinStates()` in `src/packs/resolver.ts` separates *wrong version* from *not

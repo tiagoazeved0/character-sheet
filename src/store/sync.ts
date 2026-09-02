@@ -3,6 +3,8 @@ import type { SupabaseClient, Session } from '@supabase/supabase-js'
 import type { Character } from '../rules/types.ts'
 import type { Change } from '../rules/schema.ts'
 import { migrate } from '../rules/migrations.ts'
+import { validatePackImport } from '../packs/validate.ts'
+import type { RulesPack } from '../packs/types.ts'
 import { dbAll, dbGet, dbPut, dbDelete } from './db.ts'
 import {
   changeRow, characterRow, dequeue, enqueue, pendingKey, resolveConflict, statusFor,
@@ -94,6 +96,57 @@ export const useSync = create<Store>((set, get) => {
     timer = setTimeout(() => { void get().flush() }, PUSH_DEBOUNCE_MS)
   }
 
+  /**
+   * Packs were push-only. Every device uploaded its own and received none, so a
+   * second device had characters whose pins resolved to nothing and no way to
+   * fix it -- the wizard, level-up, "Update from pack" and the repin button all
+   * dead, with "No rules packs installed" as the only clue. A pack is immutable
+   * for a given version (the primary key includes it), so anything not already
+   * held is simply taken; nothing here can overwrite a local pack.
+   */
+  const pullPacks = async (supabase: SupabaseClient) => {
+    // Ids first, bodies only for what is missing. pull() now runs on every tab
+    // focus and phb-2024 is a megabyte; selecting `data` up front would re-download
+    // every pack every time the tablet came back to the foreground.
+    const { data: rows, error } = await supabase.from('rules_packs').select('pack_id, version')
+    if (error || !rows) return
+    let installed = false
+    for (const row of rows) {
+      const id = `${row.pack_id}@${row.version}`
+      if (await dbGet('rules_packs', id).catch(() => undefined)) continue
+      const { data, error: bodyError } = await supabase.from('rules_packs')
+        .select('data').eq('pack_id', row.pack_id).eq('version', row.version).single()
+      if (bodyError || !data) continue
+      // Revalidated rather than trusted: the row may have been written by an
+      // older build, and validatePackImport drops bad entries instead of the pack.
+      const { pack } = validatePackImport(data.data)
+      if (!pack) continue
+      await dbPut('rules_packs', pack, id)
+      installed = true
+    }
+    if (installed) {
+      const { usePacks } = await import('./packs.ts')
+      await usePacks.getState().load()
+    }
+  }
+
+  /**
+   * Packs installed before sync was switched on were never queued: queuePack()
+   * starts with `if (!owed()) return`, and nothing was owed while the app was
+   * local-only. So the server had no packs at all, and pullPacks() above would
+   * have faithfully delivered nothing. Compares ids rather than re-uploading, so
+   * this costs one small select per sign-in instead of a megabyte.
+   */
+  const backfillPacks = async (supabase: SupabaseClient) => {
+    const { data, error } = await supabase.from('rules_packs').select('pack_id, version')
+    if (error || !data) return
+    const remote = new Set(data.map((r) => `${r.pack_id}@${r.version}`))
+    const locals = await dbAll<RulesPack>('rules_packs').catch(() => [])
+    for (const p of locals) {
+      if (!remote.has(`${p.packId}@${p.version}`)) get().queuePack(p.packId, p.version)
+    }
+  }
+
   /** Characters the server has never seen: everything made before sync was turned on. */
   const backfill = async () => {
     const locals = await dbAll<Character>('characters').catch(() => [])
@@ -141,6 +194,7 @@ export const useSync = create<Store>((set, get) => {
       if (data.session) {
         await get().pull()
         await backfill()
+        await backfillPacks(supabase)
         schedule()
       }
     },
@@ -311,6 +365,8 @@ export const useSync = create<Store>((set, get) => {
         const { useCharacters } = await import('./character.ts')
         await useCharacters.getState().load()
       }
+
+      await pullPacks(supabase)
     },
 
     async resolve(characterId, choice) {
