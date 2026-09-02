@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolvePacks } from './resolver.ts'
+import { pinStates, resolvePacks, unresolvedPins } from './resolver.ts'
 import type { RulesPack } from './types.ts'
 
 const emptyContent = { spells: [], conditions: [], classes: [], races: [], backgrounds: [], feats: [], items: [], features: [] }
@@ -54,5 +54,49 @@ describe('resolvePacks', () => {
   it('silently skips a pin with no matching installed pack', () => {
     const index = resolvePacks([], [{ packId: 'missing', version: '1.0.0' }])
     expect(index.size).toBe(0)
+  })
+})
+
+describe('pinStates', () => {
+  const phb = (version: string) => pack({ packId: 'phb-2024', version })
+
+  it('reports a pin that matches an installed pack as ok', () => {
+    expect(pinStates([phb('4.0.0')], [{ packId: 'phb-2024', version: '4.0.0' }]))
+      .toEqual([{ pin: { packId: 'phb-2024', version: '4.0.0' }, state: 'ok' }])
+  })
+
+  it('separates a wrong version from an absent pack', () => {
+    const installed = [phb('4.0.0')]
+    const pins = [{ packId: 'phb-2024', version: '0.1.0' }, { packId: 'homebrew-pugilist', version: '1.0.0' }]
+    expect(pinStates(installed, pins)).toEqual([
+      { pin: pins[0], state: 'version-mismatch', available: ['4.0.0'] },
+      { pin: pins[1], state: 'missing' },
+    ])
+  })
+
+  it('offers every installed version as a repin target', () => {
+    const states = pinStates([phb('2.0.0'), phb('4.0.0')], [{ packId: 'phb-2024', version: '0.1.0' }])
+    expect(states[0]).toMatchObject({ state: 'version-mismatch', available: ['2.0.0', '4.0.0'] })
+  })
+
+  it('unresolvedPins keeps only what the reader has to act on', () => {
+    const installed = [phb('4.0.0'), pack({ packId: 'homebrew-pugilist', version: '1.0.0' })]
+    const pins = [
+      { packId: 'homebrew-pugilist', version: '1.0.0' },
+      { packId: 'phb-2024', version: '0.1.0' },
+    ]
+    expect(unresolvedPins(installed, pins).map((s) => s.pin.packId)).toEqual(['phb-2024'])
+  })
+
+  // The case that started this: the sheet renders correctly off its cached
+  // snapshots while every ref into the pack has stopped resolving.
+  it('a stale pin resolves nothing even though the pack is installed', () => {
+    const installed = [pack({
+      packId: 'phb-2024', version: '4.0.0',
+      content: { ...emptyContent, feats: [{ id: 'tavern-brawler', name: 'Tavern Brawler', desc: 'x' }] },
+    })]
+    const pins = [{ packId: 'phb-2024', version: '0.1.0' }]
+    expect(resolvePacks(installed, pins).get('phb-2024:feats/tavern-brawler')).toBeUndefined()
+    expect(pinStates(installed, pins)[0]).toMatchObject({ state: 'version-mismatch' })
   })
 })

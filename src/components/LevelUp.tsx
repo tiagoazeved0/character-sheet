@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { usePacks } from '../store/packs.ts'
 import { useCharacters } from '../store/character.ts'
 import { suggestedProficiency } from '../data/blank.ts'
-import { resolvePacks } from '../packs/resolver.ts'
+import { pinStates, resolvePacks } from '../packs/resolver.ts'
 import { grantsForLevelRange } from '../packs/levelup.ts'
 import type { Character, FeatureEntry } from '../rules/types.ts'
 import type { ClassDef } from '../packs/types.ts'
@@ -26,6 +26,17 @@ export function LevelUp({ character: c, onClose }: { character: Character; onClo
   const [choiceSel, setChoiceSel] = useState<Record<string, string>>({})
 
   if (!classInfo || !classDef) {
+    // "Isn't installed" was the message for both failures, and it is wrong the
+    // moment a pack is upgraded underneath a character -- the file is right
+    // there, and the fix is a repin rather than a hunt for a missing download.
+    const pinned = classInfo && pinStates(installed, c.packs)
+      .find((s) => s.pin.packId === classInfo.classRef.split(':')[0])
+    const unresolvedReason = !classInfo
+      ? 'This character wasn\'t built from a pack -- nothing to level up automatically.'
+      : pinned?.state === 'version-mismatch'
+        ? `This character pins ${pinned.pin.packId} ${pinned.pin.version}, but ${pinned.available.join(', ')} is installed. Repin it under Rules packs in the editor.`
+        : 'This class\'s pack isn\'t installed, so its level table can\'t be resolved.'
+
     return (
       <div className="overlay" onClick={onClose}>
         <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -34,9 +45,7 @@ export function LevelUp({ character: c, onClose }: { character: Character; onClo
             <button className="btn ghost" style={{ marginLeft: 'auto' }} onClick={onClose}>Close</button>
           </div>
           <div className="modal-body">
-            <p className="muted" style={{ fontSize: '0.8125rem' }}>
-              {classInfo ? 'This class\'s pack isn\'t installed, so its level table can\'t be resolved.' : 'This character wasn\'t built from a pack -- nothing to level up automatically.'}
-            </p>
+            <p className="muted" style={{ fontSize: '0.8125rem' }}>{unresolvedReason}</p>
           </div>
         </div>
       </div>

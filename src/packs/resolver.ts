@@ -15,8 +15,8 @@ const CATEGORIES = ['spells', 'conditions', 'classes', 'races', 'backgrounds', '
  * (last one in `pins` wins) or a later pack explicitly claims an earlier
  * pack's id. The latter (PLAN.md's `replaces`) isn't implemented: no pack
  * needs it yet, and it's cheap to add when one does. A pin with no matching
- * installed pack is silently skipped -- the caller decides how to surface a
- * missing pack, this function just resolves what it can.
+ * installed pack is silently skipped -- this function resolves what it can, and
+ * `pinStates()` below is how a caller finds out what it couldn't.
  */
 export function resolvePacks(installed: RulesPack[], pins: PackPin[]): Map<string, ResolvedEntry> {
   const byKey = new Map<string, RulesPack>()
@@ -35,3 +35,33 @@ export function resolvePacks(installed: RulesPack[], pins: PackPin[]): Map<strin
   }
   return index
 }
+
+export type PinState =
+  | { pin: PackPin; state: 'ok' }
+  /** Right pack, wrong version. One click from correct, because the file is already here. */
+  | { pin: PackPin; state: 'version-mismatch'; available: string[] }
+  /** No copy of this pack at all. Needs the file, not a decision. */
+  | { pin: PackPin; state: 'missing' }
+
+/**
+ * Which of a character's pins actually resolve, and why not when they don't.
+ *
+ * Skipping an unmatched pin is right for resolution and wrong for the person
+ * holding the sheet: the cached snapshots on each entry keep rendering (that is
+ * their job, see CLAUDE.md Hard Rule 2), so nothing looks broken while every
+ * `ref` has quietly stopped pointing anywhere. The two failures need different
+ * things from the reader, which is why they are different states rather than
+ * one "unresolved".
+ */
+export function pinStates(installed: RulesPack[], pins: PackPin[]): PinState[] {
+  return pins.map((pin) => {
+    const available = installed.filter((p) => p.packId === pin.packId).map((p) => p.version)
+    if (available.includes(pin.version)) return { pin, state: 'ok' }
+    if (available.length > 0) return { pin, state: 'version-mismatch', available }
+    return { pin, state: 'missing' }
+  })
+}
+
+/** The pins a caller should complain about. */
+export const unresolvedPins = (installed: RulesPack[], pins: PackPin[]) =>
+  pinStates(installed, pins).filter((s) => s.state !== 'ok')

@@ -1,4 +1,5 @@
-import { useEffect, useState, type ChangeEvent } from 'react'
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
+import { unresolvedPins } from '../packs/resolver.ts'
 import { useCharacters } from '../store/character.ts'
 import { useSession, type Layout } from '../store/session.ts'
 import { isConfigured, useSync } from '../store/sync.ts'
@@ -34,6 +35,21 @@ export function Editor({
   useEffect(() => {
     if (!dirty) setDraft(JSON.stringify(c, null, 2))
   }, [c, dirty])
+
+  const pinProblems = useMemo(() => unresolvedPins(packs, c.packs), [packs, c.packs])
+
+  /**
+   * Only `packs[]` changes. The cached snapshots on each entry are left exactly
+   * as they are -- pack content updates a character through FeatureRow's
+   * "Update from pack" and nowhere else (Hard Rule 7), so repinning restores
+   * what `ref` points at without rewriting a word of the sheet.
+   */
+  const repin = (packId: string, to: string) =>
+    apply({
+      label: `Repin ${packId} to ${to}`,
+      channel: 'edit',
+      mutate: (d) => ({ ...d, packs: d.packs.map((p) => (p.packId === packId ? { ...p, version: to } : p)) }),
+    })
 
   const save = () => {
     let parsed: unknown
@@ -154,6 +170,32 @@ export function Editor({
                 })} />
               </label>
             </div>
+            {pinProblems.length > 0 && (
+              <div className="rows">
+                {pinProblems.map((s) => (
+                  <div key={s.pin.packId} className="card row" style={{ padding: '9px 12px' }}>
+                    <div className="row-top">
+                      <span className="row-title" style={{ fontSize: '0.875rem' }}>{s.pin.packId}</span>
+                      <span className="tag" style={{ color: 'var(--danger)' }}>pinned {s.pin.version}</span>
+                      {s.state === 'version-mismatch' && (
+                        <span style={{ marginLeft: 'auto', display: 'inline-flex', gap: 6, flexWrap: 'wrap' }}>
+                          {s.available.map((v) => (
+                            <button key={v} className="btn ghost" onClick={() => repin(s.pin.packId, v)}>
+                              Repin to {v}
+                            </button>
+                          ))}
+                        </span>
+                      )}
+                    </div>
+                    <div className="row-sub">
+                      {s.state === 'version-mismatch'
+                        ? `Installed: ${s.available.join(', ')}. Until this is repinned, every reference into ${s.pin.packId} resolves to nothing — the sheet still reads correctly from its stored copy, but "Update from pack" finds nothing to check against.`
+                        : `Not installed. Import the pack file to restore this character's references; the sheet itself keeps working from its stored copy meanwhile.`}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             {packs.length === 0 ? (
               <p className="muted" style={{ fontSize: '0.75rem' }}>No rules packs installed.</p>
             ) : (

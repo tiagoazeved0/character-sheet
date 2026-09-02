@@ -206,6 +206,10 @@ Stat blocks are added and edited through the JSON editor, like every other entry
   fields, correct them after creation for a class like Pugilist (Iron Chin: 12+CON).
 - Resource pools beyond hit dice (e.g. Pugilist's Moxie Points) aren't auto-wired by the wizard —
   `ClassDef` doesn't carry pool-by-level data yet. Add them by hand via the Editor after creation.
+- Pack pins are version-exact and that is deliberate, so a pack upgrade leaves every character
+  behind until it is repinned. The Editor's Rules packs section now names an unresolved pin and
+  offers Repin, and `pinStates()` in `src/packs/resolver.ts` separates *wrong version* from *not
+  installed*, but nothing repins automatically — that would be Hard Rule 7 in reverse.
 - **`phb-2024.json` carries 51 `monsters` and the importer silently drops them.** `RulesPack`
   has eight content kinds and `monsters` is not one, so `validatePackImport()` — which builds
   `content` from that fixed list — never reads the key and reports no error. Either add the kind
@@ -276,28 +280,12 @@ Stat blocks are added and edited through the JSON editor, like every other entry
 ## Next work
 
 Ordered by what unblocks the most, but they are independent — pick any one cold. Each says where it
-lives and what "done" looks like. Read `PLAN.md` before the structural ones (2 and 3).
+lives and what "done" looks like. Read `PLAN.md` before the structural ones (1 and 2).
 
 Combat mode was phase 7 and is now built; what is left of it is content, not code — tagging a real
 character's entries with `lane` and `requires` in the editor.
 
-### 1. Stale pack pins fail silently · *a live character is already wrong*
-
-`resolvePacks()` keys installed packs by `packId@version` and skips any pin it cannot match, on the
-stated grounds that "the caller decides how to surface a missing pack". No caller does. Damiana pins
-`phb-2024@0.1.0` against an installed 4.0.0, so her `raceRef`, `backgroundRef` and three feature
-`ref`s resolve to nothing: the sheet looks right because the cached snapshot is doing its job (that
-is the design, see Hard Rule 2), but "Update from pack" finds nothing and no screen says why.
-
-Have `resolvePacks()` report unmatched pins, separating *not installed at all* from *installed at a
-different version* — only the second is one click from correct. Surface it in the Editor's Packs
-section with a Repin action through `apply()` on the `edit` channel, so it lands in History and
-reverts. Repinning must change `packs[]` only and never touch the cached snapshots; refreshing text
-stays the per-feature "Update from pack" button, per Hard Rule 7. While there, `LevelUp.tsx` says
-"This class's pack isn't installed" for both cases, which is one version bump from being a lie.
-Done when a version mismatch is visible and fixable without hand-editing JSON.
-
-### 2. Auto-wire resource pools from `ClassDef` · *closes the wizard's biggest gap*
+### 1. Auto-wire resource pools from `ClassDef` · *closes the wizard's biggest gap*
 
 `ClassDef` has no pool-by-level table, so the wizard can only create hit dice — a Pugilist's Moxie
 Points have to be added by hand in the Editor after creation. Add the table to `src/packs/types.ts`
@@ -307,19 +295,19 @@ Note the sibling gap while you are there: AC and starting HP fall back to 10+DEX
 because `ClassDef` cannot say "Iron Chin: 12+CON" either. Done when creating a Pugilist gives a
 correct Moxie pool with no manual editing.
 
-### 3. Phase 5 — history polish · *self-contained, data already exists*
+### 2. Phase 5 — history polish · *self-contained, data already exists*
 
 `History.tsx` filters by channel only. The journal already supports filter-by-field, jump-to-date
 and batch grouping — this is UI over data that is already there, no schema or store work. Done when
 you can find "when did AC change" without scrolling.
 
-### 4. Dice panel in the stacked layout · *small, real table annoyance*
+### 3. Dice panel in the stacked layout · *small, real table annoyance*
 
 In portrait the side rail sorts last, so the most-used control on the sheet sits at the bottom of a
 long scroll. `PLAN.md` §8 recommends a sticky bottom sheet collapsed to the last roll's total. A
 deliberate deviation from the handoff, and worth it.
 
-### 5. Teach the importer about monsters · *the pack already has 51 of them*
+### 4. Teach the importer about monsters · *the pack already has 51 of them*
 
 `phb-2024.json` carries a `monsters` array that `validatePackImport()` never looks at, because
 `RulesPack['content']` has eight kinds and this is not one. Adding it means a `MonsterDef` in
